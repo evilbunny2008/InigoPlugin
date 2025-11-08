@@ -1,8 +1,8 @@
-# What is the Inigo Plugin?
+## What is the Inigo Plugin?
 
 The Inigo plugin for [weeWX](https://weeWX.com) was created to feed current conditions and past statistics from weeWX weather station software into the [weeWX Weather App](https://play.google.com/store/apps/details?id=com.odiousapps.weewxweather).
 
-### Preparing weeWX
+## Preparing weeWX
 
 Before you can use the app, you need to add this plugin to weeWX. To find out more about setting up and running weeWX, you can find more details on the [weeWX website](https://weewx.com/downloads/).
 
@@ -22,7 +22,7 @@ Need a new copy of Since.py, grab the extension again and reinstall it over the 
 
 So far everything seems to work fine under weeWX 5.x
 
-# How to Install the InigoPlugin
+## How to Install the InigoPlugin
 
 ### For imperial on weeWX 4.x or lower
 ```
