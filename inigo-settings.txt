@@ -1,0 +1,7 @@
+data=https://example.com/weewx/inigo-data.txt
+radtype=webpage
+radar=https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=radar&product=radar&level=surface&lat=-34&lon=151&message=false
+fctype=bom3
+forecast=r3gwbqz
+webcam=http://mx.cafesydney.com:8888/mjpg/video.mjpg
+custom=http://m.bom.gov.au/nsw/sydney/radar/

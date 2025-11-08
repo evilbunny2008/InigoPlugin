@@ -1,0 +1,8 @@
+How to install The easy way
+==========================
+
+Get hold of the release archive from github:   https://github.com/evilbunny2008/WeeWxWeatherApp/releases
+
+Use the weeWX extension installer:
+
+   sudo weectl extension install [wherever you've put the .tar.gz archive]
