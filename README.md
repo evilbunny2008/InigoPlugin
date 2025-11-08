@@ -53,6 +53,19 @@ If you would like to see moon rise/set in the app, you just need to install pyep
 sudo apt -y install python3-ephem
 ```
 
+### Installing xstats
+
+The InigoPlugin requires the WeeWX xstats extension.
+
+For pip installs:
+```
+weectl extension install ~/weewx-data/examples/xstats
+```
+For package installs:
+```
+sudo weectl extension install /usr/share/doc/weewx/examples/xstats
+```
+
 ### Using offset rain times (optional)
 
 Historically rainfall is measured in Australia at 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the [Bureau of Meteorology](https://www.bom.gov.au). To enable this simply edit /etc/weewx/since.tmpl and paste the following into it:
