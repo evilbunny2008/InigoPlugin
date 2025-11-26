@@ -26,23 +26,23 @@ So far everything seems to work fine under weeWX 5.x
 
 ### For imperial on weeWX 4.x or lower
 ```
-wget -O inigo-imperial.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.0/inigo-imperial.tar.gz
+wget -O inigo-imperial.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.1/inigo-imperial.tar.gz
 sudo wee_extension --install inigo-imperial.tar.gz
 ```
 For imperial on weeWX 5.x and above
 ```
-wget -O inigo-imperial.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.0/inigo-imperial.tar.gz
+wget -O inigo-imperial.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.1/inigo-imperial.tar.gz
 sudo weectl extension install inigo-imperial.tar.gz
 ```
 
 ### For metric on weeWX 4.x or lower
 ```
-wget -O inigo-metric.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.0/inigo-metric.tar.gz
+wget -O inigo-metric.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.1/inigo-metric.tar.gz
 sudo wee_extension --install inigo-metric.tar.gz
 ```
 For metric on weeWX 5.x or above
 ```
-wget -O inigo-metric.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.0/inigo-metric.tar.gz
+wget -O inigo-metric.tar.gz https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.1/inigo-metric.tar.gz
 sudo weectl extension install inigo-metric.tar.gz
 ```
 
