@@ -548,3 +548,9 @@ $last_month.UV.max.formatted|$last_month.UV.maxtime.format("%d%b%y %H:%M")|$last
 ## 286-289
 ||||#slurp
 #end if
+## 290-291
+#if $almanac.hasExtras
+$almanac.moon.next_rise.format("%H:%M %d")|$almanac.moon.next_set.format("%H:%M %d")|#slurp
+#else
+||#slurp
+#end if
