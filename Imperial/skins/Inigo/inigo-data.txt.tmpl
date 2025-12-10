@@ -554,3 +554,9 @@ $last_month.UV.max.formatted|$last_month.UV.maxtime.format("%d%b%y %H:%M")|$last
 #except Exception
 #echo '||'
 #end try
+## 292
+#if $current.windGust.has_data
+$current.windGust.ordinal_compass|#slurp
+#else
+|#slurp
+#end if
