@@ -1,6 +1,6 @@
 # installer for the inigo template
 #
-# 21st of Mar 2026
+# 22nd of Mar 2026
 
 from setup import ExtensionInstaller
 
@@ -10,7 +10,7 @@ def loader():
 class DataInstaller(ExtensionInstaller):
     def __init__(self):
         super(DataInstaller, self).__init__(
-            version="1.0.7",
+            version="1.0.8",
             name='Inigo',
             description='A skin to feed data to the weeWX Weather app',
             author="John Smith",
