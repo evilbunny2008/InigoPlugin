@@ -1,5 +1,5 @@
 How to install The easy way
 ==========================
 
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.3/inigo-metric.tar.gz
+wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.4/inigo-metric.tar.gz
 sudo weectl extension install inigo-metric.tar.gz

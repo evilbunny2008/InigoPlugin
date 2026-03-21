@@ -3,7 +3,7 @@
 #set $now=$current.dateTime.raw
 #set $dtnow=$current.dateTime
 ## Inigo plugin version
-1000003|#slurp
+1000004|#slurp
 ##0-5
 #if $current.outTemp.has_data
 $current.outTemp.formatted|$day.outTemp.min.formatted|$day.outTemp.mintime|$day.outTemp.max.formatted|$day.outTemp.maxtime|#slurp
@@ -567,6 +567,30 @@ $now|$dtnow|#slurp
 ## 296
 #if $hour(hours_ago=1).rain.has_data
 $hour(hours_ago=1).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 297
+#if $hour(hours_ago=3).rain.has_data
+$hour(hours_ago=3).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 298
+#if $hour(hours_ago=6).rain.has_data
+$hour(hours_ago=6).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 299
+#if $hour(hours_ago=12).rain.has_data
+$hour(hours_ago=12).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 300
+#if $hour(hours_ago=24).rain.has_data
+$hour(hours_ago=24).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
