@@ -24,6 +24,21 @@ So far everything seems to work fine under weeWX 5.x
 
 ## How to Install the InigoPlugin
 
+### For metric
+```
+wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.3/inigo-metric.tar.gz
+```
+
+#### On weeWX 4.x or lower
+```
+sudo wee_extension --install inigo-metric.tar.gz
+```
+
+#### On weeWX 5.x or above
+```
+sudo weectl extension install inigo-metric.tar.gz
+```
+
 ### For imperial
 
 Download the archive file
@@ -39,21 +54,6 @@ sudo wee_extension --install inigo-imperial.tar.gz
 #### On weeWX 5.x and above
 ```
 sudo weectl extension install inigo-imperial.tar.gz
-```
-
-### For metric
-```
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.3/inigo-metric.tar.gz
-```
-
-#### On weeWX 4.x or lower
-```
-sudo wee_extension --install inigo-metric.tar.gz
-```
-
-#### On weeWX 5.x or above
-```
-sudo weectl extension install inigo-metric.tar.gz
 ```
 
 ### Installing an Almanac (optional)
