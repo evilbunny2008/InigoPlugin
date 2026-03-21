@@ -1,6 +1,6 @@
 # installer for the inigo template.
 #
-# 4th of Jan 2023
+# 21st of Mar 2026
 
 from setup import ExtensionInstaller
 
