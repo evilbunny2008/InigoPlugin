@@ -1,6 +1,8 @@
-#set $now=$current.dateTime.raw
+#errorCatcher Echo
 #encoding UTF-8
-## Inigo version
+#set $now=$current.dateTime.raw
+#set $dtnow=$current.dateTime
+## Inigo plugin version
 1000003|#slurp
 ##0-5
 #if $current.outTemp.has_data
@@ -554,9 +556,17 @@ $last_month.UV.max.formatted|$last_month.UV.maxtime.format("%d%b%y %H:%M")|$last
 #except Exception
 #echo '||'
 #end try
-## 292
+## 292-293
 #if $current.windGust.has_data
-$current.windGust.ordinal_compass|#slurp
+$current.windGust.formatted||$current.windGust.ordinal_compass|#slurp
+#else
+||#slurp
+#end if
+## 294-295
+$now|$dtnow|#slurp
+## 296
+#if $hour(hours_ago=1).rain.has_data
+$hour(hours_ago=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
