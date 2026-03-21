@@ -564,33 +564,33 @@ $current.windGust.formatted|$current.windGust.ordinal_compass|#slurp
 #end if
 ## 294-295
 $now|$dtnow|#slurp
-## 296
-#if $hour(hours_ago=1).rain.has_data
-$hour(hours_ago=1).rain.sum.formatted|#slurp
+## 296      
+#if $span(hour_delta=1).rain.has_data
+$span(hour_delta=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 297
-#if $hour(hours_ago=3).rain.has_data
-$hour(hours_ago=3).rain.sum.formatted|#slurp
+## 297       
+#if $span(hour_delta=3).rain.has_data
+$span(hour_delta=3).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 298
-#if $hour(hours_ago=6).rain.has_data
-$hour(hours_ago=6).rain.sum.formatted|#slurp
+## 298       
+#if $span(hour_delta=6).rain.has_data
+$span(hour_delta=6).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 299
-#if $hour(hours_ago=12).rain.has_data
-$hour(hours_ago=12).rain.sum.formatted|#slurp
+## 299        
+#if $span(hour_delta=12).rain.has_data
+$span(hour_delta=12).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 300
-#if $hour(hours_ago=24).rain.has_data
-$hour(hours_ago=24).rain.sum.formatted|#slurp
+## 300        
+#if $span(day_delta=1).rain.has_data
+$span(day_delta=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
