@@ -565,26 +565,26 @@ $current.windGust.formatted||$current.windGust.ordinal_compass|#slurp
 ## 294-295
 $now|$dtnow|#slurp
 ## 296      
+#if $span(time_delta=600).rain.has_data
+$span(time_delta=600).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 297       
+#if $span(time_delta=1800).rain.has_data
+$span(time_delta=1800).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 298       
 #if $span(hour_delta=1).rain.has_data
 $span(hour_delta=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 297       
-#if $span(hour_delta=3).rain.has_data
-$span(hour_delta=3).rain.sum.formatted|#slurp
-#else
-|#slurp
-#end if
-## 298       
+## 299        
 #if $span(hour_delta=6).rain.has_data
 $span(hour_delta=6).rain.sum.formatted|#slurp
-#else
-|#slurp
-#end if
-## 299        
-#if $span(hour_delta=12).rain.has_data
-$span(hour_delta=12).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if

@@ -26,7 +26,7 @@ So far everything seems to work fine under weeWX 5.x
 
 ### For metric
 ```
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.5/inigo-metric.tar.gz
+wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.6/inigo-metric.tar.gz
 ```
 
 #### On weeWX 4.x or lower
@@ -43,7 +43,7 @@ sudo weectl extension install inigo-metric.tar.gz
 
 Download the archive file
 ```
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.5/inigo-imperial.tar.gz
+wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.6/inigo-imperial.tar.gz
 ```
 
 #### On weeWX 4.x or lower

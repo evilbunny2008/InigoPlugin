@@ -1,5 +1,5 @@
 How to install The easy way
 ==========================
 
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.5/inigo-imperial.tar.gz
+wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.6/inigo-imperial.tar.gz
 sudo weectl extension install inigo-imperial.tar.gz

@@ -10,7 +10,7 @@ def loader():
 class DataInstaller(ExtensionInstaller):
     def __init__(self):
         super(DataInstaller, self).__init__(
-            version="1.0.5",
+            version="1.0.6",
             name='Inigo',
             description='A skin to feed data to weeWx app',
             author="John Smith",
