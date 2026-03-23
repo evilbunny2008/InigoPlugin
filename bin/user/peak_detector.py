@@ -129,11 +129,10 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
+        self.temp_history.append((time.time(), temp))
+
         if self.last_loop_temp is None:
             self.last_loop_temp = temp
-            return
-
-        if temp == self.last_loop_temp:
             return
 
         if temp > self.last_loop_temp:
@@ -143,8 +142,6 @@ class PeakDetectorService(weewx.engine.StdService):
             self.loop_down_count += 1
 
         self.last_loop_temp = temp
-
-        self.temp_history.append((time.time(), temp))
 
     def getTemp(self, packet):
 
