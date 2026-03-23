@@ -85,7 +85,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        self.save_pickle_data(self.temp_history, True)
+        self.save_pickle_data(True)
 
         after4pm = datetime.now().hour >= 16
 
@@ -193,7 +193,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def shutDown(self):
 
-        self.save_pickle_data(self.temp_history, True)
+        self.save_pickle_data(True)
 
         log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
 
