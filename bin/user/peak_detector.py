@@ -29,9 +29,6 @@ if weewx.__version__ < "4":
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
 tmp_dir = os.path.abspath("/tmp")
-
-log.info(f"tmp_dir: {tmp_dir}")
-
 cache_dir = os.path.join(tmp_dir, "pickle_cache")
 os.makedirs(cache_dir, exist_ok=True)
 pickle_filename = os.path.join(cache_dir, "peak_detector.pkl")
@@ -42,7 +39,12 @@ def load_pickle_data():
 
         try:
             with open(pickle_filename, "rb") as f:
-                return pickle.load(f)
+                ret = pickle.load(f)
+
+                if ret is not None:
+                    log.info(f"{self.__class__.__name__} loaded pickle data")
+
+                return ret
 
         except Exception as e:
             pass
