@@ -4,7 +4,6 @@
 
 import weeutil.weeutil
 
-from pprint import pprint
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
@@ -92,6 +91,8 @@ class DataInstaller(ExtensionInstaller):
     def configure(self, engine):
 
         root_dict = engine.root_dict
+
+        engine.printer.out(f"root_dict: {root_dict}")
 
         if self.rainInInches:
 
