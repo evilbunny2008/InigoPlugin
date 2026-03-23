@@ -129,7 +129,7 @@ class InigoInstaller(ExtensionInstaller):
 
             groups_dict.update(self.metric_rain_in_inches_cfg)
 
-            engine.printer.out(f"group_dict: {group_dict}")
+            engine.printer.out(f"groups_dict: {groups_dict}")
 
         elif not self.metric:
 
@@ -137,7 +137,7 @@ class InigoInstaller(ExtensionInstaller):
 
             groups_dict.update(self.imperial_cfg)
 
-            engine.printer.out(f"group_dict: {group_dict}")
+            engine.printer.out(f"groups_dict: {groups_dict}")
 
         else:
 
