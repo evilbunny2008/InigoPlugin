@@ -3,13 +3,12 @@
 
 import logging
 import sys
-import time
 import weewx
 import weewx.engine
 import weewx.manager
 
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from weeutil.weeutil import TimeSpan
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
