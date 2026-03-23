@@ -7,6 +7,7 @@ import weewx
 import weewx.engine
 import weewx.manager
 
+from collections import deque
 from datetime import datetime, timedelta
 from weeutil.weeutil import TimeSpan
 from weewx.units import FtoC
@@ -29,6 +30,8 @@ class PeakDetectorService(weewx.engine.StdService):
     def __init__(self, engine, config_dict):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
+
+        self.temp_history = deque(maxlen=900)
 
         self.loop_up_count = 0
         self.loop_down_count = 0
@@ -78,7 +81,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         trending_down = False
         total = self.loop_up_count + self.loop_down_count
-        if total > 0:
+        if total >= 3:
             down_ratio = self.loop_down_count / total
             trending_down = down_ratio >= 0.65
 
@@ -97,6 +100,10 @@ class PeakDetectorService(weewx.engine.StdService):
             effective_peak = -999.9
 
         record["outTemp_peak"] = round(effective_peak, 1)
+        record["outTemp_trend1"] = self.get_temp_trend(30)
+        record["outTemp_trend5"] = self.get_temp_trend(150)
+        record["outTemp_trend10"] = self.get_temp_trend(300)
+        record["outTemp_trend30"] = self.get_temp_trend(900)
 
         if self.usUnit == weewx.US:
             log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak:.1f}°F")
@@ -129,6 +136,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.last_loop_temp = temp
 
+        self.temp_history.append((time.time(), temp))
+
     def getTemp(self, packet):
 
         temp = packet.get('outTemp', None)
@@ -140,6 +149,28 @@ class PeakDetectorService(weewx.engine.StdService):
             return float(temp)
         except (ValueError, TypeError):
             return None
+
+    # Trend calculation — call this wherever you need it
+    def get_temp_trend(self, samples):
+        if len(self.temp_history) < 2:
+            return None  # not enough data
+
+        temps = [t for _, t in self.temp_history]
+
+        up   = sum(1 for i in range(1, samples) if temps[i] > temps[i-1])
+        down = sum(1 for i in range(1, samples) if temps[i] < temps[i-1])
+        total = up + down
+
+        if total == 0:
+            return 'steady'
+
+        ratio = down / total
+        if ratio >= 0.65:
+            return 'falling'
+        elif ratio <= 0.35:
+            return 'rising'
+        else:
+            return 'steady'
 
     def shutDown(self):
 
