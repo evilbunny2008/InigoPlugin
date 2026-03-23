@@ -223,6 +223,9 @@ class PeakDetectorService(weewx.engine.StdService):
                 pickle.dump(self.temp_history, f)
 
                 if report:
+
+                    temps = [t for _, t in self.temp_history]
+
                     log.info(f"{self.__class__.__name__} saved {len(temps)} records to pickle file")
 
         except Exception as e:
