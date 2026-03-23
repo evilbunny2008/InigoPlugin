@@ -2,6 +2,8 @@
 # Simple weeWX loop and archive service to detect when outTemp has peaked.
 
 import logging
+import os
+import pickle
 import sys
 import time
 import weewx
@@ -26,13 +28,39 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
+cache_dir = os.path.dirname("/tmp/pickle_cache")
+os.makedirs(cache_dir, exist_ok=True)
+pickle_filename = os.path.join(cache_dir, "bom.json")
+
+def load_pickle_data():
+
+    if os.path.exists(pickle_filename):
+
+        try:
+            with open(pickle_filename, "rb") as f:
+                return pickle.load(f)
+
+        except Exception as e:
+            pass
+
+def save_pickle_data(pickle_data):
+
+    try:
+        with open(pickle_filename, "wb") as f:
+            pickle.dump(pickle_data, f)
+
+    except Exception as e:
+        raise e
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        self.temp_history = deque(maxlen=1800)
+        self.temp_history = load_pickle_data()
+        if self.temp_history is None:
+            self.temp_history = deque(maxlen=1800)
 
         self.loop_up_count = 0
         self.loop_down_count = 0
@@ -181,5 +209,7 @@ class PeakDetectorService(weewx.engine.StdService):
             return 'steady'
 
     def shutDown(self):
+
+        save_pickle_data(self.temp_history)
 
         log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
