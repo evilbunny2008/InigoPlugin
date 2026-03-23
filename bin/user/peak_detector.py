@@ -57,9 +57,6 @@ class PeakDetectorService(weewx.engine.StdService):
         outTemp10min_avg = stats.outTemp.avg.raw
         if outTemp10min_avg is not None:
 
-            if self.usUnit != weewx.US:
-                outTemp10min_avg = FtoC(outTemp10min_avg)
-
             outTemp10min_avg = round(outTemp10min_avg, 1)
 
             self.last_loop_temp = outTemp10min_avg
@@ -96,17 +93,15 @@ class PeakDetectorService(weewx.engine.StdService):
 
         outTemp_peaked = (trending_down or after4pm) and temp < effective_peak
 
-        if self.usUnit != weewx.US:
-            effective_peak = FtoC(effective_peak)
-
         if not outTemp_peaked:
             effective_peak = -999.9
 
-        effective_peak = round(effective_peak, 1)
+        record["outTemp_peak"] = round(effective_peak, 1)
 
-        record["outTemp_peak"] = effective_peak
-
-        log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak}")
+        if self.usUnit == weewx.US:
+            log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak:.1f}°F")
+        else:
+            log.info(f"{self.__class__.__name__} outTemp_peak {FtoC(effective_peak):.1f}°C")
 
         self.loop_up_count = 0
         self.loop_down_count = 0
@@ -121,6 +116,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         if self.last_loop_temp is None:
             self.last_loop_temp = temp
+            return
+
+        if temp == self.last_loop_temp:
             return
 
         if temp > self.last_loop_temp:
@@ -139,7 +137,7 @@ class PeakDetectorService(weewx.engine.StdService):
             return None
 
         try:
-            return round(float(temp), 1)
+            return float(temp)
         except (ValueError, TypeError):
             return None
 
