@@ -65,12 +65,12 @@ class DataInstaller(ExtensionInstaller):
             ],
 
             "data_services": "user.peak_detector.PeakDetectorService",
-         }
+        }
 
-         self.metric = True
-         self.rainInInches = False
+        self.metric = True
+        self.rainInInches = False
 
-         super().__init__(install_dict)
+        super().__init__(install_dict)
 
     def process_args(self, args):
 
