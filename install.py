@@ -39,7 +39,7 @@ class DataInstaller(ExtensionInstaller):
             }
         }
 
-        install_dict = {
+        config_dict = {
             "version": "1.0.9",
             "name": "Inigo",
             "description": "A skin to feed data to weeWx app",
@@ -70,7 +70,7 @@ class DataInstaller(ExtensionInstaller):
         self.metric = True
         self.rainInInches = False
 
-        super().__init__(install_dict)
+        super().__init__(config_dict)
 
     def process_args(self, args):
 
@@ -90,21 +90,21 @@ class DataInstaller(ExtensionInstaller):
 
     def configure(self, engine):
 
-        install_dict = engine.install_dict
+        config_dict = engine.config_dict
 
-        engine.printer.out(f"install_dict: {install_dict}")
+        engine.printer.out(f"config_dict: {config_dict}")
 
         if self.rainInInches:
 
             engine.printer.out(f"Removing metric rainfall settings")
 
-            install_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
+            config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
         elif not self.metric:
 
             engine.printer.out(f"Removing metric settings")
 
-            del install_dict["StdReport"]["Inigo"]["Units"]
+            del config_dict["StdReport"]["Inigo"]["Units"]
 
         else:
 
