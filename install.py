@@ -119,10 +119,10 @@ class InigoInstaller(ExtensionInstaller):
 
                 engine.printer.out(f"services_dict: {services_dict}")
 
-                data_services_list = services_dict.get("data_services", None)
-                if data_services_list is not None and "user.peak_detector.PeakDetectorService" not in data_services_list:
+                prep_services_list = services_dict.get("prep_services", None)
+                if prep_services_list is not None and "user.peak_detector.PeakDetectorService" not in prep_services_list:
 
-                    data_services_list.append("user.peak_detector.PeakDetectorService")
+                    prep_services_list.append("user.peak_detector.PeakDetectorService")
 
         if engine.dry_run:
             engine.printer.out(config)
