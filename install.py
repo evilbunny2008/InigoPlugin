@@ -107,6 +107,14 @@ class InigoInstaller(ExtensionInstaller):
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
 
+        cache_dir = os.path.join(data_dir, "peak_detector")
+
+        if os.path.exists(cache_dir) and not os.path.isdir(cache_dir):
+            os.remove(cache_dir)
+
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir, exist_ok=True)
+
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
             return False
@@ -115,8 +123,8 @@ class InigoInstaller(ExtensionInstaller):
         if inigo_dict is None:
             return False
 
-        if data_dir is not None and "data_dir" not in inigo_dict:
-            inigo_dict["data_dir"] = data_dir
+        if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
+            inigo_dict["cache_dir"] = cache_dir
 
         units_dict = inigo_dict.get("Units")
         if units_dict is None:

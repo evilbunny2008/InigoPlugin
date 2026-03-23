@@ -34,22 +34,21 @@ class PeakDetectorService(weewx.engine.StdService):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        tmp_dir = os.path.abspath("/tmp")
-        self.cache_dir = os.path.join(tmp_dir, "pickle_cache")
-        os.makedirs(self.cache_dir, exist_ok=True)
-        self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
-
         self.load_pickle_data()
 
         self.loop_up_count = 0
         self.loop_down_count = 0
         self.last_loop_temp = None
 
+        self.cache_dir = "/tmp/peak_detector"
+
         self.usUnit = weewx.METRIC
         cfg = config_dict.get('StdReport', None)
         if cfg is not None:
             inigo = cfg.get('Inigo', None)
             if inigo is not None:
+
+                 self.cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
                  units = inigo.get('Units', None)
                  if units is not None:
                      groups = units.get('Groups', None)
@@ -57,6 +56,10 @@ class PeakDetectorService(weewx.engine.StdService):
                          temp_group = groups.get('group_temperature', None)
                          if temp_group is not None and temp_group == "degree_F":
                              self.usUnit = weewx.US
+
+
+        os.makedirs(self.cache_dir, exist_ok=True)
+        self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
         now = datetime.now()
 
