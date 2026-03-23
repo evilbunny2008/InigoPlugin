@@ -75,7 +75,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         temp = self.getTemp(record)
         if temp is None:
-            temp = 999.9
+            return
 
         after4pm = datetime.now().hour >= 16
 
@@ -91,6 +91,8 @@ class PeakDetectorService(weewx.engine.StdService):
         stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
 
         effective_peak = stats.outTemp.max.raw
+        if effective_peak is None:
+            effective_peak = -999.9
 
         outTemp_peaked = (trending_down or after4pm) and temp < effective_peak
 
