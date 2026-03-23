@@ -143,7 +143,9 @@ class InigoInstaller(ExtensionInstaller):
 
             engine.printer.out(f"Installing metric settings")
 
-            #engine.printer.out(f"engine.config_dict: {engine.config_dict}")
+            groups_dict.update(self.imperial_cfg)
+
+            engine.printer.out(f"groups_dict: {groups_dict}")
 
 
         engine_dict = engine.config_dict.get("Engine", None)
