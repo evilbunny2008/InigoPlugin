@@ -75,7 +75,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         temp = self.getTemp(record)
         if temp is None:
-            return
+            temp = 999.9
 
         after4pm = datetime.now().hour >= 16
 
