@@ -116,7 +116,7 @@ class InigoInstaller(ExtensionInstaller):
             return False
 
         if data_dir is not None and "data_dir" not in inigo_dict:
-            inigo_dict["data_dir"] = inigo_dict
+            inigo_dict["data_dir"] = data_dir
 
         units_dict = inigo_dict.get("Units")
         if units_dict is None:
