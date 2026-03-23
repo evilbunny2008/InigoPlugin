@@ -55,13 +55,14 @@ class PeakDetectorService(weewx.engine.StdService):
         stats = TimespanBinder(TimeSpan(int(min10_ago.timestamp()), int(now.timestamp())), self.db_lookup)
 
         outTemp10min_avg = stats.outTemp.avg.raw
+        if outTemp10min_avg is not None:
 
-        if self.usUnit != weewx.US:
-            outTemp10min_avg = FtoC(outTemp10min_avg)
+            if self.usUnit != weewx.US:
+                outTemp10min_avg = FtoC(outTemp10min_avg)
 
-        outTemp10min_avg = round(outTemp10min_avg, 1)
+            outTemp10min_avg = round(outTemp10min_avg, 1)
 
-        self.last_loop_temp = outTemp10min_avg
+            self.last_loop_temp = outTemp10min_avg
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
