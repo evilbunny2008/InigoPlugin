@@ -20,9 +20,9 @@ if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] 
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
 
-if weewx.__version__ < "5.3":
+if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
-        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 5.3 or later, found %s" % weewx.__version__)
+        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
 class PeakDetectorService(weewx.engine.StdService):
 

@@ -92,9 +92,11 @@ class InigoInstaller(ExtensionInstaller):
 
             engine.printer.out(f"Removing metric rainfall settings")
 
+            del config_dict["StdReport"]["Inigo"]["Units"]
+
             config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
-            #engine.printer.out(f"config_dict: {config_dict}")
+            engine.printer.out(f"config_dict: {config_dict}")
 
         elif not self.metric:
 
@@ -116,8 +118,6 @@ class InigoInstaller(ExtensionInstaller):
 
             services_dict = engine_dict.get("Services", None)
             if services_dict is not None:
-
-                engine.printer.out(f"services_dict: {services_dict}")
 
                 prep_services_list = services_dict.get("prep_services", None)
                 if prep_services_list is not None and "user.peak_detector.PeakDetectorService" not in prep_services_list:
