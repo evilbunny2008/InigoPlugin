@@ -125,11 +125,7 @@ class InigoInstaller(ExtensionInstaller):
 
             engine.printer.out(f"Removing metric rainfall settings")
 
-            engine.printer.out(f"self.metric_rain_in_inches_cfg: {self.metric_rain_in_inches_cfg}")
-
             groups_dict.update(self.metric_rain_in_inches_cfg)
-
-            engine.printer.out(f"groups_dict: {groups_dict}")
 
         elif not self.metric:
 
@@ -137,15 +133,11 @@ class InigoInstaller(ExtensionInstaller):
 
             groups_dict.update(self.imperial_cfg)
 
-            engine.printer.out(f"groups_dict: {groups_dict}")
-
         else:
 
             engine.printer.out(f"Installing metric settings")
 
             groups_dict.update(self.metric_cfg)
-
-            engine.printer.out(f"groups_dict: {groups_dict}")
 
 
         engine_dict = engine.config_dict.get("Engine", None)
