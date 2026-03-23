@@ -2,17 +2,17 @@
 #
 # 23rd of Mar 2026
 
+import configobj
 import weeutil.weeutil
 
-from pprint import pprint
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
 def loader():
 
-    return DataInstaller()
+    return InigoInstaller()
 
-class DataInstaller(ExtensionInstaller):
+class InigoInstaller(ExtensionInstaller):
 
     def __init__(self):
 
@@ -41,12 +41,6 @@ class DataInstaller(ExtensionInstaller):
         }
 
         config_dict = {
-            "version": "1.0.9",
-            "name": "Inigo",
-            "description": "A skin to feed data to weeWx app",
-            "author": "John Smith",
-            "author_email": "deltafoxtrot256@gmail.com",
-            "config": {
                 "StdReport": {
                     "Inigo": {
                         "skin":"Inigo",
@@ -56,14 +50,6 @@ class DataInstaller(ExtensionInstaller):
                 }
             },
 
-            "files": [
-                ("skins/Inigo",
-                ["skins/Inigo/inigo-data.txt.tmpl",
-                 "skins/Inigo/skin.conf"]),
-                ("bin/user",
-                ["bin/user/inigo-since.py",
-                 "bin/user/peak_detector.py"])
-            ],
 
             "data_services": "user.peak_detector.PeakDetectorService",
         }
@@ -71,7 +57,22 @@ class DataInstaller(ExtensionInstaller):
         self.metric = True
         self.rainInInches = False
 
-        super().__init__(config_dict)
+        super(InigoInstaller, self).__init__(
+            version="1.0.9",
+            name="Inigo",
+            description="A skin to feed data to weeWx app",
+            author="John Smith",
+            author_email="deltafoxtrot256@gmail.com",
+            config=config_dict,
+            files=[
+                ("skins/Inigo",
+                ["skins/Inigo/inigo-data.txt.tmpl",
+                 "skins/Inigo/skin.conf"]),
+                ("bin/user",
+                ["bin/user/inigo-since.py",
+                 "bin/user/peak_detector.py"])
+            ]
+        )
 
     def process_args(self, args):
 
@@ -114,8 +115,14 @@ class DataInstaller(ExtensionInstaller):
             engine.printer.out(f"config_dict: {config_dict}")
 
 
+        try:
+            config = configobj.ConfigObj(dest_fn, encoding='utf-8', interpolation=False)
+        except configobj.ConfigObjError as e:
+            engine.printer.out('cannot merge to %s: %s %s' % (dest_fn,e.__class__.__name__,e))
+            return
+
         if engine.dry_run:
             engine.printer.out(config)
-            engine.printer.out('-'*72)
+            engine.printer.out("-" * 72)
         else:
             config.write()
