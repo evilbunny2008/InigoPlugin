@@ -34,12 +34,6 @@ class PeakDetectorService(weewx.engine.StdService):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        self.load_pickle_data()
-
-        self.loop_up_count = 0
-        self.loop_down_count = 0
-        self.last_loop_temp = None
-
         self.cache_dir = "/tmp/peak_detector"
 
         self.usUnit = weewx.METRIC
@@ -61,19 +55,7 @@ class PeakDetectorService(weewx.engine.StdService):
         os.makedirs(self.cache_dir, exist_ok=True)
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
-        now = datetime.now()
-
-        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
-
-        min10_ago = now - timedelta(minutes=10)
-        stats = TimespanBinder(TimeSpan(int(min10_ago.timestamp()), int(now.timestamp())), self.db_lookup)
-
-        outTemp10min_avg = stats.outTemp.avg.raw
-        if outTemp10min_avg is not None:
-
-            outTemp10min_avg = round(outTemp10min_avg, 1)
-
-            self.last_loop_temp = outTemp10min_avg
+        self.load_pickle_data()
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -84,90 +66,44 @@ class PeakDetectorService(weewx.engine.StdService):
 
         record = event.record
 
-        temp = self.getTemp(record)
-        if temp is None:
-            return
-
         self.save_pickle_data(True)
 
-        after4pm = datetime.now().hour >= 16
-
-        trending_down = False
-        total = self.loop_up_count + self.loop_down_count
-        if total >= 3:
-            down_ratio = self.loop_down_count / total
-            trending_down = down_ratio >= 0.65
-
-        now = datetime.now()
-        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
-
-        effective_peak = stats.outTemp.max.raw
-        if effective_peak is None:
-            effective_peak = -999.9
-
-        outTemp_peaked = (trending_down or after4pm) and temp < effective_peak
-
-        if not outTemp_peaked:
-            effective_peak = -999.9
-
-        record["outTemp_peak"] = round(effective_peak, 1)
         record["outTemp_trend1"] = self.get_temp_trend(30)
         record["outTemp_trend5"] = self.get_temp_trend(150)
         record["outTemp_trend10"] = self.get_temp_trend(300)
         record["outTemp_trend30"] = self.get_temp_trend(900)
         record["outTemp_trend60"] = self.get_temp_trend(1800)
 
-        print(f"record['outTemp_trend1']: {record['outTemp_trend1']}")
-        print(f"record['outTemp_trend5']: {record['outTemp_trend5']}")
-        print(f"record['outTemp_trend10']: {record['outTemp_trend10']}")
-        print(f"record['outTemp_trend30']: {record['outTemp_trend30']}")
-        print(f"record['outTemp_trend60']: {record['outTemp_trend60']}")
-
-        if self.usUnit == weewx.US:
-            log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak:.1f}°F")
-        else:
-            log.info(f"{self.__class__.__name__} outTemp_peak {FtoC(effective_peak):.1f}°C")
-
-        self.loop_up_count = 0
-        self.loop_down_count = 0
+        print(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
+        print(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
+        print(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
+        print(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
+        print(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
 
     def handle_loop_packet(self, event):
 
         packet = event.packet
 
-        temp = self.getTemp(packet)
+        ts, temp = self.getTemp(packet)
         if temp is None:
             return
 
-        self.temp_history.append((time.time(), temp))
+        self.temp_history.append((ts, temp))
 
         self.save_pickle_data()
 
-        if self.last_loop_temp is None:
-            self.last_loop_temp = temp
-            return
-
-        if temp > self.last_loop_temp:
-            self.loop_up_count += 1
-
-        if temp < self.last_loop_temp:
-            self.loop_down_count += 1
-
-        self.last_loop_temp = temp
-
     def getTemp(self, packet):
 
+        ts = int(packet.get("dateTime", time.time()))
         temp = packet.get('outTemp', None)
 
         if temp is None:
-            return None
+            return ts, None
 
         try:
-            return float(temp)
+            return ts, float(temp)
         except (ValueError, TypeError):
-            return None
+            return ts, None
 
     # Trend calculation — call this wherever you need it
     def get_temp_trend(self, samples):
