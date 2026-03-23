@@ -3,6 +3,7 @@
 
 import logging
 import sys
+import time
 import weewx
 import weewx.engine
 import weewx.manager
