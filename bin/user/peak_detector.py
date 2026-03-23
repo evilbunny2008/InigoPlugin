@@ -85,6 +85,8 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
+        save_pickle_data(self.temp_history, True)
+
         after4pm = datetime.now().hour >= 16
 
         trending_down = False
