@@ -28,7 +28,8 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
-cache_dir = os.path.dirname(os.path.abspath("/tmp/pickle_cache"))
+tmp_dir = os.path.dirname("/tmp")
+cache_dir = os.path.join(tmp_dir, "pickle_cache")
 os.makedirs(cache_dir, exist_ok=True)
 pickle_filename = os.path.join(cache_dir, "peak_detector.pkl")
 
