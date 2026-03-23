@@ -13,7 +13,7 @@ weeWX 5.3 allows command line arguments to be passed to extention installation s
 ### Install with metric defaults
 
 ```
-sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
 ```
 
 ### Install with metric defaults but rain in imperial
@@ -21,7 +21,7 @@ sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archi
 Use the --rain-inches argument
 
 ```
-sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --rain-inches
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --rain-inches
 ```
 
 ### Install with imperial defaults
@@ -29,7 +29,7 @@ sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archi
 Use the --imperial argument
 
 ```
-sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --imperial
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --imperial
 ```
 
 ## Installing an Almanac (optional)
@@ -39,7 +39,7 @@ If you would like to see next moon rise/set in the app, you just need to install
 ```
 sudo apt update
 sudo apt -y install python3-numpy python3-pandas python3-skyfield
-sudo weectl extension install https://github.com/roe-dl/weewx-skyfield-almanac/archive/master.zip
+sudo weectl extension install --yes https://github.com/roe-dl/weewx-skyfield-almanac/archive/master.zip
 ```
 
 ## Using offset rain times (optional)
