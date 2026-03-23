@@ -117,7 +117,7 @@ class InigoInstaller(ExtensionInstaller):
             services_dict = engine_dict.get("Services", None)
             if services_dict is not None:
 
-                data_services_dict = services_dict.get("data_services", None)
+                data_services_list = services_dict.get("data_services", None)
                 if data_services_list is not None and "user.peak_detector.PeakDetectorService" not in data_services_list:
 
                     data_services_list.append("user.peak_detector.PeakDetectorService")
