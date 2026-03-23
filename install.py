@@ -90,9 +90,9 @@ class DataInstaller(ExtensionInstaller):
 
     def configure(self, engine):
 
-        root_dict = engine.root_dict
+        install_dict = engine.install_dict
 
-        engine.printer.out(f"root_dict: {root_dict}")
+        engine.printer.out(f"install_dict: {install_dict}")
 
         if self.rainInInches:
 
