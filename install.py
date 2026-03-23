@@ -3,6 +3,7 @@
 # 23rd of Mar 2026
 
 import configobj
+import os
 import weeutil.weeutil
 
 from weecfg.extension import ExtensionInstaller
