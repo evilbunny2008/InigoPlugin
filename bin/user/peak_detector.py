@@ -200,7 +200,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if os.path.exists(self.pickle_filename):
 
             try:
-                with open(pickle_filename, "rb") as f:
+                with open(self.pickle_filename, "rb") as f:
                     self.temp_history = pickle.load(f)
                     log.info(f"{self.__class__.__name__} loaded pickle data")
                     return
