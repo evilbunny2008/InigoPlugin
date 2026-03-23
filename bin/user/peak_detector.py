@@ -191,7 +191,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def shutDown(self):
 
-        save_pickle_data(self.temp_history)
+        save_pickle_data(self.temp_history, True)
 
         log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
 
@@ -202,7 +202,10 @@ class PeakDetectorService(weewx.engine.StdService):
             try:
                 with open(self.pickle_filename, "rb") as f:
                     self.temp_history = pickle.load(f)
-                    log.info(f"{self.__class__.__name__} loaded pickle data")
+
+                    temps = [t for _, t in self.temp_history]
+
+                    log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
                     return
 
             except Exception as e:
@@ -211,11 +214,14 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=1800)")
         self.temp_history = deque(maxlen=1800)
 
-    def save_pickle_data(self):
+    def save_pickle_data(self, report=False):
 
         try:
             with open(self.pickle_filename, "wb") as f:
                 pickle.dump(self.temp_history, f)
+
+                if report:
+                    log.info(f"{self.__class__.__name__} saved {len(temps)} records to pickle file")
 
         except Exception as e:
             raise e
