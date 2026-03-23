@@ -165,6 +165,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         temps = [t for _, t in self.temp_history]
 
+        if samples > len(temps):
+            samples = len(temps)
+
         up   = sum(1 for i in range(1, samples) if temps[i] > temps[i-1])
         down = sum(1 for i in range(1, samples) if temps[i] < temps[i-1])
         total = up + down
