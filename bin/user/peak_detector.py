@@ -46,6 +46,8 @@ def load_pickle_data():
         except Exception as e:
             pass
 
+    return deque(maxlen=1800)
+
 def save_pickle_data(pickle_data):
 
     try:
@@ -62,8 +64,6 @@ class PeakDetectorService(weewx.engine.StdService):
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
         self.temp_history = load_pickle_data()
-        if self.temp_history is None:
-            self.temp_history = deque(maxlen=1800)
 
         self.loop_up_count = 0
         self.loop_down_count = 0
