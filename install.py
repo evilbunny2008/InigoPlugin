@@ -48,10 +48,7 @@ class InigoInstaller(ExtensionInstaller):
                         "Units": self.metric_cfg,
                     }
                 }
-            },
-
-
-            "data_services": "user.peak_detector.PeakDetectorService",
+            }
         }
 
         self.metric = True
@@ -115,14 +112,13 @@ class InigoInstaller(ExtensionInstaller):
             engine.printer.out(f"config_dict: {config_dict}")
 
 
-        try:
-            config = configobj.ConfigObj(dest_fn, encoding='utf-8', interpolation=False)
-        except configobj.ConfigObjError as e:
-            engine.printer.out('cannot merge to %s: %s %s' % (dest_fn,e.__class__.__name__,e))
-            return
+        engine_dict = config_dict.get("Engine", None)
+        if engine_dict is not None:
 
-        if engine.dry_run:
-            engine.printer.out(config)
-            engine.printer.out("-" * 72)
-        else:
-            config.write()
+            services_dict = engine_dict.get("Services", None)
+            if services_dict is not None:
+
+                data_services_dict = services_dict.get("data_services", None)
+                if data_services_list is not None and "user.peak_detector.PeakDetectorService" not in data_services_list:
+
+                    data_services_list.append("user.peak_detector.PeakDetectorService")
