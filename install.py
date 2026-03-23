@@ -16,35 +16,54 @@ class InigoInstaller(ExtensionInstaller):
 
     def __init__(self):
 
-        self.metric_rain_in_inches_cfg = {
-            "Groups": {
-                "group_altitude": "meter",
-                "group_speed2": "km_per_hour2",
-                "group_pressure": "mbar",
-                "group_temperature": "degree_C",
-                "group_degree_day": "degree_C_day",
-                "group_speed": "km_per_hour",
-            }
-        }
-
         self.metric_cfg = {
             "Groups": {
                 "group_altitude": "meter",
-                "group_speed2": "km_per_hour2",
+                "group_degree_day": "degree_C_day",
+                "group_distance": "km",
                 "group_pressure": "mbar",
                 "group_rain": "mm",
                 "group_rainrate": "mm_per_hour",
-                "group_temperature": "degree_C",
-                "group_degree_day": "degree_C_day",
                 "group_speed": "km_per_hour",
+                "group_speed2": "km_per_hour2",
+                "group_temperature": "degree_C",
+            }
+        }
+
+        self.metric_rain_in_inches_cfg = {
+            "Groups": {
+                "group_altitude": "meter",
+                "group_degree_day": "degree_C_day",
+                "group_distance": "km",
+                "group_pressure": "mbar",
+                "group_rain": "mm",
+                "group_rainrate": "mm_per_hour",
+                "group_speed": "km_per_hour",
+                "group_speed2": "km_per_hour2",
+                "group_temperature": "degree_C",
+            }
+        }
+
+        self.imperial_cfg = {
+            "Groups": {
+                "group_altitude": "foot",
+                "group_degree_day": "degree_F_day",
+                "group_distance": "mile",
+                "group_pressure": "mmHg",
+                "group_rain": "inch",
+                "group_rainrate": "inch_per_hour",
+                "group_speed": "mile_per_hour",
+                "group_speed2": "mile_per_hour2",
+                "group_temperature": "degree_F",
             }
         }
 
         config_dict = {
             "StdReport": {
                 "Inigo": {
-                    "skin":"Inigo",
-                    "HTML_ROOT":"",
+                    "skin": "Inigo",
+                    "HTML_ROOT": "",
+                    "enable": "True",
                     "Units": self.metric_cfg,
                 }
             }
@@ -84,36 +103,30 @@ class InigoInstaller(ExtensionInstaller):
 
     def configure(self, engine):
 
-        config_dict = engine.config_dict
-
-        #engine.printer.out(f"config_dict: {config_dict}")
-
         if self.rainInInches:
 
             engine.printer.out(f"Removing metric rainfall settings")
 
-            del config_dict["StdReport"]["Inigo"]["Units"]
+            engine.config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
-            config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
-
-            engine.printer.out(f"config_dict: {config_dict}")
+            engine.printer.out(f"engine.config_dict: {engine.config_dict}")
 
         elif not self.metric:
 
             engine.printer.out(f"Removing metric settings")
 
-            del config_dict["StdReport"]["Inigo"]["Units"]
+            engine.config_dict["StdReport"]["Inigo"]["Units"] = self.imperial_cfg
 
-            #engine.printer.out(f"config_dict: {config_dict}")
+            engine.printer.out(f"engine.config_dict: {engine.config_dict}")
 
         else:
 
             engine.printer.out(f"Installing metric settings")
 
-            #engine.printer.out(f"config_dict: {config_dict}")
+            engine.printer.out(f"engine.config_dict: {engine.config_dict}")
 
 
-        engine_dict = config_dict.get("Engine", None)
+        engine_dict = engine.config_dict.get("Engine", None)
         if engine_dict is not None:
 
             services_dict = engine_dict.get("Services", None)
