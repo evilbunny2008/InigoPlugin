@@ -36,8 +36,8 @@ class InigoInstaller(ExtensionInstaller):
                 "group_degree_day": "degree_C_day",
                 "group_distance": "km",
                 "group_pressure": "mbar",
-                "group_rain": "mm",
-                "group_rainrate": "mm_per_hour",
+                "group_rain": "inch",
+                "group_rainrate": "inch_per_hour",
                 "group_speed": "km_per_hour",
                 "group_speed2": "km_per_hour2",
                 "group_temperature": "degree_C",
@@ -62,7 +62,6 @@ class InigoInstaller(ExtensionInstaller):
             "StdReport": {
                 "Inigo": {
                     "skin": "Inigo",
-                    "HTML_ROOT": "",
                     "enable": "True",
                     "Units": self.metric_cfg,
                 }
@@ -121,6 +120,8 @@ class InigoInstaller(ExtensionInstaller):
         if self.rainInInches:
 
             engine.printer.out(f"Removing metric rainfall settings")
+
+            engine.printer.out(f"self.metric_rain_in_inches_cfg: {self.metric_rain_in_inches_cfg}")
 
             units_dict["Groups"].update(self.metric_rain_in_inches_cfg)
 
