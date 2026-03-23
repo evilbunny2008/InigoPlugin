@@ -86,7 +86,7 @@ class InigoInstaller(ExtensionInstaller):
 
         config_dict = engine.config_dict
 
-        engine.printer.out(f"config_dict: {config_dict}")
+        #engine.printer.out(f"config_dict: {config_dict}")
 
         if self.rainInInches:
 
@@ -94,7 +94,7 @@ class InigoInstaller(ExtensionInstaller):
 
             config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
-            engine.printer.out(f"config_dict: {config_dict}")
+            #engine.printer.out(f"config_dict: {config_dict}")
 
         elif not self.metric:
 
@@ -102,13 +102,13 @@ class InigoInstaller(ExtensionInstaller):
 
             del config_dict["StdReport"]["Inigo"]["Units"]
 
-            engine.printer.out(f"config_dict: {config_dict}")
+            #engine.printer.out(f"config_dict: {config_dict}")
 
         else:
 
             engine.printer.out(f"Installing metric settings")
 
-            engine.printer.out(f"config_dict: {config_dict}")
+            #engine.printer.out(f"config_dict: {config_dict}")
 
 
         engine_dict = config_dict.get("Engine", None)
@@ -116,6 +116,8 @@ class InigoInstaller(ExtensionInstaller):
 
             services_dict = engine_dict.get("Services", None)
             if services_dict is not None:
+
+                engine.printer.out(f"services_dict: {services_dict}")
 
                 data_services_list = services_dict.get("data_services", None)
                 if data_services_list is not None and "user.peak_detector.PeakDetectorService" not in data_services_list:
