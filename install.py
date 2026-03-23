@@ -4,6 +4,7 @@
 
 import weeutil.weeutil
 
+from pprint import pprint
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
@@ -100,12 +101,18 @@ class DataInstaller(ExtensionInstaller):
 
             config_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
+            engine.printer.out(f"config_dict: {config_dict}")
+
         elif not self.metric:
 
             engine.printer.out(f"Removing metric settings")
 
             del config_dict["StdReport"]["Inigo"]["Units"]
 
+            engine.printer.out(f"config_dict: {config_dict}")
+
         else:
 
             engine.printer.out(f"Installing metric settings")
+
+            engine.printer.out(f"config_dict: {config_dict}")
