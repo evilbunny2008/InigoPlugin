@@ -125,8 +125,8 @@ class InigoInstaller(ExtensionInstaller):
                     prep_services_list.append("user.peak_detector.PeakDetectorService")
 
         if engine.dry_run:
-            engine.printer.out(config)
-            engine.printer.out('-'*72)
+            engine.printer.out(engine.config_dict)
+            engine.printer.out("-" * 72)
             return False
 
         return True

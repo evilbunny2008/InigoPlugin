@@ -20,9 +20,9 @@ if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] 
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
 
-if weewx.__version__ < "5":
+if weewx.__version__ < "5.3":
     raise weewx.UnsupportedFeature(
-        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 5, found %s" % weewx.__version__)
+        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 5.3 or later, found %s" % weewx.__version__)
 
 class PeakDetectorService(weewx.engine.StdService):
 
@@ -56,19 +56,17 @@ class PeakDetectorService(weewx.engine.StdService):
 
         outTemp10min_avg = stats.outTemp.avg.raw
 
-        unitSym = "F"
         if self.usUnit != weewx.US:
             outTemp10min_avg = FtoC(outTemp10min_avg)
-            unitSym = "C"
 
         outTemp10min_avg = round(outTemp10min_avg, 1)
 
         self.last_loop_temp = outTemp10min_avg
 
-        log.info(f"Setting self.last_loop_temp to {outTemp10min_avg}{unitSym}")
-
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
+
+        log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} started")
 
     def handle_archive_record(self, event):
 
@@ -95,19 +93,17 @@ class PeakDetectorService(weewx.engine.StdService):
 
         outTemp_peaked = (trending_down or after4pm) and temp < effective_peak
 
-        unitSym = "F"
         if self.usUnit != weewx.US:
             effective_peak = FtoC(effective_peak)
-            unitSym = "C"
 
         if not outTemp_peaked:
             effective_peak = -999.9
 
         effective_peak = round(effective_peak, 1)
 
-        log.info(f"outTemp_peak {effective_peak}{unitSym}")
-
         record["outTemp_peak"] = effective_peak
+
+        log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak}{unitSym}")
 
         self.loop_up_count = 0
         self.loop_down_count = 0
@@ -143,3 +139,7 @@ class PeakDetectorService(weewx.engine.StdService):
             return round(float(temp), 1)
         except (ValueError, TypeError):
             return None
+
+    def shutDown(self):
+
+        log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
