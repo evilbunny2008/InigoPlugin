@@ -3,7 +3,7 @@
 #set $now=$current.dateTime.raw
 #set $dtnow=$current.dateTime
 ## Inigo plugin version
-1000008|#slurp
+1000009|#slurp
 ##0-5
 #if $current.outTemp.has_data
 $current.outTemp.formatted|$day.outTemp.min.formatted|$day.outTemp.mintime|$day.outTemp.max.formatted|$day.outTemp.maxtime|#slurp
@@ -251,7 +251,7 @@ $alltime.outHumidity.min.formatted|$alltime.outHumidity.mintime.format("%d%b%y %
 ||||#slurp
 #end if
 ## 153-156
-#if $alltime.barometer.has_data                               
+#if $alltime.barometer.has_data
 $alltime.barometer.max.formatted|$alltime.barometer.maxtime.format("%d%b%y %H:%M")|$alltime.barometer.min.formatted|$alltime.barometer.mintime.format("%d%b%y %H:%M")|#slurp
 #else 
 ||||#slurp
@@ -564,33 +564,39 @@ $current.windGust.formatted|$current.windGust.ordinal_compass|#slurp
 #end if
 ## 294-295
 $now|$dtnow|#slurp
-## 296      
+## 296
 #if $span(time_delta=600).rain.has_data
 $span(time_delta=600).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 297       
+## 297
 #if $span(time_delta=1800).rain.has_data
 $span(time_delta=1800).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 298       
+## 298
 #if $span(hour_delta=1).rain.has_data
 $span(hour_delta=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 299        
+## 299
 #if $span(hour_delta=6).rain.has_data
 $span(hour_delta=6).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 300        
+## 300
 #if $span(day_delta=1).rain.has_data
 $span(day_delta=1).rain.sum.formatted|#slurp
+#else
+|#slurp
+#end if
+## 301
+#if $current.outTemp_peak.has_data
+$current.outTemp_peak.raw|#slurp
 #else
 |#slurp
 #end if

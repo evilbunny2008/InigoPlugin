@@ -6,64 +6,43 @@ The Inigo plugin for [weeWX](https://weeWX.com) was created to feed current cond
 
 Before you can use the app, you need to add this plugin to weeWX. To find out more about setting up and running weeWX, you can find more details on the [weeWX website](https://weewx.com/downloads/).
 
-### weeWX 3.9
+## How to Install the InigoPlugin on weeWX 5.3 or above
 
-Starting in 3.9 a default unit option was introduced in weeWX. Please visit the upgrading to 3.9 section of [weeWX documentation](https://weewx.com/docs/upgrading.htm#Skin_defaults) for more details.
+weeWX 5.3 allows command line arguments to be passed to extention installation scripts
 
-### weeWX 4.0
+### Install with metric defaults
 
-I've been testing weeWX 4.0 using python 3 and haven't needed any changes to keep the Inigo skin working.
-
-### weeWX 4.6
-
-Need a new copy of Since.py, grab the extension again and reinstall it over the top
-
-### weeWX 5.x
-
-So far everything seems to work fine under weeWX 5.x
-
-## How to Install the InigoPlugin
-
-### For metric
 ```
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.8/inigo-metric.tar.gz
+sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
 ```
 
-#### On weeWX 4.x or lower
+### Install with metric defaults but rain in imperial
+
+Use the --rain-inches argument
+
 ```
-sudo wee_extension --install inigo-metric.tar.gz
+sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --rain-inches
 ```
 
-#### On weeWX 5.x or above
+### Install with imperial defaults
+
+Use the --imperial argument
+
 ```
-sudo weectl extension install inigo-metric.tar.gz
+sudo weectl extension install https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --imperial
 ```
 
-### For imperial
+## Installing an Almanac (optional)
 
-Download the archive file
-```
-wget https://github.com/evilbunny2008/InigoPlugin/releases/download/1.0.8/inigo-imperial.tar.gz
-```
+If you would like to see next moon rise/set in the app, you just need to install the skyfield extension
 
-#### On weeWX 4.x or lower
 ```
-sudo wee_extension --install inigo-imperial.tar.gz
+sudo apt update
+sudo apt -y install python3-numpy python3-pandas python3-skyfield
+sudo weectl extension install https://github.com/roe-dl/weewx-skyfield-almanac/archive/master.zip
 ```
 
-#### On weeWX 5.x and above
-```
-sudo weectl extension install inigo-imperial.tar.gz
-```
-
-### Installing an Almanac (optional)
-
-If you would like to see moon rise/set in the app, you just need to install pyephem.
-```
-sudo apt -y install python3-ephem
-```
-
-### Using offset rain times (optional)
+## Using offset rain times (optional)
 
 Historically rainfall is measured in Australia at 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the [Bureau of Meteorology](https://www.bom.gov.au). To enable this simply edit /etc/weewx/since.tmpl and paste the following into it:
 
@@ -75,7 +54,7 @@ $since($hour=9).rain.sum.formatted|$since($hour=9,$today=False).rain.sum.formatt
 #end if
 ```
 
-### Restarting weeWX
+## Restarting weeWX
 
 You need to restart weeWX to make the above changes work.
 
