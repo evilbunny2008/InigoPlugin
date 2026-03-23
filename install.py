@@ -41,12 +41,11 @@ class InigoInstaller(ExtensionInstaller):
         }
 
         config_dict = {
-                "StdReport": {
-                    "Inigo": {
-                        "skin":"Inigo",
-                        "HTML_ROOT":"",
-                        "Units": self.metric_cfg,
-                    }
+            "StdReport": {
+                "Inigo": {
+                    "skin":"Inigo",
+                    "HTML_ROOT":"",
+                    "Units": self.metric_cfg,
                 }
             }
         }
