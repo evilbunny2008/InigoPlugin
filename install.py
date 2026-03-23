@@ -81,13 +81,9 @@ class DataInstaller(ExtensionInstaller):
 
                 self.metric = False
 
-                return
-
             if arg == "--rain-inches":
 
                 self.rainInInches = True
-
-                return
 
     def configure(self, engine):
 
@@ -116,3 +112,10 @@ class DataInstaller(ExtensionInstaller):
             engine.printer.out(f"Installing metric settings")
 
             engine.printer.out(f"config_dict: {config_dict}")
+
+
+        if engine.dry_run:
+            engine.printer.out(config)
+            engine.printer.out('-'*72)
+        else:
+            config.write()
