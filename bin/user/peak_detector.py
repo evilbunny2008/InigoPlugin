@@ -106,7 +106,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         record["outTemp_peak"] = effective_peak
 
-        log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak}{unitSym}")
+        log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak}")
 
         self.loop_up_count = 0
         self.loop_down_count = 0
