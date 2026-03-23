@@ -31,7 +31,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        self.temp_history = deque(maxlen=900)
+        self.temp_history = deque(maxlen=1800)
 
         self.loop_up_count = 0
         self.loop_down_count = 0
@@ -104,6 +104,13 @@ class PeakDetectorService(weewx.engine.StdService):
         record["outTemp_trend5"] = self.get_temp_trend(150)
         record["outTemp_trend10"] = self.get_temp_trend(300)
         record["outTemp_trend30"] = self.get_temp_trend(900)
+        record["outTemp_trend60"] = self.get_temp_trend(1800)
+
+        print(f"record['outTemp_trend1']: {record['outTemp_trend1']}")
+        print(f"record['outTemp_trend5']: {record['outTemp_trend5']}")
+        print(f"record['outTemp_trend10']: {record['outTemp_trend10']}")
+        print(f"record['outTemp_trend30']: {record['outTemp_trend30']}")
+        print(f"record['outTemp_trend60']: {record['outTemp_trend60']}")
 
         if self.usUnit == weewx.US:
             log.info(f"{self.__class__.__name__} outTemp_peak {effective_peak:.1f}°F")
