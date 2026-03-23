@@ -159,6 +159,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.temp_history.append((time.time(), temp))
 
+        save_pickle_data(self.temp_history)
+
         if self.last_loop_temp is None:
             self.last_loop_temp = temp
             return
