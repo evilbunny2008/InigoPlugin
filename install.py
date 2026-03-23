@@ -123,7 +123,7 @@ class InigoInstaller(ExtensionInstaller):
 
             engine.printer.out(f"self.metric_rain_in_inches_cfg: {self.metric_rain_in_inches_cfg}")
 
-            units_dict["Groups"].update(self.metric_rain_in_inches_cfg)
+            units_dict["Groups"] = self.metric_rain_in_inches_cfg
 
             engine.printer.out(f"engine.config_dict: {engine.config_dict}")
 
@@ -131,7 +131,7 @@ class InigoInstaller(ExtensionInstaller):
 
             engine.printer.out(f"Removing metric settings")
 
-            units_dict["Groups"].update(self.imperial_cfg)
+            units_dict["Groups"] = update(self.imperial_cfg
 
             engine.printer.out(f"engine.config_dict: {engine.config_dict}")
 
