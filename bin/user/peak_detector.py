@@ -40,10 +40,7 @@ def load_pickle_data():
         try:
             with open(pickle_filename, "rb") as f:
                 ret = pickle.load(f)
-
-                if ret is not None:
-                    log.info(f"{self.__class__.__name__} loaded pickle data")
-
+                log.info(f"{self.__class__.__name__} loaded pickle data")
                 return ret
 
         except Exception as e:
