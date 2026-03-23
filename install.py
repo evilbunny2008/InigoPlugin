@@ -98,13 +98,13 @@ class DataInstaller(ExtensionInstaller):
 
             engine.printer.out(f"Removing metric rainfall settings")
 
-            root_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
+            install_dict["StdReport"]["Inigo"]["Units"] = self.metric_rain_in_inches_cfg
 
         elif not self.metric:
 
             engine.printer.out(f"Removing metric settings")
 
-            del root_dict["StdReport"]["Inigo"]["Units"]
+            del install_dict["StdReport"]["Inigo"]["Units"]
 
         else:
 
