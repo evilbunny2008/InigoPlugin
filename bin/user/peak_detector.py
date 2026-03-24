@@ -192,8 +192,6 @@ class PeakDetectorService(weewx.engine.StdService):
                     if isinstance(ret, PickleFormattedDataV2):
                         log.info(f"{self.__class__.__name__} pickle file is PickleFormattedDataV2")
                         self.temp_history = ret.temp_history
-                        self.interval_history = ret.interval_history
-                        self.update_interval()
                     elif isinstance(ret, PickleFormattedData):
                         log.info(f"{self.__class__.__name__} pickle file is PickleFormattedData")
                         self.temp_history = ret.temp_history
