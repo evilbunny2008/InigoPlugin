@@ -120,7 +120,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
 
-        outTemp_max = stats.outTemp.max.raw
+        outTemp_max = round(stats.outTemp.max.raw, 1)
 
         record["outTemp_max"] = outTemp_max
 
