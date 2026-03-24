@@ -209,7 +209,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         intervals = [loop_interval for ts, loop_interval in self.interval_history if loop_interval > 0 and loop_interval < 30 and ts > time.time() - 60]
 
-        new_interval = round(sum(intervals) / len(intervals), 1)
+        new_interval = round(sum(intervals) / len(intervals) * 2) / 2
 
         if 0 < new_interval < 30 and self.loop_interval != new_interval:
             self.loop_interval = new_interval
