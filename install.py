@@ -74,7 +74,7 @@ class InigoInstaller(ExtensionInstaller):
         self.rainInInches = False
 
         super(InigoInstaller, self).__init__(
-            version="1.0.9",
+            version="1.0.10",
             name="Inigo",
             description="A skin to feed data to weeWx app",
             author="John Smith",
