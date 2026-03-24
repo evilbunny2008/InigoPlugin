@@ -8,7 +8,6 @@ import stat
 import sys
 import time
 import weewx
-import weeutil.logger
 import weewx.engine
 import weewx.manager
 
@@ -17,7 +16,7 @@ from datetime import datetime, timedelta
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
 
-log = weeutil.logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 PEAKDETECTOR_VERSION = "0.0.2"
 
