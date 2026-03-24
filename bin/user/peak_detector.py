@@ -102,7 +102,6 @@ class PeakDetectorService(weewx.engine.StdService):
         if cfg is not None:
             inigo = cfg.get("Inigo", None)
             if inigo is not None:
-
                  self.cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
                  units = inigo.get("Units", None)
                  if units is not None:
