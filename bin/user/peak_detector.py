@@ -175,7 +175,11 @@ class PeakDetectorService(weewx.engine.StdService):
 
         lag = 450
 
-        self.peak_detector = real_time_peak_detection([0.0] * (lag + 1), lag=lag, threshold=2.0, influence=0.1)
+        initial_data = [0.0] * (lag + 1)
+
+        log.info(f"len(initial_data): {len(initial_data)}")
+
+        self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
 
         self.save_pickle_data(True)
 
