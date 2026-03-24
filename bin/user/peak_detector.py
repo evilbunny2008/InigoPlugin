@@ -157,26 +157,33 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data(True)
 
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        stats_since_midnight = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
+
+        OutTemp_max = stats_since_midnight.outTemp.max.raw
+        if OutTemp_max is None:
+            OutTemp_max = temp
+
+        OutTemp_min = stats_since_midnight.outTemp.min.raw
+        if OutTemp_min is None:
+            OutTemp_min = temp
+
+        if self.usUnit != weewx.US:
+            OutTemp_max = FtoC(OutTemp_max)
+            OutTemp_min = FtoC(OutTemp_min)
+
+        record["OutTemp_max"] = round(OutTemp_max, 1)
+        record["OutTemp_min"] = round(OutTemp_min, 1)
+
+        log.info(f"{self.__class__.__name__} OutTemp_max: {record['OutTemp_max']}")
+        log.info(f"{self.__class__.__name__} OutTemp_min: {record['OutTemp_min'])}")
+
         record["OutTemp_dropCount"] = self.drop_count
         record["OutTemp_hasPeaked"] = self.has_peaked
 
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
-
-        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
-
-        OutTemp_max = stats.outTemp.max.raw
-        if OutTemp_max is None:
-            OutTemp_max = temp
-
-        if self.usUnit != weewx.US:
-            OutTemp_max = FtoC(OutTemp_max)
-
-        record["OutTemp_max"] = round(OutTemp_max, 1)
-
-        log.info(f"{self.__class__.__name__} OutTemp_max: {round(stats.outTemp.max.raw, 1)}")
 
     def reset_peak_detector(self):
 
@@ -205,12 +212,24 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data()
 
-        if signal == -1:
-            self.drop_count += 1
-            if self.drop_count >= 5:
-                self.has_peaked = True
+        if self.has_peaked:
+            # Allow reset if temp is clearly rising again
+            if signal == 1:
+                self.rise_count += 1
+                if self.rise_count >= 5:
+                    self.has_peaked = False
+                    self.drop_count = 0
+                    self.rise_count = 0
+            else:
+                self.rise_count = 0
         else:
-            self.drop_count = 0
+            if signal == -1:
+                self.drop_count += 1
+                if self.drop_count >= 5:
+                    self.has_peaked = True
+                    self.rise_count = 0
+            else:
+                self.drop_count = 0
 
     def getTemp(self, packet):
 
