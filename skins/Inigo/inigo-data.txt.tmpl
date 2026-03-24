@@ -612,3 +612,9 @@ $current.OutTemp_max.raw|#slurp
 #else
 |#slurp
 #end if
+## 304
+#if $current.OutTemp_min.has_data
+$current.OutTemp_min.raw|#slurp
+#else
+|#slurp
+#end if
