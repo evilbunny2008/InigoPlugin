@@ -206,7 +206,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         last_5min = int(time.time() / 300) * 300
 
-        start = last_5min - (30 * 300)
+        start = last_5min - (41 * 300)
 
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
@@ -214,7 +214,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         log.info(f"initial_data: {initial_data}")
 
-        self.peak_detector = real_time_peak_detection(initial_data, lag=900, threshold=2.5, influence=0.1)
+        self.peak_detector = real_time_peak_detection(initial_data, lag=450, threshold=2.5, influence=0.1)
 
     def save_pickle_data(self, report=False):
 
