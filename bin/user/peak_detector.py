@@ -132,7 +132,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
 
-        self.load_pickle_data()
+        #self.load_pickle_data()
+        self.reset_peak_detector()
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
