@@ -33,7 +33,7 @@ class PickleFormattedData():
     def __init__(self, temp_history, loop_interval):
 
         self.temp_history = temp_history
-       self.loop_interval = loop_interval
+        self.loop_interval = loop_interval
 
 class PickleFormattedDataV2():
 
