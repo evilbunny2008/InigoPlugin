@@ -214,7 +214,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if len(self.interval_history) < 2:
             return
 
-        intervals = [t for _, t in self.interval_history]
+        intervals = [t for _, t in self.interval_history if t > 0 and t <= 15]
 
         self.loop_interval = int(sum(intervals) / len(intervals))
 
@@ -224,8 +224,10 @@ class PeakDetectorService(weewx.engine.StdService):
             self.last_loop_ts = ts
             return
 
-        self.interval_history.append((ts, ts - self.last_loop_ts))
-        self.update_interval()
+        new_interval = ts - self.last_loop_ts
+        if new_interval > 0 and new_interval <= 15:
+            self.interval_history.append((ts, new_interval))
+            self.update_interval()
 
     def save_pickle_data(self, report=False):
 
