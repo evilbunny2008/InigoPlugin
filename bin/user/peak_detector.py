@@ -197,9 +197,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         for row in stats.records():
 
-            vh = row.outTemp
+            vh = row.outTemp.toString()
 
-#            log.info(f"row.outTemp: {row.outTemp}")
+            log.info(f"vh: {vh}")
 
         #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)
 
