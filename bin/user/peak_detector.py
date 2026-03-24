@@ -64,6 +64,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.load_pickle_data()
 
+        self.loop_interval = 2
+        self.last_loop_ts = None
+
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
@@ -75,11 +78,11 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data(True)
 
-        record["outTemp_trend1"] = self.get_temp_trend(30)
-        record["outTemp_trend5"] = self.get_temp_trend(150)
-        record["outTemp_trend10"] = self.get_temp_trend(300)
-        record["outTemp_trend30"] = self.get_temp_trend(900)
-        record["outTemp_trend60"] = self.get_temp_trend(1800)
+        record["outTemp_trend1"] = self.get_temp_trend(60)
+        record["outTemp_trend5"] = self.get_temp_trend(300)
+        record["outTemp_trend10"] = self.get_temp_trend(600)
+        record["outTemp_trend30"] = self.get_temp_trend(1800)
+        record["outTemp_trend60"] = self.get_temp_trend(3600)
 
         log.info(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
         log.info(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
@@ -99,6 +102,13 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data()
 
+        if self.last_loop_ts is None:
+            self.last_loop_ts = ts
+            return
+
+        self.loop_interval = ts - self.last_loop_ts
+        self.last_loop_ts = ts
+
     def getTemp(self, packet):
 
         ts = int(packet.get("dateTime", time.time()))
@@ -113,14 +123,16 @@ class PeakDetectorService(weewx.engine.StdService):
             return ts, None
 
     # Trend calculation — call this wherever you need it
-    def get_temp_trend(self, samples):
-        if len(self.temp_history) < 2:
+    def get_temp_trend(self, seconds):
+        if len(self.temp_history) < 2 or self.loop_interval is None:
             return None  # not enough data
 
-        temps = [t for _, t in self.temp_history]
+        samples = seconds / self.loop_interval
 
-        if samples > len(temps):
-            samples = len(temps)
+        if samples > len(self.temp_history):
+            samples = len(self.temp_history)
+
+        temps = [t for _, t in self.temp_history]
 
         up   = sum(1 for i in range(1, samples) if temps[i] > temps[i-1])
         down = sum(1 for i in range(1, samples) if temps[i] < temps[i-1])
