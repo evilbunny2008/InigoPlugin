@@ -64,7 +64,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.load_pickle_data()
 
-        self.loop_interval = 2
+        self.loop_interval = 0
         self.last_loop_ts = None
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
@@ -106,7 +106,7 @@ class PeakDetectorService(weewx.engine.StdService):
             self.last_loop_ts = ts
             return
 
-        log.info(f"{self.__class__.__name__} ts - self.last_loop_ts == {(ts - self.last_loop_ts)} seconds")
+        #log.info(f"{self.__class__.__name__} ts - self.last_loop_ts == {(ts - self.last_loop_ts)} seconds")
 
         if self.loop_interval != ts - self.last_loop_ts and ts - self.last_loop_ts >= 2:
             self.loop_interval = ts - self.last_loop_ts
