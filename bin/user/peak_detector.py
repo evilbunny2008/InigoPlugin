@@ -150,8 +150,6 @@ class PeakDetectorService(weewx.engine.StdService):
         ts = time.time()
         temp = packet.get('outTemp', None)
 
-        log.info(f"ts: {ts}")
-
         if temp is None:
             return ts, None
 
