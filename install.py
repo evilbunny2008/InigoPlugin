@@ -132,7 +132,7 @@ class InigoInstaller(ExtensionInstaller):
             os.makedirs(cache_dir, exist_ok=True)
 
         desired_mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH | stat.S_ISGID
-        current_mode = os.stat(cache_dir)
+        current_mode = os.stat(cache_dir).st_mode
 
         engine.printer.out(f"desired_mode: {desired_mode}")
         engine.printer.out(f"current_mode: {current_mode}")
