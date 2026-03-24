@@ -106,11 +106,11 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        record["outTemp_trend1"] = self.get_temp_trend(60)
-        record["outTemp_trend5"] = self.get_temp_trend(300)
-        record["outTemp_trend10"] = self.get_temp_trend(600)
-        record["outTemp_trend30"] = self.get_temp_trend(1800)
-        record["outTemp_trend60"] = self.get_temp_trend(3600)
+        record["outTemp_trend1"] = self.get_temp_trend(1)
+        record["outTemp_trend5"] = self.get_temp_trend(5)
+        record["outTemp_trend10"] = self.get_temp_trend(10)
+        record["outTemp_trend30"] = self.get_temp_trend(30)
+        record["outTemp_trend60"] = self.get_temp_trend(60)
 
         now = datetime.now()
 
