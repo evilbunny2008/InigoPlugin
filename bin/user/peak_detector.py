@@ -230,19 +230,25 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        last_5min = int(time.time() / 300) * 300
+        if False:
 
-        start = last_5min - (31 * 300)
+            last_5min = int(time.time() / 300) * 300
 
-        stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
+            start = last_5min - (31 * 300)
 
-        initial_data = [row.outTemp.raw for row in stats.records()]
+            stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
-        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 450), np.arange(len(initial_data)), initial_data).tolist()]
+            initial_data = [row.outTemp.raw for row in stats.records()]
 
-        log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
+            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 450), np.arange(len(initial_data)), initial_data).tolist()]
 
-        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=450, threshold=2.0, influence=0.05)
+            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
+
+            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=450, threshold=2.0, influence=0.05)
+
+        else:
+
+            self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
 
