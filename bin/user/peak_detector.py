@@ -46,6 +46,8 @@ class real_time_peak_detection():
         self.avgFilter[self.lag - 1] = np.mean(self.y[0:self.lag]).tolist()
         self.stdFilter[self.lag - 1] = np.std(self.y[0:self.lag]).tolist()
 
+        self.start_time = datetime.now()
+
     def thresholding_algo(self, new_value):
         self.y.append(new_value)
         i = len(self.y) - 1
@@ -132,8 +134,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
 
-        #self.load_pickle_data()
-        self.reset_peak_detector()
+        self.load_pickle_data()
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -149,7 +150,8 @@ class PeakDetectorService(weewx.engine.StdService):
             return
 
         now = datetime.now()
-        if now.hour == 0 and now.minute == 0:
+        if self.peak_detector.start_time.date() != now.date():
+            log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
             self.reset_peak_detector()
             return
 
@@ -237,7 +239,7 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        if False:
+        if True:
 
             lag = 450
 
@@ -254,10 +256,6 @@ class PeakDetectorService(weewx.engine.StdService):
             log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
 
             self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
-
-        else:
-
-            self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
 
