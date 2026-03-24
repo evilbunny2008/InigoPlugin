@@ -89,6 +89,8 @@ class PeakDetectorService(weewx.engine.StdService):
         if self.interval_history.maxlen != 60:
             self.interval_history = deque(self.interval_history, maxlen=60)
 
+        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
+
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
