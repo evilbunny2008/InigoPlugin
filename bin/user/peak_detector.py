@@ -2,6 +2,7 @@
 # Simple weeWX loop and archive service to detect when outTemp has peaked.
 
 import logging
+import numpy as np
 import os
 import pickle
 import stat
@@ -11,7 +12,6 @@ import weewx
 import weewx.engine
 import weewx.manager
 
-from collections import deque
 from datetime import datetime, timedelta
 from weeutil.weeutil import TimeSpan
 from weewx.units import FtoC
@@ -29,27 +29,69 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
-class PickleFormattedData():
+# https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
+class real_time_peak_detection():
 
-    def __init__(self, temp_history, loop_interval):
+    def __init__(self, array, lag, threshold, influence):
+        self.y = list(array)
+        self.length = len(self.y)
+        self.lag = lag
+        self.threshold = threshold
+        self.influence = influence
+        self.signals = [0] * len(self.y)
+        self.filteredY = np.array(self.y).tolist()
+        self.avgFilter = [0] * len(self.y)
+        self.stdFilter = [0] * len(self.y)
+        self.avgFilter[self.lag - 1] = np.mean(self.y[0:self.lag]).tolist()
+        self.stdFilter[self.lag - 1] = np.std(self.y[0:self.lag]).tolist()
 
-        self.temp_history = temp_history
-        self.loop_interval = loop_interval
+    def thresholding_algo(self, new_value):
+        self.y.append(new_value)
+        i = len(self.y) - 1
+        self.length = len(self.y)
 
-class PickleFormattedDataV2():
+        if i < self.lag:
+            return 0
 
-    def __init__(self, temp_history, interval_history):
+        elif i == self.lag:
+            self.signals = [0] * len(self.y)
+            self.filteredY = np.array(self.y).tolist()
+            self.avgFilter = [0] * len(self.y)
+            self.stdFilter = [0] * len(self.y)
+            self.avgFilter[self.lag] = np.mean(self.y[0:self.lag]).tolist()
+            self.stdFilter[self.lag] = np.std(self.y[0:self.lag]).tolist()
+            return 0
 
-        self.temp_history = temp_history
-        self.interval_history = interval_history
+        self.signals += [0]
+        self.filteredY += [0]
+        self.avgFilter += [0]
+        self.stdFilter += [0]
+
+        if abs(self.y[i] - self.avgFilter[i - 1]) > (self.threshold * self.stdFilter[i - 1]):
+
+            if self.y[i] > self.avgFilter[i - 1]:
+                self.signals[i] = 1
+            else:
+                self.signals[i] = -1
+
+            self.filteredY[i] = self.influence * self.y[i] + \
+                (1 - self.influence) * self.filteredY[i - 1]
+            self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag):i])
+            self.stdFilter[i] = np.std(self.filteredY[(i - self.lag):i])
+
+        else:
+            self.signals[i] = 0
+            self.filteredY[i] = self.y[i]
+            self.avgFilter[i] = np.mean(self.filteredY[(i - self.lag):i])
+            self.stdFilter[i] = np.std(self.filteredY[(i - self.lag):i])
+
+        return self.signals[i]
 
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
-
-        self.temp_history = deque(maxlen=3600)
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -80,11 +122,6 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.load_pickle_data()
 
-        if self.temp_history.maxlen != 3600:
-            self.temp_history = deque(self.temp_history, maxlen=3600)
-
-        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
-
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
@@ -100,31 +137,6 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        record["outTemp_trend1"] = self.get_temp_trend(1)
-        record["outTemp_trend5"] = self.get_temp_trend(5)
-        record["outTemp_trend10"] = self.get_temp_trend(10)
-        record["outTemp_trend30"] = self.get_temp_trend(30)
-        record["outTemp_trend60"] = self.get_temp_trend(60)
-
-        now = datetime.now()
-
-        after4pm = now.hour >= 16
-
-        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
-
-        outTemp_max = round(stats.outTemp.max.raw, 1)
-
-        record["outTemp_max"] = outTemp_max
-
-        outTemp_peaked = temp < outTemp_max
-
-        log.info(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
-        log.info(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
-        log.info(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
-        log.info(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
-        log.info(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
         log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
 
     def handle_loop_packet(self, event):
@@ -134,10 +146,6 @@ class PeakDetectorService(weewx.engine.StdService):
         ts, temp = self.getTemp(packet)
         if temp is None:
             return
-
-        self.temp_history.append((ts, temp))
-
-        self.save_pickle_data()
 
     def getTemp(self, packet):
 
@@ -151,28 +159,6 @@ class PeakDetectorService(weewx.engine.StdService):
             return ts, round(float(temp), 1)
         except (ValueError, TypeError):
             return ts, None
-
-    # Trend calculation — call this wherever you need it
-    def get_temp_trend(self, minutes):
-        if len(self.temp_history) < 2:
-            return None  # not enough data
-
-        temps = [temp for ts, temp in self.temp_history if ts >= time.time() - (minutes * 60)]
-
-        up   = sum(1 for i in range(1, len(temps)) if temps[i] > temps[i-1])
-        down = sum(1 for i in range(1, len(temps)) if temps[i] < temps[i-1])
-        total = up + down
-
-        if total == 0:
-            return "steady"
-
-        ratio = down / total
-        if ratio >= 0.65:
-            return "falling"
-        elif ratio <= 0.35:
-            return "rising"
-        else:
-            return "steady"
 
     def shutDown(self):
 
@@ -189,30 +175,36 @@ class PeakDetectorService(weewx.engine.StdService):
 
                     ret = pickle.load(f)
 
-                    if isinstance(ret, PickleFormattedDataV2):
-                        log.info(f"{self.__class__.__name__} pickle file is PickleFormattedDataV2")
-                        self.temp_history = ret.temp_history
-                    elif isinstance(ret, PickleFormattedData):
-                        log.info(f"{self.__class__.__name__} pickle file is PickleFormattedData")
-                        self.temp_history = ret.temp_history
-                    elif isinstance(ret, deque):
-                        log.info(f"{self.__class__.__name__} pickle file is raw deque")
-                        self.temp_history = ret
-
-                    log.info(f"{self.__class__.__name__} loaded {len(self.temp_history)} records from pickle file")
+                    if isinstance(ret, real_time_peak_detection):
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file")
+                        self.peak_detector = ret
+                        return
 
             except Exception as e:
                 pass
+
+        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
+
+        last_5min = int(time.time() / 300) * 300
+
+        start = last_5min - (30 * 300)
+
+        stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
+
+        for row in stats:
+            print(f"row: {row}")
+
+        #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)
 
     def save_pickle_data(self, report=False):
 
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pickle.dump(self.temp_history, f)
+                pickle.dump(self.peak_detector, f)
 
                 if report:
-                    log.info(f"{self.__class__.__name__} saved {len(self.temp_history)} records to the pickle file")
+                    log.info(f"{self.__class__.__name__} saved self.peak_detector to the pickle file")
 
         except Exception as e:
             raise e
