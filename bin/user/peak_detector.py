@@ -176,25 +176,23 @@ class PeakDetectorService(weewx.engine.StdService):
                 with open(self.pickle_filename, "rb") as f:
                     ret = pickle.load(f)
 
-                    if ret is not None:
-                        if isinstance(ret, PickleFormattedDataV2):
-                            log.info(f"{self.__class__.__name__} pickle file is PickleFormattedDataV2")
-                            self.temp_history = ret.temp_history
-                            self.interval_history = ret.interval_history
-                            self.update_interval()
-                        elif isinstance(ret, PickleFormattedData):
-                            log.info(f"{self.__class__.__name__} pickle file is PickleFormattedData")
-                            self.temp_history = ret.temp_history
-                            self.loop_interval = ret.loop_interval
-                        elif isinstance(ret, deque):
-                            log.info(f"{self.__class__.__name__} pickle file is raw deque")
-                            self.temp_history = ret
+                    if ret is None:
+                        return
 
-                        if len(self.temp_history) > 0:
-                            log.info(f"{self.__class__.__name__} loaded {len(self.temp_history)} records from pickle file")
+                    if isinstance(ret, PickleFormattedDataV2):
+                        log.info(f"{self.__class__.__name__} pickle file is PickleFormattedDataV2")
+                        self.temp_history = ret.temp_history
+                        self.interval_history = ret.interval_history
+                        self.update_interval()
+                    elif isinstance(ret, PickleFormattedData):
+                        log.info(f"{self.__class__.__name__} pickle file is PickleFormattedData")
+                        self.temp_history = ret.temp_history
+                        self.loop_interval = ret.loop_interval
+                    elif isinstance(ret, deque):
+                        log.info(f"{self.__class__.__name__} pickle file is raw deque")
+                        self.temp_history = ret
 
-                        if self.loop_interval > 0:
-                            log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
+                    log.info(f"{self.__class__.__name__} loaded {len(self.temp_history)} records from pickle file")
 
             except Exception as e:
                 pass
