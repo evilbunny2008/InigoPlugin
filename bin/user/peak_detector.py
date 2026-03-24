@@ -97,12 +97,14 @@ class PeakDetectorService(weewx.engine.StdService):
         record["outTemp_trend10"] = self.get_temp_trend(600)
         record["outTemp_trend30"] = self.get_temp_trend(1800)
         record["outTemp_trend60"] = self.get_temp_trend(3600)
+        record["outTemp_trend"] = self.get_temp_trend(0)
 
         log.info(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
         log.info(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
         log.info(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
         log.info(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
         log.info(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend: {record['outTemp_trend']}")
 
     def handle_loop_packet(self, event):
 
@@ -136,7 +138,10 @@ class PeakDetectorService(weewx.engine.StdService):
         if len(self.temp_history) < 2 or self.loop_interval is None or self.loop_interval < 2:
             return None  # not enough data
 
-        samples = int(seconds / self.loop_interval)
+        if seconds > 1:
+            samples = int(seconds / self.loop_interval)
+        else:
+            samples = len(self.temp_history)
 
         if samples > len(self.temp_history):
             samples = len(self.temp_history)
