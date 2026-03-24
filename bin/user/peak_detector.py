@@ -177,7 +177,7 @@ class PeakDetectorService(weewx.engine.StdService):
         record["OutTemp_min"] = round(OutTemp_min, 1)
 
         log.info(f"{self.__class__.__name__} OutTemp_max: {record['OutTemp_max']}")
-        log.info(f"{self.__class__.__name__} OutTemp_min: {record['OutTemp_min'])}")
+        log.info(f"{self.__class__.__name__} OutTemp_min: {record['OutTemp_min']}")
 
         record["OutTemp_dropCount"] = self.drop_count
         record["OutTemp_hasPeaked"] = self.has_peaked
