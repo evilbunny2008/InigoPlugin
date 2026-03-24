@@ -122,7 +122,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         if uid != 0 and uid != cuid:
             raise weewx.UnsupportedFeature(
-                f"PeakDetectorService failed to start due to permissions on {self.cache_dir} directory uid: {uid}, cuid: {cuid}")
+                f"{self.__class__.__name__} failed to start due to permissions on {self.cache_dir} directory uid: {uid}, cuid: {cuid}")
 
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
@@ -143,6 +143,9 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
+        log.info(f"{self.__class__.__name__} self.signal: {self.signal}")
+        log.info(f"{self.__class__.__name__} self.drop_count: {self.drop_count}")
+
         #log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
 
     def handle_loop_packet(self, event):
@@ -153,18 +156,14 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        signal = self.peak_detector.thresholding_algo(temp)
+        self.signal = self.peak_detector.thresholding_algo(temp)
 
-        log.info(f"signal: {signal}")
-
-        if signal == -1:
+        if self.signal == -1:
             self.drop_count += 1
             if self.drop_count >= 5:
                 self.has_peaked = True
         else:
             self.drop_count = 0
-
-        log.info(f"self.drop_count: {self.drop_count}")
 
     def getTemp(self, packet):
 
@@ -217,7 +216,7 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"len(initial_data_expanded): {len(initial_data_expanded)}")
         log.info(f"initial_data_expanded: {initial_data_expanded}")
 
-        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=900, threshold=2.5, influence=0.1)
+        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=900, threshold=2.0, influence=0.05)
 
     def save_pickle_data(self, report=False):
 
