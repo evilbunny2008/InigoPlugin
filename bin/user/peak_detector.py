@@ -178,7 +178,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         lag = 450
 
-        initial_data = [0.0] * (lag + 1)
+        initial_data = [0.0] * lag
 
         log.info(f"len(initial_data): {len(initial_data)}")
 
@@ -245,7 +245,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
             last_5min = int(time.time() / 300) * 300
 
-            start = last_5min - (16 * 300)
+            start = last_5min - (15 * 300) - 60
 
             stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
