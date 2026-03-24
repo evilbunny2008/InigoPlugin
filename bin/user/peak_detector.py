@@ -4,6 +4,7 @@
 import logging
 import os
 import pickle
+import stat
 import sys
 import time
 import weewx
@@ -51,8 +52,12 @@ class PeakDetectorService(weewx.engine.StdService):
                          if temp_group is not None and temp_group == "degree_F":
                              self.usUnit = weewx.US
 
+        uid = os.getuid()
+        statinfo = os.stat(self.cache_dir)
+        suid = statinfo.st_uid
 
-        os.makedirs(self.cache_dir, exist_ok=True)
+        if uid != suid:
+
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
         self.load_pickle_data()
@@ -74,11 +79,11 @@ class PeakDetectorService(weewx.engine.StdService):
         record["outTemp_trend30"] = self.get_temp_trend(900)
         record["outTemp_trend60"] = self.get_temp_trend(1800)
 
-        print(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
-        print(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
-        print(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
-        print(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
-        print(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
+        log.info(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
 
     def handle_loop_packet(self, event):
 
