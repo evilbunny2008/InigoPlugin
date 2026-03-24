@@ -29,11 +29,20 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
+class PickleFormattedData():
+
+    def __init__(self, temp_history, loop_time)
+
+        self.temp_history = temp_history
+        self.loop_time = loop_time
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
+
+        self.temp_history = None
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -166,12 +175,20 @@ class PeakDetectorService(weewx.engine.StdService):
 
             try:
                 with open(self.pickle_filename, "rb") as f:
-                    self.temp_history = pickle.load(f)
+                    ret = pickle.load(f)
 
-                    temps = [t for _, t in self.temp_history]
+                    if ret is not None:
+                        if isinstance(ret, PickleFormattedData):
+                            self.temp_history = ret.temp_history
+                            self.loop_time = ret.loop_time
+                        elif isinstance(ret, deque):
+                            self.temp_history = ret
 
-                    log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
-                    return
+                        if self.temp_history is not None:
+                            temps = [t for _, t in self.temp_history]
+
+                            log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
+                            return
 
             except Exception as e:
                 pass

@@ -1,6 +1,6 @@
 # installer for the inigo template.
 #
-# 23rd of Mar 2026
+# 24th of Mar 2026
 
 import configobj
 import os
