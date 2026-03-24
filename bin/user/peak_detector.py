@@ -99,19 +99,36 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data(True)
 
+        ts, temp = self.getTemp(record)
+        if temp is None:
+            return
+
         record["outTemp_trend1"] = self.get_temp_trend(60)
         record["outTemp_trend5"] = self.get_temp_trend(300)
         record["outTemp_trend10"] = self.get_temp_trend(600)
         record["outTemp_trend30"] = self.get_temp_trend(1800)
         record["outTemp_trend60"] = self.get_temp_trend(3600)
-        record["outTemp_trend"] = self.get_temp_trend(0)
+
+        now = datetime.now()
+
+        after4pm = now.hour >= 16
+
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
+
+        outTemp_max = stats.outTemp.max.raw
+
+        record["outTemp_max"] = outTemp_max
+
+        outTemp_peaked = temp < outTemp_max
 
         log.info(f"{self.__class__.__name__} outTemp_trend1: {record['outTemp_trend1']}")
         log.info(f"{self.__class__.__name__} outTemp_trend5: {record['outTemp_trend5']}")
         log.info(f"{self.__class__.__name__} outTemp_trend10: {record['outTemp_trend10']}")
         log.info(f"{self.__class__.__name__} outTemp_trend30: {record['outTemp_trend30']}")
         log.info(f"{self.__class__.__name__} outTemp_trend60: {record['outTemp_trend60']}")
-        log.info(f"{self.__class__.__name__} outTemp_trend: {record['outTemp_trend']}")
+        log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
 
     def handle_loop_packet(self, event):
 
@@ -129,31 +146,25 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def getTemp(self, packet):
 
-        ts = int(packet.get("dateTime", time.time()))
+        ts = time.time()
         temp = packet.get('outTemp', None)
+
+        log.info(f"ts: {ts}")
 
         if temp is None:
             return ts, None
 
         try:
-            return ts, float(temp)
+            return ts, round(float(temp), 1)
         except (ValueError, TypeError):
             return ts, None
 
     # Trend calculation — call this wherever you need it
-    def get_temp_trend(self, seconds):
+    def get_temp_trend(self, minutes):
         if len(self.temp_history) < 2 or self.loop_interval is None or self.loop_interval < 2:
             return None  # not enough data
 
-        if seconds > 1:
-            samples = int(seconds / self.loop_interval)
-        else:
-            samples = len(self.temp_history)
-
-        if samples > len(self.temp_history):
-            samples = len(self.temp_history)
-
-        temps = [t for _, t in self.temp_history]
+        temps = [temp for ts, temp in self.temp_history if ts >= time.time() - (minutes * 60)]
 
         up   = sum(1 for i in range(1, samples) if temps[i] > temps[i-1])
         down = sum(1 for i in range(1, samples) if temps[i] < temps[i-1])
