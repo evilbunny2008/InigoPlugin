@@ -13,6 +13,7 @@ import weewx.manager
 
 from collections import deque
 from datetime import datetime, timedelta
+from weeutil.weeutil import TimeSpan
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
 
