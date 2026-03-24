@@ -31,15 +31,10 @@ if weewx.__version__ < "4":
 
 class PickleFormattedData():
 
-    temp_history = deque(maxlen=3600)
-    loop_interval = 0
-    last_loop_ts = 0
-
-    def __init__(self, temp_history, loop_interval, last_loop_ts):
+    def __init__(self, temp_history, loop_interval):
 
         self.temp_history = temp_history
         self.loop_interval = loop_interval
-        self.last_loop_ts = last_loop_ts
 
 class PeakDetectorService(weewx.engine.StdService):
 
@@ -187,7 +182,6 @@ class PeakDetectorService(weewx.engine.StdService):
                         if isinstance(ret, PickleFormattedData):
                             self.temp_history = ret.temp_history
                             self.loop_interval = ret.loop_interval
-                            self.last_loop_ts = ret.last_loop_ts
                         elif isinstance(ret, deque):
                             self.temp_history = ret
 
@@ -210,7 +204,7 @@ class PeakDetectorService(weewx.engine.StdService):
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pfd = PickleFormattedData(self.temp_history, self.loop_interval, self.last_loop_ts)
+                pfd = PickleFormattedData(self.temp_history, self.loop_interval)
 
                 pickle.dump(pfd, f)
 
