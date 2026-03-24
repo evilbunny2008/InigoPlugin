@@ -168,14 +168,16 @@ class PeakDetectorService(weewx.engine.StdService):
         stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
 
         OutTemp_max = stats.outTemp.max.raw
-        if OutTemp_max is not None:
+        if OutTemp_max is None:
 
-            if self.usUnit != weewx.US:
-                OutTemp_max = FtoC(OutTemp_max)
+            OutTemp_max = temp
 
-            record["OutTemp_max"] = round(OutTemp_max, 1)
+        if self.usUnit != weewx.US:
+            OutTemp_max = FtoC(OutTemp_max)
 
-            log.info(f"{self.__class__.__name__} OutTemp_max: {round(stats.outTemp.max.raw, 1)}")
+        record["OutTemp_max"] = round(OutTemp_max, 1)
+
+        log.info(f"{self.__class__.__name__} OutTemp_max: {round(stats.outTemp.max.raw, 1)}")
 
     def reset_peak_detector(self):
 
