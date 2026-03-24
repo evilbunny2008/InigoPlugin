@@ -57,6 +57,8 @@ class PeakDetectorService(weewx.engine.StdService):
         suid = statinfo.st_uid
 
         if uid != suid:
+            raise weewx.UnsupportedFeature(
+                f"PeakDetectorService failed to start due to permissions on {self.cache_dir} directory")
 
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
