@@ -102,9 +102,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.drop_count = 0
 
-        self.has_peaked = False
+        self.rise_count
 
-        self.signal = 0
+        self.has_peaked = False
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -185,21 +185,6 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
 
-    def reset_peak_detector(self):
-
-        self.has_peaked = False
-        self.drop_count = 0
-
-        lag = 450
-
-        initial_data = [0.0] * lag
-
-        log.info(f"len(initial_data): {len(initial_data)}")
-
-        self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
-
-        self.save_pickle_data(True)
-
     def handle_loop_packet(self, event):
 
         packet = event.packet
@@ -230,6 +215,21 @@ class PeakDetectorService(weewx.engine.StdService):
                     self.rise_count = 0
             else:
                 self.drop_count = 0
+
+    def reset_peak_detector(self):
+
+        self.has_peaked = False
+        self.drop_count = 0
+
+        lag = 450
+
+        initial_data = [0.0] * lag
+
+        log.info(f"len(initial_data): {len(initial_data)}")
+
+        self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
+
+        self.save_pickle_data(True)
 
     def getTemp(self, packet):
 
