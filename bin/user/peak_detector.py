@@ -239,7 +239,7 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        if True:
+        if False:
 
             lag = 450
 
@@ -256,6 +256,11 @@ class PeakDetectorService(weewx.engine.StdService):
             log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
 
             self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
+
+        else:
+
+            log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
+            self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
 
