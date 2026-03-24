@@ -106,9 +106,9 @@ class PeakDetectorService(weewx.engine.StdService):
             self.last_loop_ts = ts
             return
 
-        if self.loop_interval != ts - self.last_loop_ts:
+        if self.loop_interval != ts - self.last_loop_ts and ts - self.last_loop_ts >= 2:
             self.loop_interval = ts - self.last_loop_ts
-            log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval}s")
+            log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
 
         self.last_loop_ts = ts
 
