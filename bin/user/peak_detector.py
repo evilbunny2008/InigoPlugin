@@ -201,6 +201,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         signal = self.peak_detector.thresholding_algo(temp)
 
+        self.save_pickle_data()
+
         if signal == -1:
             self.drop_count += 1
             if self.drop_count >= 5:
