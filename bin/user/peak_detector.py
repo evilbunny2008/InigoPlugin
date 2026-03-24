@@ -93,6 +93,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
+        self.config_dict = config_dict
+
         self.cache_dir = "/tmp/peak_detector"
 
         self.usUnit = weewx.METRIC
@@ -183,7 +185,7 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
+        self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
 
         last_5min = int(time.time() / 300) * 300
 
