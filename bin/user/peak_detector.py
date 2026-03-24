@@ -143,21 +143,22 @@ class PeakDetectorService(weewx.engine.StdService):
 
         record = event.record
 
-        self.save_pickle_data(True)
-
         ts, temp = self.getTemp(record)
         if temp is None:
             return
 
+        now = datetime.now()
+        if now.hour == 0 and now.minute == 0:
+            self.reset_peak_detector()
+            return
+
+        self.save_pickle_data(True)
+
         record["OutTemp_dropCount"] = self.drop_count
         record["OutTemp_hasPeaked"] = self.has_peaked
-        record["OutTemp_signal"] = self.signal
 
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
-        log.info(f"{self.__class__.__name__} OutTemp_signal: {self.signal}")
-
-        now = datetime.now()
 
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -167,6 +168,15 @@ class PeakDetectorService(weewx.engine.StdService):
 
         log.info(f"{self.__class__.__name__} OutTemp_max: {round(stats.outTemp.max.raw, 1)}")
 
+    def reset_peak_detector(self):
+
+        self.has_peaked = False
+        self.drop_count = 0
+
+        self.peak_detector = real_time_peak_detection([0.0, 0.0], lag=450, threshold=2.0, influence=0.05)
+
+        self.save_pickle_data(True)
+
     def handle_loop_packet(self, event):
 
         packet = event.packet
@@ -175,9 +185,9 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        self.signal = self.peak_detector.thresholding_algo(temp)
+        signal = self.peak_detector.thresholding_algo(temp)
 
-        if self.signal == -1:
+        if signal == -1:
             self.drop_count += 1
             if self.drop_count >= 5:
                 self.has_peaked = True
@@ -228,12 +238,11 @@ class PeakDetectorService(weewx.engine.StdService):
 
         initial_data = [row.outTemp.raw for row in stats.records()]
 
-        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 900), np.arange(len(initial_data)), initial_data).tolist()]
+        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 450), np.arange(len(initial_data)), initial_data).tolist()]
 
         log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
-        #log.info(f"initial_data_expanded: {initial_data_expanded}")
 
-        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=900, threshold=2.0, influence=0.05)
+        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=450, threshold=2.0, influence=0.05)
 
     def save_pickle_data(self, report=False):
 
