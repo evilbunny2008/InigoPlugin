@@ -32,6 +32,14 @@ Use the --imperial argument
 sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --imperial
 ```
 
+### Non system package installs
+
+If installed weeWX using pip, instead of a system package, you may need to use full paths for both weectl and the weewx.conf file.
+
+```
+sudo /opt/weewx/weewx-venv/bin/weectl extension install --yes --config /opt/weewx/weewx-data/weewx.conf https://github.com/evilbunny2008/InigoPlugin/archive/master.zip 
+```
+
 ## Installing an Almanac (optional)
 
 If you would like to see next moon rise/set in the app, you just need to install the skyfield extension
