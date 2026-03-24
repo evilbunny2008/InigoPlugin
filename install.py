@@ -134,10 +134,10 @@ class InigoInstaller(ExtensionInstaller):
         desired_mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH | stat.S_ISGID
         current_mode = os.stat(cache_dir).st_mode
 
-        engine.printer.out(f"desired_mode: {desired_mode}")
+        engine.printer.out(f"desired_mode: {(desired_mode | stat.S_IFDIR)}")
         engine.printer.out(f"current_mode: {current_mode}")
 
-        if current_mode != desired_mode:
+        if current_mode != desired_mode | stat.S_IFDIR:
             os.chmod(cache_dir, desired_mode)
 
         statinfo = os.stat(cache_dir)
