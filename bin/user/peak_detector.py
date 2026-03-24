@@ -65,7 +65,7 @@ class PeakDetectorService(weewx.engine.StdService):
         statinfo = os.stat(self.cache_dir)
         cuid = statinfo.st_uid
 
-        if uid != cuid:
+        if uid != 0 and uid != cuid:
             raise weewx.UnsupportedFeature(
                 f"PeakDetectorService failed to start due to permissions on {self.cache_dir} directory uid: {uid}, cuid: {cuid}")
 
