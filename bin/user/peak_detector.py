@@ -31,10 +31,11 @@ if weewx.__version__ < "4":
 
 class PickleFormattedData():
 
-    def __init__(self, temp_history, loop_interval):
+    def __init__(self, temp_history, loop_interval, last_loop_ts=None):
 
         self.temp_history = temp_history
         self.loop_interval = loop_interval
+        self.last_loop_ts = last_loop_ts
 
 class PeakDetectorService(weewx.engine.StdService):
 
@@ -168,8 +169,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def load_pickle_data(self):
 
-        self.loop_interval = 0
         self.last_loop_ts = None
+        self.loop_interval = 0
+        self.temp_history = None
 
         if os.path.exists(self.pickle_filename):
 
@@ -181,11 +183,11 @@ class PeakDetectorService(weewx.engine.StdService):
                         if isinstance(ret, PickleFormattedData):
                             self.temp_history = ret.temp_history
                             self.loop_interval = ret.loop_interval
+                            self.last_loop_ts = ret.last_loop_ts
                         elif isinstance(ret, deque):
                             self.temp_history = ret
 
-                        if self.temp_history is not None:
-                            temps = [t for _, t in self.temp_history]
+                        if self.temp_history is not None and len(self.temp_history) > 0:
 
                             log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
                             if self.loop_interval > 0:
@@ -196,15 +198,15 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=1800)")
-        self.temp_history = deque(maxlen=1800)
+        log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=3600)")
+        self.temp_history = deque(maxlen=3600)
 
     def save_pickle_data(self, report=False):
 
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pfd = PickleFormattedData(self.temp_history, self.loop_interval)
+                pfd = PickleFormattedData(self.temp_history, self.loop_interval, self.last_loop_ts)
 
                 pickle.dump(pfd, f)
 
