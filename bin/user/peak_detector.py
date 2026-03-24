@@ -197,13 +197,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         for row in stats.records():
 
-            row_str = str(row)
-
-            log.info(f"row_str: {row_str}")
-
-            row_str = row.toString()
-
-            log.info(f"row_str: {row_str}")
+            log.info(f"row.dateTime.raw: {row.dateTime.raw}")
 
             log.info(f"row.outTemp.raw: {row.outTemp.raw}")
 
