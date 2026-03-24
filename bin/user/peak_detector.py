@@ -35,6 +35,13 @@ class PickleFormattedData():
         self.temp_history = temp_history
         self.loop_interval = loop_interval
 
+class PickleFormattedDataV2():
+
+    def __init__(self, temp_history, interval_history):
+
+        self.temp_history = temp_history
+        self.interval_history = interval_history
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
@@ -42,6 +49,8 @@ class PeakDetectorService(weewx.engine.StdService):
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
         self.temp_history = None
+        self.interval_history = None
+        self.last_loop_ts = None
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -72,7 +81,13 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.load_pickle_data()
 
-        self.last_loop_ts = None
+        if self.temp_history is None:
+            log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=3600)")
+            self.temp_history = deque(maxlen=3600)
+
+        if self.interval_history is None:
+            log.info(f"{self.__class__.__name__} self.interval_history = deque(maxlen=300)")
+            self.interval_history = deque(maxlen=300)
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -105,21 +120,11 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
+        self.add_interval(ts)
+
         self.temp_history.append((ts, temp))
 
         self.save_pickle_data()
-
-        if self.last_loop_ts is None:
-            self.last_loop_ts = ts
-            return
-
-        #log.info(f"{self.__class__.__name__} ts - self.last_loop_ts == {(ts - self.last_loop_ts)} seconds")
-
-        if self.loop_interval != ts - self.last_loop_ts and ts - self.last_loop_ts >= 2:
-            self.loop_interval = ts - self.last_loop_ts
-            log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
-
-        self.last_loop_ts = ts
 
     def getTemp(self, packet):
 
@@ -171,6 +176,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.loop_interval = 0
         self.temp_history = None
+        self.interval_history = None
 
         if os.path.exists(self.pickle_filename):
 
@@ -179,7 +185,11 @@ class PeakDetectorService(weewx.engine.StdService):
                     ret = pickle.load(f)
 
                     if ret is not None:
-                        if isinstance(ret, PickleFormattedData):
+                        if isinstance(ret, PickleFormattedDataV2):
+                            self.temp_history = ret.temp_history
+                            self.interval_history = ret.interval_history
+                            self.update_interval()
+                        elif isinstance(ret, PickleFormattedData):
                             self.temp_history = ret.temp_history
                             self.loop_interval = ret.loop_interval
                         elif isinstance(ret, deque):
@@ -196,17 +206,32 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=3600)")
-        self.temp_history = deque(maxlen=3600)
+    def update_interval(self):
+
+        if len(self.interval_history) < 2:
+            return
+
+        intervals = [t for _, t in self.interval_history]
+
+        self.loop_interval = int(sum(intervals) / len(intervals))
+
+    def add_interval(self, ts):
+
+        if self.last_loop_ts is None:
+            self.last_loop_ts = ts
+            return
+
+        self.interval_history.append((ts, ts - self.last_loop_ts))
+        self.update_interval()
 
     def save_pickle_data(self, report=False):
 
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pfd = PickleFormattedData(self.temp_history, self.loop_interval)
+                pfd2 = PickleFormattedDataV2(self.temp_history, self.interval_history)
 
-                pickle.dump(pfd, f)
+                pickle.dump(pfd2, f)
 
                 if report:
                     log.info(f"{self.__class__.__name__} saved self.loop_interval as {self.loop_interval} seconds and {len(self.temp_history)} records to the pickle file")
