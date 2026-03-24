@@ -206,18 +206,18 @@ class PeakDetectorService(weewx.engine.StdService):
 
         last_5min = int(time.time() / 300) * 300
 
-        start = last_5min - (72 * 300)
+        start = last_5min - (31 * 300)
 
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
         initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
 
-        initial_data_expanded = np.interp(np.linspace(0, len(initial_data)-1, 450), np.arange(len(initial_data)), initial_data).tolist()
+        initial_data_expanded = np.interp(np.linspace(0, len(initial_data)-1, 900), np.arange(len(initial_data)), initial_data).tolist()
 
         log.info(f"len(initial_data_expanded): {len(initial_data_expanded)}")
         log.info(f"initial_data_expanded: {initial_data_expanded}")
 
-        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=450, threshold=2.5, influence=0.1)
+        self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=900, threshold=2.5, influence=0.1)
 
     def save_pickle_data(self, report=False):
 
