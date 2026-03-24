@@ -259,7 +259,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         else:
 
-            log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
+            if self.peak_detector is not None:
+                log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
+
             self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
