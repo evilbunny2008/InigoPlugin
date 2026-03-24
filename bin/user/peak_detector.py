@@ -48,8 +48,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        self.temp_history = None
-        self.interval_history = None
+        self.temp_history = deque(maxlen=3600)
+        self.interval_history = deque(maxlen=60)
         self.last_loop_ts = None
 
         self.cache_dir = "/tmp/peak_detector"
@@ -80,14 +80,6 @@ class PeakDetectorService(weewx.engine.StdService):
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
         self.load_pickle_data()
-
-        if self.temp_history is None:
-            log.info(f"{self.__class__.__name__} self.temp_history = deque(maxlen=3600)")
-            self.temp_history = deque(maxlen=3600)
-
-        if self.interval_history is None:
-            log.info(f"{self.__class__.__name__} self.interval_history = deque(maxlen=300)")
-            self.interval_history = deque(maxlen=300)
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -198,13 +190,11 @@ class PeakDetectorService(weewx.engine.StdService):
                             log.info(f"{self.__class__.__name__} pickle file is raw deque")
                             self.temp_history = ret
 
-                        if self.temp_history is not None:
-
+                        if len(self.temp_history) > 0:
                             log.info(f"{self.__class__.__name__} loaded {len(self.temp_history)} records from pickle file")
-                            if self.loop_interval > 0:
-                                log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
 
-                            return
+                        if self.loop_interval > 0:
+                            log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
 
             except Exception as e:
                 pass
