@@ -210,9 +210,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
-        initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
+        initial_data = [row.outTemp.raw for row in stats.records()]
 
-        initial_data_expanded = np.interp(np.linspace(0, len(initial_data)-1, 900), np.arange(len(initial_data)), initial_data).tolist()
+        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 900), np.arange(len(initial_data)), initial_data).tolist()]
 
         log.info(f"len(initial_data_expanded): {len(initial_data_expanded)}")
         log.info(f"initial_data_expanded: {initial_data_expanded}")
