@@ -188,6 +188,9 @@ class PeakDetectorService(weewx.engine.StdService):
                             temps = [t for _, t in self.temp_history]
 
                             log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
+                            if self.loop_interval > 0:
+                                log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
+
                             return
 
             except Exception as e:
