@@ -140,7 +140,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
+        #log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
 
     def handle_loop_packet(self, event):
 
