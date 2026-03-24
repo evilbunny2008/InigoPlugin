@@ -31,10 +31,10 @@ if weewx.__version__ < "4":
 
 class PickleFormattedData():
 
-    def __init__(self, temp_history, loop_time):
+    def __init__(self, temp_history, loop_interval):
 
         self.temp_history = temp_history
-        self.loop_time = loop_time
+        self.loop_interval = loop_interval
 
 class PeakDetectorService(weewx.engine.StdService):
 
@@ -180,7 +180,7 @@ class PeakDetectorService(weewx.engine.StdService):
                     if ret is not None:
                         if isinstance(ret, PickleFormattedData):
                             self.temp_history = ret.temp_history
-                            self.loop_time = ret.loop_time
+                            self.loop_interval = ret.loop_interval
                         elif isinstance(ret, deque):
                             self.temp_history = ret
 
@@ -201,12 +201,12 @@ class PeakDetectorService(weewx.engine.StdService):
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pfd = PickleFormattedData(self.temp_history, self.loop_time)
+                pfd = PickleFormattedData(self.temp_history, self.loop_interval)
 
                 pickle.dump(pfd, f)
 
                 if report:
-                    log.info(f"{self.__class__.__name__} saved self.loop_time as {self.loop_time} seconds and {len(self.temp_history)} records to the pickle file")
+                    log.info(f"{self.__class__.__name__} saved self.loop_interval as {self.loop_interval} seconds and {len(self.temp_history)} records to the pickle file")
 
         except Exception as e:
             raise e
