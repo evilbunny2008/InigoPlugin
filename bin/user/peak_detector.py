@@ -98,6 +98,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.peak_detector = None
 
+        self.has_peaked = False
+
         self.drop_count = 0
 
         self.cache_dir = "/tmp/peak_detector"
@@ -143,10 +145,13 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        log.info(f"{self.__class__.__name__} self.signal: {self.signal}")
-        log.info(f"{self.__class__.__name__} self.drop_count: {self.drop_count}")
+        record["OutTemp_dropCount"] = self.drop_count
+        record["OutTemp_hasPeaked"] = self.has_peaked
+        record["OutTemp_signal"] = self.signal
 
-        #log.info(f"{self.__class__.__name__} outTemp_max: {record['outTemp_max']}")
+        log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
+        log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {OutTemp_hasPeaked}")
+        log.info(f"{self.__class__.__name__} OutTemp_signal: {OutTemp_signal}")
 
     def handle_loop_packet(self, event):
 
@@ -213,8 +218,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, 900), np.arange(len(initial_data)), initial_data).tolist()]
 
-        log.info(f"len(initial_data_expanded): {len(initial_data_expanded)}")
-        log.info(f"initial_data_expanded: {initial_data_expanded}")
+        log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
+        #log.info(f"initial_data_expanded: {initial_data_expanded}")
 
         self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=900, threshold=2.0, influence=0.05)
 
