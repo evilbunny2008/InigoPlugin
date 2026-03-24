@@ -98,6 +98,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.peak_detector = None
 
+        self.drop_count = 0
+
         self.cache_dir = "/tmp/peak_detector"
 
         self.usUnit = weewx.METRIC
@@ -151,6 +153,19 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
+        signal = self.peak_detector.thresholding_algo(temp)
+
+        log.info(f"signal: {signal}")
+
+        if signal == -1:
+            self.drop_count += 1
+            if self.drop_count >= 5:
+                self.has_peaked = True
+        else:
+            self.drop_count = 0
+
+        log.info(f"self.drop_count: {self.drop_count}")
+
     def getTemp(self, packet):
 
         ts = packet.get("dateTime", int(time.time()))
@@ -195,20 +210,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
-        #initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
+        initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
 
-        rc = 0
-        for row in stats.records():
-
-            rc += 1
-
-            log.info(f"rc: {rc}")
-
-            log.info(f"row.dateTime.format('%Y-%m-%d %H:%M:%S'): {row.dateTime.format('%Y-%m-%d %H:%M:%S')}")
-
-            log.info(f"row.outTemp.raw: {round(row.outTemp.raw, 1)}")
-
-        #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)
+        self.peak_detector = real_time_peak_detection(initial_data, lag=450, threshold=3.0, influence=0.05)
 
     def save_pickle_data(self, report=False):
 
