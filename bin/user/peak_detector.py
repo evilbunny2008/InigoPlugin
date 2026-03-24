@@ -73,6 +73,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.load_pickle_data()
 
+        self.last_loop_ts = None
+
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
@@ -168,7 +170,6 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def load_pickle_data(self):
 
-        self.last_loop_ts = None
         self.loop_interval = 0
         self.temp_history = None
 
