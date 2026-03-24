@@ -197,9 +197,15 @@ class PeakDetectorService(weewx.engine.StdService):
 
         for row in stats.records():
 
-            vh = row.outTemp.toString()
+            row_str = str(row)
 
-            log.info(f"vh: {vh}")
+            log.info(f"row_str: {row_str}")
+
+            row_str = row.toString()
+
+            log.info(f"row_str: {row_str}")
+
+            log.info(f"row.outTemp.raw: {row.outTemp.raw}")
 
         #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)
 
