@@ -187,7 +187,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
                         if self.temp_history is not None:
 
-                            log.info(f"{self.__class__.__name__} loaded {len(temps)} records from pickle file")
+                            log.info(f"{self.__class__.__name__} loaded {len(self.temp_history)} records from pickle file")
                             if self.loop_interval > 0:
                                 log.info(f"{self.__class__.__name__} self.loop_interval set to {self.loop_interval} seconds")
 
