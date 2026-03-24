@@ -11,6 +11,7 @@ import time
 import weewx
 import weewx.engine
 import weewx.manager
+import weewx.units
 
 from datetime import datetime, timedelta
 from weeutil.weeutil import TimeSpan
@@ -195,7 +196,10 @@ class PeakDetectorService(weewx.engine.StdService):
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
         for row in stats.records():
-            log.info(f"row.outTemp: {row.outTemp}")
+
+            vh = row.outTemp
+
+#            log.info(f"row.outTemp: {row.outTemp}")
 
         #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)
 
