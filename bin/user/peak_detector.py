@@ -132,7 +132,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if len(self.temp_history) < 2 or self.loop_interval is None or self.loop_interval < 2:
             return None  # not enough data
 
-        samples = seconds / self.loop_interval
+        samples = int(seconds / self.loop_interval)
 
         if samples > len(self.temp_history):
             samples = len(self.temp_history)
