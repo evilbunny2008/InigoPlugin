@@ -98,9 +98,11 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.peak_detector = None
 
+        self.drop_count = 0
+
         self.has_peaked = False
 
-        self.drop_count = 0
+        self.signal = 0
 
         self.cache_dir = "/tmp/peak_detector"
 
