@@ -243,7 +243,7 @@ class PeakDetectorService(weewx.engine.StdService):
                     if isinstance(ret, real_time_peak_detection):
                         log.info(f"{self.__class__.__name__} loading a real_time_peak_detection class from the pickle file with length of {ret.length}")
                         self.peak_detector = ret
-                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length}")
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
                         return
 
             except Exception as e:
@@ -282,7 +282,7 @@ class PeakDetectorService(weewx.engine.StdService):
                 pickle.dump(self.peak_detector, f)
 
                 if report:
-                    log.info(f"{self.__class__.__name__} saved self.peak_detector to the pickle file of length {self.peak_detector.length}")
+                    log.info(f"{self.__class__.__name__} saved self.peak_detector to the pickle file of length {self.peak_detector.length} and lag of {self.peak_detector.lag}")
 
         except Exception as e:
             raise e
