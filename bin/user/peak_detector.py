@@ -31,7 +31,11 @@ if weewx.__version__ < "4":
 
 class PickleFormattedData():
 
-    def __init__(self, temp_history, loop_interval, last_loop_ts=None):
+    temp_history = deque(maxlen=3600)
+    loop_interval = 0
+    last_loop_ts = 0
+
+    def __init__(self, temp_history, loop_interval, last_loop_ts):
 
         self.temp_history = temp_history
         self.loop_interval = loop_interval
