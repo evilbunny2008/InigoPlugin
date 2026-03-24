@@ -212,7 +212,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
 
-        self.peak_detector = real_time_peak_detection(initial_data, lag=450, threshold=3.0, influence=0.05)
+        self.peak_detector = real_time_peak_detection(initial_data, lag=900, threshold=2.5, influence=0.1)
 
     def save_pickle_data(self, report=False):
 
