@@ -130,6 +130,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
+        self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
+
         self.load_pickle_data()
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
@@ -154,6 +156,16 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
         log.info(f"{self.__class__.__name__} OutTemp_signal: {self.signal}")
+
+        now = datetime.now()
+
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        stats = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
+
+        record["OutTemp_max"] = round(stats.outTemp.max.raw, 1)
+
+        log.info(f"{self.__class__.__name__} OutTemp_max: {round(stats.outTemp.max.raw, 1)}")
 
     def handle_loop_packet(self, event):
 
@@ -207,8 +219,6 @@ class PeakDetectorService(weewx.engine.StdService):
 
             except Exception as e:
                 pass
-
-        self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
 
         last_5min = int(time.time() / 300) * 300
 
