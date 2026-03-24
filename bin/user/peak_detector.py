@@ -129,7 +129,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
     # Trend calculation — call this wherever you need it
     def get_temp_trend(self, seconds):
-        if len(self.temp_history) < 2 or self.loop_interval is None:
+        if len(self.temp_history) < 2 or self.loop_interval is None or self.loop_interval < 2:
             return None  # not enough data
 
         samples = seconds / self.loop_interval
