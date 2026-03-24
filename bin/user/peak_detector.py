@@ -85,10 +85,12 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} self.interval_history.maxlen: {self.interval_history.maxlen}")
         log.info(f"{self.__class__.__name__} self.interval_history: {self.interval_history}")
 
-        self.interval_history.maxlen = 60
+        if self.interval_history.maxlen != 60:
 
-        log.info(f"{self.__class__.__name__} self.interval_history.maxlen: {self.interval_history.maxlen}")
-        log.info(f"{self.__class__.__name__} self.interval_history: {self.interval_history}")
+            self.interval_history = deque(self.interval_history, maxlen=60)
+
+            log.info(f"{self.__class__.__name__} self.interval_history.maxlen: {self.interval_history.maxlen}")
+            log.info(f"{self.__class__.__name__} self.interval_history: {self.interval_history}")
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
