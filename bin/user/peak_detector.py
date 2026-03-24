@@ -33,7 +33,7 @@ class PickleFormattedData():
     def __init__(self, temp_history, loop_interval):
 
         self.temp_history = temp_history
-        self.loop_interval = loop_interval
+       self.loop_interval = loop_interval
 
 class PickleFormattedDataV2():
 
@@ -81,6 +81,14 @@ class PeakDetectorService(weewx.engine.StdService):
         self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
 
         self.load_pickle_data()
+
+        log.info(f"{self.__class__.__name__} self.interval_history.maxlen: {self.interval_history.maxlen}")
+        log.info(f"{self.__class__.__name__} self.interval_history: {self.interval_history}")
+
+        self.interval_history.maxlen = 60
+
+        log.info(f"{self.__class__.__name__} self.interval_history.maxlen: {self.interval_history.maxlen}")
+        log.info(f"{self.__class__.__name__} self.interval_history: {self.interval_history}")
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -237,4 +245,3 @@ class PeakDetectorService(weewx.engine.StdService):
 
         except Exception as e:
             raise e
-
