@@ -212,7 +212,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
 
-        log.logging(f"initial_data: {initial_data}")
+        log.info(f"initial_data: {initial_data}")
 
         self.peak_detector = real_time_peak_detection(initial_data, lag=900, threshold=2.5, influence=0.1)
 
