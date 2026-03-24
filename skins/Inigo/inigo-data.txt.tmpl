@@ -595,32 +595,20 @@ $span(day_delta=1).rain.sum.formatted|#slurp
 |#slurp
 #end if
 ## 301
-#if $current.outTemp_trend1.has_data
-$current.outTemp_trend1.raw|#slurp
+#if $current.OutTemp_dropCount.has_data
+$current.OutTemp_dropCount.raw|#slurp
 #else
 |#slurp
 #end if
 ## 302
-#if $current.outTemp_trend5.has_data
-$current.outTemp_trend5.raw|#slurp
+#if $current.OutTemp_hasPeaked.has_data
+$current.OutTemp_hasPeaked.raw|#slurp
 #else
 |#slurp
 #end if
 ## 303
-#if $current.outTemp_trend10.has_data
-$current.outTemp_trend10.raw|#slurp
-#else
-|#slurp
-#end if
-## 304
-#if $current.outTemp_trend30.has_data
-$current.outTemp_trend30.raw|#slurp
-#else
-|#slurp
-#end if
-## 305
-#if $current.outTemp_trend60.has_data
-$current.outTemp_trend60.raw|#slurp
+#if $current.OutTemp_max.has_data
+$current.OutTemp_max.raw|#slurp
 #else
 |#slurp
 #end if
