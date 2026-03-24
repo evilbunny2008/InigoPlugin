@@ -102,7 +102,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.drop_count = 0
 
-        self.rise_count
+        self.rise_count = 0
 
         self.has_peaked = False
 
