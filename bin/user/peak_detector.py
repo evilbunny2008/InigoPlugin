@@ -197,7 +197,12 @@ class PeakDetectorService(weewx.engine.StdService):
 
         #initial_data = [round(row.outTemp.raw, 1) for row in stats.records()]
 
+        rc = 0
         for row in stats.records():
+
+            rc += 1
+
+            log.info(f"rc: {rc}")
 
             log.info(f"row.dateTime.format('%Y-%m-%d %H:%M:%S'): {row.dateTime.format('%Y-%m-%d %H:%M:%S')}")
 
