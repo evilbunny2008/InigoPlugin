@@ -193,7 +193,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
 
-        for row in stats:
+        for row in stats.items():
             print(f"row: {row}")
 
         #self.peak_detector = real_time_peak_detection([], lag=450, threshold=3.0, influence=0.05)

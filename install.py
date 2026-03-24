@@ -108,44 +108,6 @@ class InigoInstaller(ExtensionInstaller):
             engine.printer.out(f"engine.config_dict is None, can't continue!")
             return False
 
-        skin_dir = engine.root_dict.get('SKIN_DIR')
-        if skin_dir is None:
-            engine.printer.out(f"skin_dir is None, can't continue!")
-            return False
-
-        uid = os.getuid()
-        statinfo = os.stat(skin_dir)
-        suid = statinfo.st_uid
-        sgid = statinfo.st_gid
-
-        data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
-        if data_dir is None:
-            engine.printer.out(f"SQLITE_ROOT is None, can't continue!")
-            return False
-
-        cache_dir = os.path.join(data_dir, "peak_detector")
-
-        if os.path.exists(cache_dir) and not os.path.isdir(cache_dir):
-            os.remove(cache_dir)
-
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir, exist_ok=True)
-
-        desired_mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH | stat.S_ISGID
-        current_mode = os.stat(cache_dir).st_mode
-
-        if current_mode != desired_mode | stat.S_IFDIR:
-            os.chmod(cache_dir, desired_mode)
-
-        statinfo = os.stat(cache_dir)
-        cuid = statinfo.st_uid
-        cgid = statinfo.st_gid
-
-        if cuid != suid or cgid != sgid:
-            os.chown(cache_dir, suid, sgid)
-            for fn in os.listdir(cache_dir):
-                os.chown(os.path.join(cache_dir, fn), suid, sgid)
-
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
             return False
@@ -153,9 +115,6 @@ class InigoInstaller(ExtensionInstaller):
         inigo_dict = stdreport_dict.get("Inigo")
         if inigo_dict is None:
             return False
-
-        if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
-            inigo_dict["cache_dir"] = cache_dir
 
         units_dict = inigo_dict.get("Units")
         if units_dict is None:
