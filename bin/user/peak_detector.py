@@ -241,6 +241,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         if False:
 
+            # preseed the algorythm with archive data that numpy expands to 450 data points
+
             lag = 450
 
             last_5min = int(time.time() / 300) * 300
@@ -257,12 +259,10 @@ class PeakDetectorService(weewx.engine.StdService):
 
             self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
 
-        else:
+            #if self.peak_detector is not None:
+            #    log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
 
-            if self.peak_detector is not None:
-                log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
-
-            self.reset_peak_detector()
+            #self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
 
