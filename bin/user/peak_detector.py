@@ -50,6 +50,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.temp_history = deque(maxlen=3600)
         self.interval_history = deque(maxlen=60)
+        self.loop_interval = 0
         self.last_loop_ts = None
 
         self.cache_dir = "/tmp/peak_detector"
@@ -171,18 +172,12 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def load_pickle_data(self):
 
-        self.loop_interval = 0
-        self.temp_history = None
-        self.interval_history = None
-
         if os.path.exists(self.pickle_filename):
 
             try:
                 with open(self.pickle_filename, "rb") as f:
-                    ret = pickle.load(f)
 
-                    if ret is None:
-                        return
+                    ret = pickle.load(f)
 
                     if isinstance(ret, PickleFormattedDataV2):
                         log.info(f"{self.__class__.__name__} pickle file is PickleFormattedDataV2")
@@ -207,11 +202,11 @@ class PeakDetectorService(weewx.engine.StdService):
         if len(self.interval_history) < 2:
             return
 
-        intervals = [loop_interval for ts, loop_interval in self.interval_history if loop_interval > 0 and loop_interval < 30 and ts > time.time() - 60]
+        intervals = [loop_interval for ts, loop_interval in self.interval_history if 1 <= loop_interval <= 30 and ts >= time.time() - 60]
 
         new_interval = round(sum(intervals) / len(intervals) * 2) / 2
 
-        if 0 < new_interval < 30 and self.loop_interval != new_interval:
+        if 1 <= new_interval <= 30 and self.loop_interval != new_interval:
             self.loop_interval = new_interval
             log.info(f"{self.__class__.__name__} self.loop_interval updated to {self.loop_interval}")
 
@@ -222,7 +217,7 @@ class PeakDetectorService(weewx.engine.StdService):
             return
 
         new_interval = ts - self.last_loop_ts
-        if 0 < new_interval < 30:
+        if 1 <= new_interval <= 30:
             self.interval_history.append((ts, new_interval))
             self.update_interval()
 
