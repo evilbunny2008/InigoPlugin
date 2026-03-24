@@ -95,6 +95,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.config_dict = config_dict
 
+        self.peak_detector = None
+
         self.cache_dir = "/tmp/peak_detector"
 
         self.usUnit = weewx.METRIC
