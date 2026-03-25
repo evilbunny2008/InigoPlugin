@@ -30,6 +30,9 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
+weewx.units.obs_group_dict["OutTemp_max"] = "group_temperature"
+weewx.units.obs_group_dict["OutTemp_min"] = "group_temperature"
+
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
 
@@ -172,6 +175,9 @@ class PeakDetectorService(weewx.engine.StdService):
         if self.usUnit != weewx.US:
             OutTemp_max = FtoC(OutTemp_max)
             OutTemp_min = FtoC(OutTemp_min)
+
+        if self.has_peaked and temp == OutTemp_max:
+            self.has_peaked = False
 
         record["OutTemp_max"] = round(OutTemp_max, 1)
         record["OutTemp_min"] = round(OutTemp_min, 1)
