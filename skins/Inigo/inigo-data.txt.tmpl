@@ -606,3 +606,9 @@ $current.OutTemp_hasPeaked.raw|#slurp
 #else
 |#slurp
 #end if
+## 303
+#if $current.OutTemp_riseCount.has_data
+$current.OutTemp_riseCount.raw|#slurp
+#else
+|#slurp
+#end if
