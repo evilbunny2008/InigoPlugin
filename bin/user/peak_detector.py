@@ -162,11 +162,11 @@ class PeakDetectorService(weewx.engine.StdService):
         stats_since_midnight = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
 
         OutTemp_max = stats_since_midnight.outTemp.max.raw
-        if OutTemp_max is None:
+        if OutTemp_max is None or OutTemp_max < temp:
             OutTemp_max = temp
 
         OutTemp_min = stats_since_midnight.outTemp.min.raw
-        if OutTemp_min is None:
+        if OutTemp_min is None or OutTemp_min > temp:
             OutTemp_min = temp
 
         if self.usUnit != weewx.US:
@@ -176,6 +176,7 @@ class PeakDetectorService(weewx.engine.StdService):
         record["OutTemp_max"] = round(OutTemp_max, 1)
         record["OutTemp_min"] = round(OutTemp_min, 1)
 
+        log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
         log.info(f"{self.__class__.__name__} OutTemp_max: {record['OutTemp_max']}")
         log.info(f"{self.__class__.__name__} OutTemp_min: {record['OutTemp_min']}")
 
