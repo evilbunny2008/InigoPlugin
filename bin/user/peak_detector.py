@@ -31,6 +31,7 @@ if weewx.__version__ < "4":
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
 weewx.units.obs_group_dict["OutTemp_dropCount"] = "group_count"
+weewx.units.obs_group_dict["OutTemp_hasPeaked"] = "group_boolean"
 weewx.units.obs_group_dict["OutTemp_riseCount"] = "group_count"
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
@@ -155,7 +156,21 @@ class PeakDetectorService(weewx.engine.StdService):
         now = datetime.now()
         if self.peak_detector.start_time.date() != now.date():
             log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
+
             self.reset_peak_detector()
+
+            log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
+            log.info(f"{self.__class__.__name__} OutTemp_max: {OutTemp_max:.1f}")
+            log.info(f"{self.__class__.__name__} OutTemp_min: {OutTemp_min:.1f}")
+
+            record["OutTemp_dropCount"] = self.drop_count
+            record["OutTemp_hasPeaked"] = self.has_peaked
+            record["OutTemp_riseCount"] = self.rise_count
+
+            log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
+            log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
+            log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
+
             return
 
         self.save_pickle_data(True)
