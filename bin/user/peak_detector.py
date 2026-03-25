@@ -174,10 +174,6 @@ class PeakDetectorService(weewx.engine.StdService):
         if OutTemp_min is None or OutTemp_min > temp:
             OutTemp_min = temp
 
-        if self.usUnit != weewx.US:
-            OutTemp_max = FtoC(OutTemp_max)
-            OutTemp_min = FtoC(OutTemp_min)
-
         if self.has_peaked and temp == OutTemp_max:
             self.has_peaked = False
 
