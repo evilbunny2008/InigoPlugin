@@ -160,8 +160,8 @@ class PeakDetectorService(weewx.engine.StdService):
             self.reset_peak_detector()
 
             log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
-            log.info(f"{self.__class__.__name__} OutTemp_max: {OutTemp_max:.1f}")
-            log.info(f"{self.__class__.__name__} OutTemp_min: {OutTemp_min:.1f}")
+            log.info(f"{self.__class__.__name__} OutTemp_max: {temp:.1f}")
+            log.info(f"{self.__class__.__name__} OutTemp_min: {temp:.1f}")
 
             record["OutTemp_dropCount"] = self.drop_count
             record["OutTemp_hasPeaked"] = self.has_peaked
@@ -248,11 +248,32 @@ class PeakDetectorService(weewx.engine.StdService):
 
         lag = 450
 
-        initial_data = [0.0] * lag
+        now = datetime.now()
 
-        log.info(f"len(initial_data): {len(initial_data)}")
+        if now.hour < 6:
 
-        self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
+            initial_data = [0.0] * lag
+
+            log.info(f"{self.__class__.__name__} Overnight reset, generated {len(initial_data)} zero data points")
+
+            self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
+
+        else:
+
+            last_5min = int(time.time() / 300) * 300
+
+            start = last_5min - (15 * 300) - 60
+
+            stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
+
+            initial_data = [row.outTemp.raw for row in stats.records()]
+
+            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
+
+            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past 15 minutes of archive records")
+
+            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
+
 
         self.save_pickle_data(True)
 
@@ -293,30 +314,7 @@ class PeakDetectorService(weewx.engine.StdService):
             except Exception as e:
                 pass
 
-        if False:
-
-            # preseed the algorythm with archive data that numpy expands to 450 data points
-
-            lag = 450
-
-            last_5min = int(time.time() / 300) * 300
-
-            start = last_5min - (15 * 300) - 60
-
-            stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
-
-            initial_data = [row.outTemp.raw for row in stats.records()]
-
-            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
-
-            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy")
-
-            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
-
-            #if self.peak_detector is not None:
-            #    log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
-
-            #self.reset_peak_detector()
+        self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
 
