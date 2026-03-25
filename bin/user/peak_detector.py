@@ -32,6 +32,8 @@ if weewx.__version__ < "4":
 
 weewx.units.obs_group_dict["OutTemp_max"] = "group_temperature"
 weewx.units.obs_group_dict["OutTemp_min"] = "group_temperature"
+weewx.units.obs_group_dict["OutTemp_dropCount"] = "group_count"
+weewx.units.obs_group_dict["OutTemp_riseCount"] = "group_count"
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
