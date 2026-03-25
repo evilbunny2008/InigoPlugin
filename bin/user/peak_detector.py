@@ -30,8 +30,6 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
-weewx.units.obs_group_dict["OutTemp_max"] = "group_temperature"
-weewx.units.obs_group_dict["OutTemp_min"] = "group_temperature"
 weewx.units.obs_group_dict["OutTemp_dropCount"] = "group_count"
 weewx.units.obs_group_dict["OutTemp_riseCount"] = "group_count"
 
@@ -180,12 +178,14 @@ class PeakDetectorService(weewx.engine.StdService):
         if not self.has_peaked and now.hour >= 16 and temp < OutTemp_max:
             self.has_peaked = True
 
-        record["OutTemp_max"] = round(OutTemp_max, 1)
-        record["OutTemp_min"] = round(OutTemp_min, 1)
+        if self.usUnit != weewx.US:
+            temp = FtoC(temp)
+            OutTemp_max = FtoC(OutTemp_max)
+            OutTemp_min = FtoC(OutTemp_min)
 
         log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
-        log.info(f"{self.__class__.__name__} OutTemp_max: {record['OutTemp_max']}")
-        log.info(f"{self.__class__.__name__} OutTemp_min: {record['OutTemp_min']}")
+        log.info(f"{self.__class__.__name__} OutTemp_max: {OutTemp_max:.1f}")
+        log.info(f"{self.__class__.__name__} OutTemp_min: {OutTemp_min:.1f}")
 
         record["OutTemp_dropCount"] = self.drop_count
         record["OutTemp_hasPeaked"] = self.has_peaked
@@ -214,7 +214,6 @@ class PeakDetectorService(weewx.engine.StdService):
                 if self.rise_count >= 5:
                     self.has_peaked = False
                     self.drop_count = 0
-                    self.rise_count = 0
             else:
                 self.rise_count = 0
         else:
@@ -230,6 +229,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.has_peaked = False
         self.drop_count = 0
+        self.rise_count = 0
 
         lag = 450
 
