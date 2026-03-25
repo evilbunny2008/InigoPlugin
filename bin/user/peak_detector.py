@@ -181,9 +181,11 @@ class PeakDetectorService(weewx.engine.StdService):
 
         record["OutTemp_dropCount"] = self.drop_count
         record["OutTemp_hasPeaked"] = self.has_peaked
+        record["OutTemp_riseCount"] = self.rise_count
 
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
+        log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
 
     def handle_loop_packet(self, event):
 
