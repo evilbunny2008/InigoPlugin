@@ -174,7 +174,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if OutTemp_min is None or OutTemp_min > temp:
             OutTemp_min = temp
 
-        if self.has_peaked and temp == OutTemp_max:
+        if self.has_peaked and (temp == OutTemp_max or now.hour < 6):
             self.has_peaked = False
 
         if not self.has_peaked and now.hour >= 16 and temp < OutTemp_max:
