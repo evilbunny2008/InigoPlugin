@@ -102,15 +102,6 @@ class StrorageClass():
         self.current_signal = current_signal
         self.current_count = current_count
 
-class StrorageClassV2():
-
-    def __init__(self, dt, peak_detector, drop_count, rise_count):
-
-        self.dt = dt
-        self.peak_detector = peak_detector
-        self.drop_count = drop_count
-        self.rise_count = rise_count
-
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
@@ -289,14 +280,6 @@ class PeakDetectorService(weewx.engine.StdService):
                         self.current_count = ret.current_count
                         log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag} and " + \
                                  f"self.trend_history of length {len(self.trend_history)} from the pickle cache file")
-                        return
-
-                    if isinstance(ret, StrorageClassV2) and ret.dt >= datetime.now() - timedelta(minutes=5):
-                        log.info(f"{self.__class__.__name__} loading a StrorageClassV2 object from the pickle file")
-                        self.peak_detector = ret.peak_detector
-                        self.drop_count = ret.drop_count
-                        self.rise_count = ret.rise_count
-                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
                         return
 
             except Exception as e:
