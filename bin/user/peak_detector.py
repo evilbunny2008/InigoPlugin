@@ -329,7 +329,7 @@ class PeakDetectorService(weewx.engine.StdService):
                         return
 
                     if isinstance(ret, StrorageClass) and ret.dt >= datetime.now() - timedelta(minutes=5):
-                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file with length of {ret.peak_detector.length}")
+                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file")
                         self.peak_detector = ret.peak_detector
                         self.drop_count = ret.drop_count
                         self.rise_count = ret.rise_count
@@ -337,7 +337,7 @@ class PeakDetectorService(weewx.engine.StdService):
                         return
 
                     if isinstance(ret, StrorageClassV2) and ret.dt >= datetime.now() - timedelta(minutes=5):
-                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file with length of {ret.peak_detector.length}")
+                        log.info(f"{self.__class__.__name__} loading a StrorageClassV2 object from the pickle file")
                         self.peak_detector = ret.peak_detector
                         self.drop_count = ret.drop_count
                         self.rise_count = ret.rise_count
