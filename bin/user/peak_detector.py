@@ -190,10 +190,10 @@ class PeakDetectorService(weewx.engine.StdService):
         # Saving on every loop packet is probably excessive when saving for archive records and on shutdown would be sufficient unless weeWX crashes frequently
         #self.save_pickle_data()
 
-        if signal == self.current_signal:
+        if signal == self.current_signal and signal != 0:
             self.current_count += 1
 
-        else:
+        elif signal != 0:
             # Signal changed — store the completed run
             if self.current_count > 0:
                 self.trend_history.append((self.current_ts, self.current_signal, self.current_count))
