@@ -201,15 +201,18 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def outputTrendHistory(self, record):
 
-        trendCount = 0
-        if self.current_count > 0 and trendCount < 49:
+        trendCount = -1
+        if self.current_count > 0:
+
+            trendCount += 1
+
             record[f"outTemp_trend{trendCount}_ts"] = self.current_ts
             record[f"outTemp_trend{trendCount}_signal"] = self.current_signal
             record[f"outTemp_trend{trendCount}_count"] = self.current_count
 
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {self.current_ts}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {self.current_signal}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {self.current_count}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {self.current_ts}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {self.current_signal}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {self.current_count}")
 
         for ts, signal, count in reversed(self.trend_history):
 
@@ -219,9 +222,9 @@ class PeakDetectorService(weewx.engine.StdService):
             record[f"outTemp_trend{trendCount}_signal"] = signal
             record[f"outTemp_trend{trendCount}_count"] = count
 
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {ts}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {signal}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {count}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {ts}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {signal}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {count}")
 
     def reset_peak_detector(self):
 
