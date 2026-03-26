@@ -75,7 +75,7 @@
 ##
 ##
 ##
-#set $vars = ["ET", "radiation", "rain", "UV"]
+#set $vars = ["ET", "rain"]
 #for $var in $vars
     #set $var_name = getattr($current, $var, None)
     #if $var_name is not None and $var_name.has_data
@@ -87,6 +87,29 @@
             #set $var_name = getattr($time_period_obj, $var, None)
             #if $var_name is not None and $var_name.has_data
                 #$inigoData.update({$time_period + "_" + $var: $var_name.sum.raw})
+            #end if
+        #end if
+    #end for
+#end for
+##
+##
+##
+#set $vars = ["radiation", "UV"]
+#for $var in $vars
+    #set $var_name = getattr($current, $var, None)
+    #if $var_name is not None and $var_name.has_data
+        #$inigoData.update({"current_" + $var: $var_name.raw})
+    #end if
+    #for $time_period in $time_periods
+        #set $time_period_obj = getattr($self, $time_period, None)
+        #if $time_period_obj is not None
+            #set $var_name = getattr($time_period_obj, $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #set $var_name_str = $time_period + "_" + $var
+                #set $var_name_max = $var_name_str + "_max"
+                #set $var_name_maxtime = $var_name_str + "_maxtime"
+                #$inigoData.update({$var_name_max: $var_name.max.raw})
+                #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
             #end if
         #end if
     #end for
