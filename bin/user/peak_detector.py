@@ -94,6 +94,16 @@ class real_time_peak_detection():
 
         return self.signals[i]
 
+class StrorageClass():
+
+    def __init__(self, dt, peak_detector, drop_count, has_peaked, rise_count):
+
+        self.dt = dt
+        self.peak_detector = peak_detector
+        self.drop_count = drop_count
+        self.has_peaked = has_peaked
+        self.rise_count = rise_count
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
@@ -217,6 +227,9 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
         log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
 
+        self.drop_count = 0
+        self.rise_count = 0
+
     def handle_loop_packet(self, event):
 
         packet = event.packet
@@ -247,8 +260,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def reset_peak_detector(self):
 
-        self.has_peaked = False
         self.drop_count = 0
+        self.has_peaked = False
         self.rise_count = 0
 
         now = datetime.now()
@@ -316,6 +329,14 @@ class PeakDetectorService(weewx.engine.StdService):
                         log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
                         return
 
+                    if isinstance(ret, StrorageClass) and ret.dt >= datetime.now() - timedelta(minutes=5):
+                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file with length of {ret.peak_detector.length}")
+                        self.peak_detector = ret.peak_detector
+                        self.drop_count = ret.drop_count
+                        self.has_peaked = ret.has_peaked
+                        self.rise_count = ret.rise_count
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
+
             except Exception as e:
                 pass
 
@@ -326,7 +347,9 @@ class PeakDetectorService(weewx.engine.StdService):
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                pickle.dump(self.peak_detector, f)
+                storageClass = StrorageClass(datetime.now(), self.peak_detector, self.drop_count, self.has_peaked, self.rise_count)
+
+                pickle.dump(storageClass, f)
 
                 if report:
                     log.info(f"{self.__class__.__name__} saved self.peak_detector to the pickle file of length {self.peak_detector.length} and lag of {self.peak_detector.lag}")
