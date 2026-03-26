@@ -205,7 +205,7 @@ class PeakDetectorService(weewx.engine.StdService):
     def outputTrendHistory(self, record):
 
         trendCount = -1
-        if self.current_count > 0:
+        if self.current_count > 0 and self.current_signal != 0:
 
             trendCount += 1
 
@@ -213,11 +213,14 @@ class PeakDetectorService(weewx.engine.StdService):
             record[f"outTemp_trend{trendCount}_signal"] = self.current_signal
             record[f"outTemp_trend{trendCount}_count"] = self.current_count
 
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {self.current_ts}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {self.current_signal}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {self.current_count}")
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {self.current_ts}")
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {self.current_signal}")
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {self.current_count}")
 
         for ts, signal, count in reversed(self.trend_history):
+
+            if signal == 0:
+                continue
 
             trendCount += 1
 
