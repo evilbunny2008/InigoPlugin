@@ -247,7 +247,9 @@ class PeakDetectorService(weewx.engine.StdService):
         self.drop_count = 0
         self.rise_count = 0
 
-        lag = 450
+        lag = 900
+        threshold = 2.0
+        influence = 0.02
 
         now = datetime.now()
 
@@ -257,15 +259,15 @@ class PeakDetectorService(weewx.engine.StdService):
 
             log.info(f"{self.__class__.__name__} Overnight reset, generated {len(initial_data)} zero data points")
 
-            self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=2.0, influence=0.1)
+            self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=threshold, influence=influence)
 
         else:
 
-            last_5min = int(time.time() / 300) * 300
+            min5_ago = int(time.time() / 300) * 300
 
-            start = last_5min - (15 * 300) - 60
+            start = last_5min - (lag * 2) - 60
 
-            stats = TimespanBinder(TimeSpan(start, last_5min), self.db_lookup)
+            stats = TimespanBinder(TimeSpan(start, min5_ago), self.db_lookup)
 
             initial_data = [row.outTemp.raw for row in stats.records()]
 
@@ -273,7 +275,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
             log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past 15 minutes of archive records")
 
-            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=2.0, influence=0.05)
+            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
 
 
         self.save_pickle_data(True)
