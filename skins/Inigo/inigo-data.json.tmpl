@@ -1,0 +1,145 @@
+#errorCatcher Echo
+#import json
+#encoding UTF-8
+##
+##
+##
+#set $now=$current.dateTime.raw
+##
+##
+##
+#set $inigoData = {"version": 1000000, "now": $now, "dtnow": $current.dateTime}
+#set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
+#set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
+#for $var in $vars
+    #set $var_name = getattr($current, $var, None)
+    #if $var_name is not None and $var_name.has_data
+        #set $var_name_str = $current + "_" + $var
+        #set $inigoData = $inigoData + {$var_name_str: $currvar.formatted}
+        #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
+        #if $currvar.formatted > $minus3600.formatted
+        #set $inigoData = $inigoData + {$var_name_str + "_trend": "Rising"}
+        #elif $current.outTemp.formatted < $minus3600.formatted
+        #set $inigoData = $inigoData + {$var_name_str + "_trend": "Falling"}
+        #else
+        #set $inigoData = $inigoData + {$var_name_str + "_trend": "Steady"}
+        #end if
+    #end if
+    #for $time_period in $time_periods
+        #set $var_name = getattr($time_period, $var, None)
+        #if $var_name is not None and $var_name.has_data
+            #set $var_name_str = $time_period + "_" + $var
+            #set $var_name_min = $var_name_str + "_min"
+            #set $var_name_mintime = $var_name_str + "_mintime"
+            #set $var_name_max = $var_name_str + "_max"
+            #set $var_name_maxtime = $var_name_str + "_maxtime"
+            #set $inigoData = $inigoData + {$var_name_min: $var_name.min.formatted}
+            #set $inigoData = $inigoData + {$var_name_mintime: $var_name.mintime.raw}
+            #set $inigoData = $inigoData + {$var_name_max: $var_name.max.formatted}
+            #set $inigoData = $inigoData + {$var_name_maxtime: $var_name.maxtime.raw}
+        #end if
+    #end for
+#end for
+##
+##
+##
+#set $inigoData = $inigoData + {"current_windGust": $current.windGust.formatted}
+#set $inigoData = $inigoData + {"current_windGustDir": $current.windGust.ordinal_compass}
+#set $inigoData = $inigoData + {"current_windSpeed": $current.windSpeed.formatted}
+#set $inigoData = $inigoData + {"current_windSpeedDir": $current.windSpeed.ordinal_compass}
+#set $inigoData = $inigoData + {"current_windSpeedAvg": $current.windSpeed.avg.formatted}
+#set $inigoData = $inigoData + {"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass}
+#for $time_period in $time_periods
+    #set $var_name = getattr($time_period, "wind", None)
+    #if $var_name is not None and $var_name.has_data
+        #set $var_name_str = $time_period + "_wind"
+        #set $var_name_max = $var_name_str + "_max"
+        #set $var_name_maxtime = $var_name_str + "_maxtime"
+        #set $var_name_gustdir = $var_name_str + "_gustdir"
+        #set $inigoData = $inigoData + {$var_name_max: $var_name.max.formatted}
+        #set $inigoData = $inigoData + {$var_name_maxtime: $var_name.maxtime.raw}
+        #set $inigoData = $inigoData + {$var_name_gustdir: $var_name.gustdir.ordinal_compass}
+    #end if
+#end for
+##
+##
+##
+#set $vars = ["ET", "radiation", "UV"]
+#for $var in $vars
+    #for $time_period in ["current"] + $time_periods
+        #set $var_name = getattr($time_period, $var, None)
+        #if $var_name is not None and $var_name.has_data
+            #set $inigoData = $inigoData + {$time_period + "_" + $var: $var_name.sum.formatted}
+        #end if
+    #end for
+#end for
+##
+##
+##
+#if $current.cloudbase.has_data
+    #set $inigoData = $inigoData + {"cloudbase": int(round($current.cloudbase.raw))}
+#end if
+##
+##
+##
+#set $vars = ["cloudbase"]
+#for $var in $vars
+    #set $var_name = getattr($unit.unit_type, $var, None)
+    #if $var_name is not None and $var_name.has_data
+        #set $inigoData = $inigoData + {"unit_" + $var: $var_name}
+    #end if
+#end for
+##
+##
+##
+#if $almanac.hasExtras
+    #set $inigoData = $inigoData + {"sun_rise": $almanac.sun.rise.raw}
+    #set $inigoData = $inigoData + {"sun_set": $almanac.sun.set.raw}
+    #set $inigoData = $inigoData + {"sun_transit": $almanac.sun.transit.raw}
+    #set $inigoData = $inigoData + {"moon_rise": $almanac.moon.rise.raw}
+    #set $inigoData = $inigoData + {"moon_set": $almanac.moon.set.raw}
+    #set $inigoData = $inigoData + {"next_full_moon": $almanac.next_full_moon.raw}
+    #set $inigoData = $inigoData + {"next_new_moon": $almanac.next_new_moon.raw}
+    #set $inigoData = $inigoData + {"moon_phase": $almanac.moon_phase}
+    #set $inigoData = $inigoData + {"moon_fullness": $almanac.moon_fullness}
+#end if
+##
+##
+##
+#set $vars = ["barometer", "outHumidity", "outTemp", "windSpeed"]
+#for $var in $vars
+    #set $var_name = getattr($unit.label, $var, None)
+    #if $var_name is not None and $var_name.has_data
+        #set $inigoData = $inigoData + {"label_" + $var: $var_name}
+    #end if
+#end for
+##
+##
+##
+#set $inigoData = $inigoData + {"appTemp": round($current.appTemp.raw, 1)}
+#set $inigoData = $inigoData + {"datetime1": $current.dateTime.format("%a, %d %b %Y")}
+#set $inigoData = $inigoData + {"datetime2": $current.dateTime.format("%H:%M %Z")}
+#set $inigoData = $inigoData + {"station_location": $station.location}
+##
+##
+##
+#if $almanac.moon.next_rise.has_data
+    #set $inigoData = $inigoData + {"moon_next_rise": $almanac.moon.next_rise.raw}}
+#end if
+#if $almanac.moon.next_set.has_data
+    #set $inigoData = $inigoData + {"moon_next_set": $almanac.moon.next_set.raw}}
+#end if
+##
+##
+##
+#set $vars = [600, 1800, 3600, 21600, 86400]
+#for $var in $vars
+    #set $var_name = span(time_delta=$var).rain
+    #if $var_name is not None and $var_name.has_data
+        #set $inigoData = $inigoData + {"rain_" + $var: $var_name.sum.formatted}
+    #end if
+#end for
+##
+##
+##
+$json.dumps($inigoDate)

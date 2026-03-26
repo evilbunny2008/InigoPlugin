@@ -83,6 +83,7 @@ class InigoInstaller(ExtensionInstaller):
             files=[
                 ("skins/Inigo",
                 ["skins/Inigo/inigo-data.txt.tmpl",
+                 "skins/Inigo/inigo-data.json.tmpl",
                  "skins/Inigo/skin.conf"]),
                 ("bin/user",
                 ["bin/user/inigo-since.py",
