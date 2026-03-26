@@ -106,17 +106,17 @@
 ##
 ##
 ##
-#$inigoData.update({"label_barometer": $unit.label.barometer})
-#$inigoData.update({"label_outHumidity": $unit.label.outHumidity})
-#$inigoData.update({"label_outTemp": $unit.label.outTemp})
-#$inigoData.update({"label_windSpeed": $unit.label.windSpeed})
+#$inigoData.update({"label_barometer": str($unit.label.barometer)})
+#$inigoData.update({"label_outHumidity": str($unit.label.outHumidity)})
+#$inigoData.update({"label_outTemp": str($unit.label.outTemp)})
+#$inigoData.update({"label_windSpeed": str($unit.label.windSpeed)})
 ##
 ##
 ##
 #$inigoData.update({"appTemp": round($current.appTemp.raw, 1)})
 #$inigoData.update({"datetime1": $current.dateTime.format("%a, %d %b %Y")})
 #$inigoData.update({"datetime2": $current.dateTime.format("%H:%M %Z")})
-#$inigoData.update({"station_location": $station.location})
+#$inigoData.update({"station_location": str($station.location)})
 ##
 ##
 ##
