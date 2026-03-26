@@ -231,6 +231,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def reset_peak_detector(self):
 
+        self.done_work = True
+
         now = datetime.now()
 
         if now.hour < 6:
