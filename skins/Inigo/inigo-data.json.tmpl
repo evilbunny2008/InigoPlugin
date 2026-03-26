@@ -19,7 +19,7 @@
         #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
             #$inigoData.update({$var_name_str: round($var_name.raw, 1)})
         #else
-            #$inigoData.update({$var_name_str: $var_name.raw})
+            #$inigoData.update({$var_name_str: round($var_name.raw)})
         #end if
         #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
         #if $var_name.raw > $minus3600.raw
@@ -53,10 +53,10 @@
 ##
 #$inigoData.update({"current_windGust": $current.windGust.raw})
 #$inigoData.update({"current_windGustDir": $current.windGustDir.raw})
-#$inigoData.update({"current_windGustDirCompass": $current.windGustDir.ordinal_compass})
-#$inigoData.update({"current_windSpeed": $current.windSpeed})
-#$inigoData.update({"current_windDir": $current.windDir})
-#$inigoData.update({"current_windDirCompass": $current.windDir.ordinal_compass})
+#$inigoData.update({"current_windGustDirCompass": str($current.windGustDir.ordinal_compass)})
+#$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
+#$inigoData.update({"current_windDir": $current.windDir.raw})
+#$inigoData.update({"current_windDirCompass": str($current.windDir.ordinal_compass)})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
     #if $time_period_obj is not None
@@ -68,7 +68,7 @@
             #set $var_name_gustdir = $var_name_str + "_gustdir"
             #$inigoData.update({$var_name_max: $var_name.max.raw})
             #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
-            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
+            #$inigoData.update({$var_name_gustdir: str($var_name.gustdir.ordinal_compass)})
         #end if
     #end if
 #end for
@@ -94,7 +94,7 @@
 #for $var in $vars
     #set $var_name = getattr($current, $var, None)
     #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"current_" + $var: $var_name.raw})
+        #$inigoData.update({"current_" + $var: str($var_name.formatted)})
     #end if
     #for $time_period in $time_periods
         #set $time_period_obj = getattr($self, $time_period, None)
@@ -114,7 +114,7 @@
 ##
 ##
 #if $current.rainRate.has_data
-    #$inigoData.update({"rainRate": $current.rainRate.raw})
+    #$inigoData.update({"rainRate": str($current.rainRate.formatted)})
 #end if
 #if $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
