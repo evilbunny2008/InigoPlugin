@@ -133,7 +133,7 @@
 #for $var in $vars
     #set $var_name = $span(time_delta=$var).rain
     #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"rain_" + $var: $var_name.sum.formatted})
+        #$inigoData.update({"rain_" + str($var): $var_name.sum.formatted})
     #end if
 #end for
 ##
