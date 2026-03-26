@@ -122,16 +122,38 @@
 ##
 ##
 ##
-#if $almanac.hasExtras
-    #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
-    #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
-    #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
-    #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
-    #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
-    #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
-    #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
-    #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
-    #$inigoData.update({"moon_fullness": int($almanac.moon_fullness)})
+#if $almanac.has_data
+    #if $almanac.sun.has_data
+        #if $almanac.sun.rise.has_data
+            #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
+        #end if
+        #if $almanac.sun.set.has_data
+            #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
+        #end if
+        #if $almanac.sun.transit.has_data
+            #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
+        #end if
+    #end if
+    #if $almanac.moon.has_data
+        #if $almanac.moon.rise.has_data
+            #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
+        #end if
+        #if $almanac.moon.set.has_data
+            #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
+        #end if
+    #end if
+    #if $almanac.next_full_moon.has_data
+        #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
+    #end if
+    #if $almanac.next_new_moon.has_data
+        #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
+    #end if
+    #if $almanac.moon_phase.has_data
+        #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
+    #end if
+    #if $almanac.moon_fullness.has_data
+        #$inigoData.update({"moon_fullness": int($almanac.moon_fullness)})
+    #end if
 #end if
 ##
 ##
