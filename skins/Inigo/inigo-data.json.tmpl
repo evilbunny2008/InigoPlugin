@@ -68,8 +68,8 @@
 ##
 ##
 ##
-#if $current is not None and $current.has_data
-    #try
+#try
+    #if $current is not None and $current.has_data
         #if $current.windGust is not None and $current.windGust.has_data
             #$inigoData.update({"current_windGust": float($current.windGust.raw)})
         #end if
@@ -84,10 +84,10 @@
             #$inigoData.update({"current_windDir": float($current.windDir.raw)})
             #$inigoData.update({"current_windDirCompass": str($current.windDir.ordinal_compass)})
         #end if
-    #except
-        #echo "failed at block 3"
-    #end try
-#end if
+    #end if
+#except
+    #echo "failed at block 3"
+#end try
 #try
     #for $time_period in $time_periods
         #set $time_period_obj = getattr($self, $time_period, None)
@@ -170,95 +170,99 @@
 ##
 ##
 ##
-#if $almanac is not None and $almanac.has_data
-    #if $almanac.sun is not None and $almanac.sun.has_data
+#try
+    #if $almanac is not None and $almanac.hasExtras
+        #if $almanac.sun is not None and $almanac.sun.has_data
+            #try
+                #if $almanac.sun.rise is not None and $almanac.sun.rise.has_data
+                    #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
+                #end if
+            #except
+                #echo "failed at block 8a"
+            #end try
+            #try
+                #if $almanac.sun.set is not None and $almanac.sun.set.has_data
+                    #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
+                #end if
+            #except
+                #echo "failed at block 8b"
+            #end try
+            #try
+                #if $almanac.sun.transit is not None and $almanac.sun.transit.has_data
+                    #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
+                #end if
+            #except
+                #echo "failed at block 8c"
+            #end try
+        #end if
+        ##
+        ##
+        ##
+        #if $almanac.moon is not None and $almanac.moon.has_data
+            #try
+                #if $almanac.moon.rise is not None and $almanac.moon.rise.has_data
+                    #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
+                #end if
+            #except
+                #echo "failed at block 9a"
+            #end try
+            #try
+                #if $almanac.moon.set is not None and $almanac.moon.set.has_data
+                    #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
+                #end if
+            #except
+                #echo "failed at block 9b"
+            #end try
+            #try
+                #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.has_data
+                    #$inigoData.update({"moon_next_rise": int($almanac.moon.next_rise.raw)})
+                #end if
+            #except
+                #echo "failed at block 9c"
+            #end try
+            #try
+                #if $almanac.moon.next_set is not None and $almanac.moon.next_set.has_data
+                    #$inigoData.update({"moon_next_set": int($almanac.moon.next_set.raw)})
+                #end if
+            #except
+                #echo "failed at block 9d"
+            #end try
+        #end if
+        ##
+        ##
+        ##
         #try
-            #if $almanac.sun.rise is not None and $almanac.sun.rise.has_data
-                #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
+            #if $almanac.next_full_moon is not None and $almanac.next_full_moon.has_data
+                #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
             #end if
         #except
-            #echo "failed at block 8a"
+            #echo "failed at block 9e"
         #end try
         #try
-            #if $almanac.sun.set is not None and $almanac.sun.set.has_data
-                #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
+            #if $almanac.next_new_moon is not None and $almanac.next_new_moon.has_data
+                #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
             #end if
         #except
-            #echo "failed at block 8b"
+            #echo "failed at block 9f"
         #end try
         #try
-            #if $almanac.sun.transit is not None and $almanac.sun.transit.has_data
-                #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
+            #if $almanac.moon_phase is not None and $almanac.moon_phase.has_data
+                #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
             #end if
         #except
-            #echo "failed at block 8c"
+            #echo "failed at block 9g"
+        #end try
+        #try
+            #if $almanac.moon_fullness is not None and $almanac.moon_fullness.has_data
+                #$inigoData.update({"moon_fullness": int($almanac.moon_fullness.raw)})
+            #end if
+        #except
+            #echo "failed at block 9h"
         #end try
     #end if
-    ##
-    ##
-    ##
-    #if $almanac.moon is not None and $almanac.moon.has_data
-        #try
-            #if $almanac.moon.rise is not None and $almanac.moon.rise.has_data
-                #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
-            #end if
-        #except
-            #echo "failed at block 9a"
-        #end try
-        #try
-            #if $almanac.moon.set is not None and $almanac.moon.set.has_data
-                #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
-            #end if
-        #except
-            #echo "failed at block 9b"
-        #end try
-        #try
-            #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.has_data
-                #$inigoData.update({"moon_next_rise": int($almanac.moon.next_rise.raw)})
-            #end if
-        #except
-            #echo "failed at block 9c"
-        #end try
-        #try
-            #if $almanac.moon.next_set is not None and $almanac.moon.next_set.has_data
-                #$inigoData.update({"moon_next_set": int($almanac.moon.next_set.raw)})
-            #end if
-        #except
-            #echo "failed at block 9d"
-        #end try
-    #end if
-    ##
-    ##
-    ##
-    #try
-        #if $almanac.next_full_moon is not None and $almanac.next_full_moon.has_data
-            #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
-        #end if
-    #except
-        #echo "failed at block 9e"
-    #end try
-    #try
-        #if $almanac.next_new_moon is not None and $almanac.next_new_moon.has_data
-            #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
-        #end if
-    #except
-        #echo "failed at block 9f"
-    #end try
-    #try
-        #if $almanac.moon_phase is not None and $almanac.moon_phase.has_data
-            #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
-        #end if
-    #except
-        #echo "failed at block 9g"
-    #end try
-    #try
-        #if $almanac.moon_fullness is not None and $almanac.moon_fullness.has_data
-            #$inigoData.update({"moon_fullness": int($almanac.moon_fullness.raw)})
-        #end if
-    #except
-        #echo "failed at block 9h"
-    #end try
-#end if
+#except
+    #echo "failed at block 9i"
+#end try
 ##
 ##
 ##

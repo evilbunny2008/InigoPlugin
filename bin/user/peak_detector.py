@@ -115,6 +115,7 @@ class PeakDetectorService(weewx.engine.StdService):
         self.influence = 0.02
 
         self.peak_detector = None
+        self.done_work = False
 
         self.trend_history = deque(maxlen=50)
         self.current_ts = 0
@@ -181,6 +182,8 @@ class PeakDetectorService(weewx.engine.StdService):
         ts, temp = self.getTemp(packet)
         if temp is None:
             return
+
+        self.done_work = True
 
         signal = self.peak_detector.thresholding_algo(temp)
 
@@ -303,6 +306,9 @@ class PeakDetectorService(weewx.engine.StdService):
         self.reset_peak_detector()
 
     def save_pickle_data(self, report=False):
+
+        if not self.done_work:
+            return
 
         try:
             with open(self.pickle_filename, "wb") as f:
