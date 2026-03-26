@@ -1,7 +1,6 @@
 
 # Simple weeWX loop and archive service to detect when outTemp has peaked.
 
-import deque
 import logging
 import numpy as np
 import os
@@ -14,6 +13,7 @@ import weewx.engine
 import weewx.manager
 import weewx.units
 
+from collections import deque
 from datetime import datetime, timedelta
 from weeutil.weeutil import TimeSpan
 from weewx.units import FtoC
