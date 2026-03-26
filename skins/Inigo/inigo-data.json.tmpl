@@ -123,7 +123,7 @@
 ##
 ##
 #if $almanac is not None and $almanac.has_data
-    #if $almanac.sun in not None and $almanac.sun.has_data
+    #if $almanac.sun is not None and $almanac.sun.has_data
         #if $almanac.sun.rise is not None and $almanac.sun.rise.has_data
             #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
         #end if
