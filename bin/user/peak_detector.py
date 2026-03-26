@@ -293,7 +293,7 @@ class PeakDetectorService(weewx.engine.StdService):
                         self.current_ts = ret.current_ts
                         self.current_signal = ret.current_signal
                         self.current_count = ret.current_count
-                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag} and " + \
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag} and\n" + \
                                  f"self.trend_history of length {len(self.trend_history)} from the pickle cache file")
                         return
 
@@ -312,7 +312,7 @@ class PeakDetectorService(weewx.engine.StdService):
                 pickle.dump(storageClass, f)
 
                 if report:
-                    log.info(f"{self.__class__.__name__} saved self.peak_detector of length {self.peak_detector.length} and lag of {self.peak_detector.lag} and " + \
+                    log.info(f"{self.__class__.__name__} saved self.peak_detector of length {self.peak_detector.length} and lag of {self.peak_detector.lag} and\n" + \
                               f"self.trend_history of length {len(self.trend_history)} to the pickle cache file")
 
         except Exception as e:
