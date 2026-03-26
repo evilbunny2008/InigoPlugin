@@ -70,9 +70,13 @@
 ##
 ##
 ##
-#set $vars = ["ET", "radiation", "UV"]
+#set $vars = ["ET", "radiation", "rain", "UV"]
 #for $var in $vars
-    #for $time_period in ["current"] + $time_periods
+    #set $var_name = getattr($current, $var, None)
+    #if $var_name is not None and $var_name.has_data
+        #$inigoData.update({"current_" + $var: $var_name.sum.raw})
+    #end if
+    #for $time_period in $time_periods
         #set $time_period_obj = getattr($self, $time_period, None)
         #if $time_period_obj is not None
             #set $var_name = getattr($time_period_obj, $var, None)
@@ -85,6 +89,9 @@
 ##
 ##
 ##
+#if $current.rainRate.has_data
+    #$inigoData.update({"rainRate": $current.rainRate.sum.raw})
+#end if
 #if $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
     #$inigoData.update({"unit_cloudbase": $unit.unit_type.cloudbase})
