@@ -15,11 +15,11 @@
     #set $var_name = getattr($current, $var, None)
     #if $var_name is not None and $var_name.has_data
         #set $var_name_str = "current_" + $var
-        #$inigoData.update({$var_name_str: $var_name.formatted})
+        #$inigoData.update({$var_name_str: $var_name.raw})
         #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
-        #if $var_name.formatted > $minus3600.formatted
+        #if $var_name.raw > $minus3600.raw
         #$inigoData.update({$var_name_str + "_trend": "Rising"})
-        #elif $var_name.formatted < $minus3600.formatted
+        #elif $var_name.raw < $minus3600.raw
         #$inigoData.update({$var_name_str + "_trend": "Falling"})
         #else
         #$inigoData.update({$var_name_str + "_trend": "Steady"})
@@ -35,9 +35,9 @@
                 #set $var_name_mintime = $var_name_str + "_mintime"
                 #set $var_name_max = $var_name_str + "_max"
                 #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #$inigoData.update({$var_name_min: $var_name.min.formatted})
+                #$inigoData.update({$var_name_min: $var_name.min.raw})
                 #$inigoData.update({$var_name_mintime: $var_name.mintime.raw})
-                #$inigoData.update({$var_name_max: $var_name.max.formatted})
+                #$inigoData.update({$var_name_max: $var_name.max.raw})
                 #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
             #end if
         #end if
@@ -46,11 +46,11 @@
 ##
 ##
 ##
-#$inigoData.update({"current_windGust": $current.windGust.formatted})
+#$inigoData.update({"current_windGust": $current.windGust.raw})
 #$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass})
-#$inigoData.update({"current_windSpeed": $current.windSpeed.formatted})
+#$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
 #$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass})
-#$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.formatted})
+#$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
 #$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
@@ -61,7 +61,7 @@
             #set $var_name_max = $var_name_str + "_max"
             #set $var_name_maxtime = $var_name_str + "_maxtime"
             #set $var_name_gustdir = $var_name_str + "_gustdir"
-            #$inigoData.update({$var_name_max: $var_name.max.formatted})
+            #$inigoData.update({$var_name_max: $var_name.max.raw})
             #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
             #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
         #end if
@@ -77,7 +77,7 @@
         #if $time_period_obj is not None
             #set $var_name = getattr($time_period_obj, $var, None)
             #if $var_name is not None and $var_name.has_data
-                #$inigoData.update({$time_period + "_" + $var: $var_name.sum.formatted})
+                #$inigoData.update({$time_period + "_" + $var: $var_name.sum.raw})
             #end if
         #end if
     #end for
@@ -133,7 +133,7 @@
 #for $var in $vars
     #set $var_name = $span(time_delta=$var).rain
     #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"rain_" + str($var): $var_name.sum.formatted})
+        #$inigoData.update({"rain_" + str($var): $var_name.sum.raw})
     #end if
 #end for
 ##
