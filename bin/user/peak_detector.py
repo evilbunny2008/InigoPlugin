@@ -1,6 +1,7 @@
 
 # Simple weeWX loop and archive service to detect when outTemp has peaked.
 
+import deque
 import logging
 import numpy as np
 import os
@@ -29,10 +30,6 @@ if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] 
 if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
-
-weewx.units.obs_group_dict["OutTemp_dropCount"] = "group_count"
-weewx.units.obs_group_dict["OutTemp_hasPeaked"] = "group_boolean"
-weewx.units.obs_group_dict["OutTemp_riseCount"] = "group_count"
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -96,13 +93,14 @@ class real_time_peak_detection():
 
 class StrorageClass():
 
-    def __init__(self, dt, peak_detector, drop_count, has_peaked, rise_count):
+    def __init__(self, dt, peak_detector, trend_history, current_ts, current_signal, current_count):
 
         self.dt = dt
         self.peak_detector = peak_detector
-        self.drop_count = drop_count
-        self.has_peaked = has_peaked
-        self.rise_count = rise_count
+        self.trend_history = trend_history
+        self.current_ts = current_ts
+        self.current_signal = current_signal
+        self.current_count = current_count
 
 class StrorageClassV2():
 
@@ -127,9 +125,10 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.peak_detector = None
 
-        self.drop_count = 0
-
-        self.rise_count = 0
+        self.trend_history = deque(maxlen=50)
+        self.current_ts = 0
+        self.current_signal = 0
+        self.current_count = 0
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -170,62 +169,31 @@ class PeakDetectorService(weewx.engine.StdService):
 
         record = event.record
 
-        ts, temp = self.getTemp(record)
-        if temp is None:
-            return
-
         now = datetime.now()
         if self.peak_detector.start_time.date() != now.date():
             log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
 
             self.reset_peak_detector()
 
-            if self.usUnit != weewx.US:
-                temp = FtoC(temp)
-
-            log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
-            log.info(f"{self.__class__.__name__} OutTemp_max: {temp:.1f}")
-            log.info(f"{self.__class__.__name__} OutTemp_min: {temp:.1f}")
-
-            record["OutTemp_dropCount"] = self.drop_count
-            record["OutTemp_riseCount"] = self.rise_count
-
-            log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
-            log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
+            self.outputTrendHistory(record)
 
             return
 
         self.save_pickle_data(True)
 
-        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        self.outputTrendHistory(record)
 
-        stats_since_midnight = TimespanBinder(TimeSpan(int(midnight.timestamp()), int(now.timestamp())), self.db_lookup)
+    def outputTrendHistory(self, record):
 
-        OutTemp_max = stats_since_midnight.outTemp.max.raw
-        if OutTemp_max is None or OutTemp_max < temp:
-            OutTemp_max = temp
+        trendCount = 0
+        for ts, signal, count in self.trend_history:
+            record[f"outTemp_trend{trendCount}_ts"] = ts
+            record[f"outTemp_trend{trendCount}_signal"] = signal
+            record[f"outTemp_trend{trendCount}_count"] = count
 
-        OutTemp_min = stats_since_midnight.outTemp.min.raw
-        if OutTemp_min is None or OutTemp_min > temp:
-            OutTemp_min = temp
-
-        if self.usUnit != weewx.US:
-            temp = FtoC(temp)
-            OutTemp_max = FtoC(OutTemp_max)
-            OutTemp_min = FtoC(OutTemp_min)
-
-        log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
-        log.info(f"{self.__class__.__name__} OutTemp_max: {OutTemp_max:.1f}")
-        log.info(f"{self.__class__.__name__} OutTemp_min: {OutTemp_min:.1f}")
-
-        record["OutTemp_dropCount"] = self.drop_count
-        record["OutTemp_riseCount"] = self.rise_count
-
-        log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
-        log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
-
-        self.drop_count = 0
-        self.rise_count = 0
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {ts}")
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {signal}")
+            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {count}")
 
     def handle_loop_packet(self, event):
 
@@ -240,28 +208,19 @@ class PeakDetectorService(weewx.engine.StdService):
         # Saving on every loop packet is probably excessive when saving for archive records and on shutdown would be sufficient unless weeWX crashes frequently
         #self.save_pickle_data()
 
-        if signal == -1:
-            self.drop_count += 1
+        if signal == self.current_signal:
+            self.current_count += 1
 
-        if signal == 1:
-            self.rise_count += 1
-
-        """
-        if self.has_peaked:
-            # Allow reset if temp is clearly rising again
-            if self.rise_count >= 5:
-                self.has_peaked = False
-                self.drop_count = 0
         else:
-            if self.drop_count >= 5:
-                self.has_peaked = True
-                self.rise_count = 0
-        """
+            # Signal changed — store the completed run
+            if self.current_count > 0:
+                self.trend_history.append((self.current_ts, self.current_signal, self.current_count))
+
+            self.current_ts = ts
+            self.current_signal = signal
+            self.current_count = 1
 
     def reset_peak_detector(self):
-
-        self.drop_count = 0
-        self.rise_count = 0
 
         now = datetime.now()
 
@@ -290,7 +249,6 @@ class PeakDetectorService(weewx.engine.StdService):
             log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
 
             self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=self.lag, threshold=self.threshold, influence=self.influence)
-
 
         self.save_pickle_data(True)
 
@@ -322,18 +280,15 @@ class PeakDetectorService(weewx.engine.StdService):
 
                     ret = pickle.load(f)
 
-                    if isinstance(ret, real_time_peak_detection) and ret.lag == self.lag and ret.threshold == self.threshold and ret.influence == self.influence:
-                        log.info(f"{self.__class__.__name__} loading a real_time_peak_detection class from the pickle file with length of {ret.length}")
-                        self.peak_detector = ret
-                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
-                        return
-
-                    if isinstance(ret, StrorageClass) and ret.dt >= datetime.now() - timedelta(minutes=5):
+                    if isinstance(ret, StrorageClass):
                         log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file")
                         self.peak_detector = ret.peak_detector
-                        self.drop_count = ret.drop_count
-                        self.rise_count = ret.rise_count
-                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
+                        self.trend_history = ret.trend_history
+                        self.current_ts = ret.current_ts
+                        self.current_signal = ret.current_signal
+                        self.current_count = ret.current_count
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag} and " + \
+                                 f"self.trend_history of length {len(self.trend_history)} from the pickle cache file")
                         return
 
                     if isinstance(ret, StrorageClassV2) and ret.dt >= datetime.now() - timedelta(minutes=5):
@@ -354,12 +309,13 @@ class PeakDetectorService(weewx.engine.StdService):
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                storageClass = StrorageClassV2(datetime.now(), self.peak_detector, self.drop_count, self.rise_count)
+                storageClass = StrorageClass(datetime.now(), self.peak_detector, self.trend_history, self.current_ts, self.current_signal, self.current_count)
 
                 pickle.dump(storageClass, f)
 
                 if report:
-                    log.info(f"{self.__class__.__name__} saved self.peak_detector to the pickle file of length {self.peak_detector.length} and lag of {self.peak_detector.lag}")
+                    log.info(f"{self.__class__.__name__} saved self.peak_detector of length {self.peak_detector.length} and lag of {self.peak_detector.lag} and " + \
+                              f"self.trend_history of length {len(self.trend_history)} to the pickle cache file")
 
         except Exception as e:
             raise e
