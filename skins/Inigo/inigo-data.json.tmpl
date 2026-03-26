@@ -297,4 +297,21 @@
 ##
 ##
 ##
+#for $rc in range(0, 51)
+    #set $var_name_ts = getattr($current, "outTemp_trend" + str($rc) + "_ts", None)
+    #set $var_name_signal = getattr($current, "outTemp_trend" + str($rc) + "_signal", None)
+    #set $var_name_count = getattr($current, "outTemp_trend" + str($rc) + "_count", None)
+    #if $var_name_ts is not None and $var_name_ts.has_data
+        #set $inigoData["trend_" + str($rc) + "_ts"] = $var_name_ts.raw
+    #end if
+    #if $var_name_ts is not None and $var_name_signal.has_data
+        #set $inigoData["trend_" + str($rc) + "_signal"] = $var_name_signal.raw
+    #end if
+    #if $var_name_ts is not None and $var_name_count.has_data
+        #set $inigoData["trend_" + str($rc) + "_count"] = $var_name_count.raw
+    #end if
+#end for
+##
+##
+##
 $json.dumps($inigoData)
