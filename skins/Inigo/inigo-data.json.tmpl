@@ -98,7 +98,7 @@
             #set $var_name_max = $var_name_str + "_max"
             #set $var_name_maxtime = $var_name_str + "_maxtime"
             #set $var_name_gustdir = $var_name_str + "_gustdir"
-            #set $inigoData[$var_name_max] = float($var_name.max.raw)
+            #set $inigoData[$var_name_max] = $var_name.max.raw
             #set $inigoData[$var_name_maxtime] = int($var_name.maxtime.raw)
             #set $inigoData[$var_name_gustdir] = str($var_name.gustdir.ordinal_compass)
         #end if
@@ -117,7 +117,7 @@
             #if $time_period_obj is not None and $time_period_obj.has_data
                 #set $var_name = getattr($time_period_obj, $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$time_period + "_" + $var] = float($var_name.sum.formatted)
+                    #set $inigoData[$time_period + "_" + $var] = $var_name.sum.raw
                 #end if
             #end if
         #end for
