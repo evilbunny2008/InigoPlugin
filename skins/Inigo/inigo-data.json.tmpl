@@ -106,13 +106,10 @@
 ##
 ##
 ##
-#set $vars = ["barometer", "outHumidity", "outTemp", "windSpeed"]
-#for $var in $vars
-    #set $var_name = getattr($unit.label, $var, None)
-    #if $var_name is not None and $var_name.has_data
-        #set $inigoData = $inigoData + {"label_" + $var: $var_name}
-    #end if
-#end for
+#set $inigoData = $inigoData + {"label_barometer": $unit.label.barometer}
+#set $inigoData = $inigoData + {"label_outHumidity": $unit.label.outHumidity}
+#set $inigoData = $inigoData + {"label_outTemp": $unit.label.outTemp}
+#set $inigoData = $inigoData + {"label_windSpeed": $unit.label.windSpeed}
 ##
 ##
 ##
