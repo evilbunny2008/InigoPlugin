@@ -112,47 +112,53 @@
 ##
 ##
 ##
-#if $current.rainRate.has_data
+#if $current.rainRate is not None and $current.rainRate.has_data
     #$inigoData.update({"rainRate": str($current.rainRate.formatted)})
 #end if
-#if $current.cloudbase.has_data
+#if $current.cloudbase is not None and $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
     #$inigoData.update({"unit_cloudbase": str($unit.unit_type.cloudbase)})
 #end if
 ##
 ##
 ##
-#if $almanac.has_data
-    #if $almanac.sun.has_data
-        #if $almanac.sun.rise.has_data
+#if $almanac is not None and $almanac.has_data
+    #if $almanac.sun in not None and $almanac.sun.has_data
+        #if $almanac.sun.rise is not None and $almanac.sun.rise.has_data
             #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
         #end if
-        #if $almanac.sun.set.has_data
+        #if $almanac.sun.set is not None and $almanac.sun.set.has_data
             #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
         #end if
-        #if $almanac.sun.transit.has_data
+        #if $almanac.sun.transit is not None and $almanac.sun.transit.has_data
             #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
         #end if
     #end if
-    #if $almanac.moon.has_data
-        #if $almanac.moon.rise.has_data
+    #if $almanac.moon is not None and $almanac.moon.has_data
+        #if $almanac.moon.rise is not None and $almanac.moon.rise.has_data
             #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
         #end if
-        #if $almanac.moon.set.has_data
+        #if $almanac.moon.set is not None and $almanac.moon.set.has_data
             #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
         #end if
+        #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.has_data
+            #$inigoData.update({"moon_next_rise": int($almanac.moon.next_rise.raw)})
+        #end if
+        #if $almanac.moon.next_set is not None and $almanac.moon.next_set.has_data
+            #$inigoData.update({"moon_next_set": int($almanac.moon.next_set.raw)})
+        #end if
     #end if
-    #if $almanac.next_full_moon.has_data
+    #if $almanac.next_full_moon is not None and $almanac.next_full_moon.has_data
         #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
     #end if
-    #if $almanac.next_new_moon.has_data
+    #if $almanac.next_new_moon is not None and $almanac.next_new_moon.has_data
         #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
     #end if
-    #if $almanac.moon_phase.has_data
+    #if $almanac.moon_phase is not None and $almanac.moon_phase.has_data
         #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
     #end if
-    #if $almanac.moon_fullness.has_data
-        #$inigoData.update({"moon_fullness": int($almanac.moon_fullness)})
+    #if $almanac.moon_fullness is not None and $almanac.moon_fullness.has_data
+        #$inigoData.update({"moon_fullness": int($almanac.moon_fullness.raw)})
     #end if
 #end if
 ##
@@ -165,19 +171,11 @@
 ##
 ##
 ##
+
 #$inigoData.update({"appTemp": round($current.appTemp.raw, 1)})
 #$inigoData.update({"datetime1": str($current.dateTime.format("%a, %d %b %Y"))})
 #$inigoData.update({"datetime2": str($current.dateTime.format("%H:%M %Z"))})
 #$inigoData.update({"station_location": str($station.location)})
-##
-##
-##
-#if $almanac.moon.next_rise.has_data
-    #$inigoData.update({"moon_next_rise": int($almanac.moon.next_rise.raw)})
-#end if
-#if $almanac.moon.next_set.has_data
-    #$inigoData.update({"moon_next_set": int($almanac.moon.next_set.raw)})
-#end if
 ##
 ##
 ##
