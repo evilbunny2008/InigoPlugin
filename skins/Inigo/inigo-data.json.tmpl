@@ -13,6 +13,7 @@
 #set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
 #for $var in $vars
     #set $var_name = getattr($current, $var, None)
+    #set $var_format = getattr($unit.format, $var, None)
     #if $var_name is not None and $var_name.has_data
         #set $var_name_str = "current_" + $var
         #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
@@ -50,21 +51,15 @@
 ##
 ##
 ##
-
-
-$current.windGust.formatted|$current.windSpeed.formatted|$current.windDir.formatted|$day.windSpeed.avg.formatted|$day.windDir.avg.ordinal_compass|$current.windDir.ordinal_compass|#slurp
-
-
-
-
-
-
 #$inigoData.update({"current_windGust": $current.windGust.raw})
-#$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass})
+#$inigoData.update({"current_windGustDir": $current.windGust.raw})
+#$inigoData.update({"current_windGustDirCompass": $current.windGust.ordinal_compass})
 #$inigoData.update({"current_windSpeed": str($current.windSpeed.formatted)})
-#$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass})
+#$inigoData.update({"current_windSpeedDir": $current.windSpeed.raw})
+#$inigoData.update({"current_windSpeedDirCompass": $current.windSpeed.ordinal_compass})
 #$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
-#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
+#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.raw})
+#$inigoData.update({"current_windSpeedAvgDirCompass": $current.windSpeed.avg.ordinal_compass})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
     #if $time_period_obj is not None
