@@ -159,6 +159,9 @@ class PeakDetectorService(weewx.engine.StdService):
 
             self.reset_peak_detector()
 
+            if self.usUnit != weewx.US:
+                temp = FtoC(temp)
+
             log.info(f"{self.__class__.__name__} OutTemp_cur: {temp:.1f}")
             log.info(f"{self.__class__.__name__} OutTemp_max: {temp:.1f}")
             log.info(f"{self.__class__.__name__} OutTemp_min: {temp:.1f}")
@@ -222,23 +225,21 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.save_pickle_data()
 
+        if signal == -1:
+            self.drop_count += 1
+
+        if signal == 1:
+            self.rise_count += 1
+
         if self.has_peaked:
             # Allow reset if temp is clearly rising again
-            if signal == 1:
-                self.rise_count += 1
-                if self.rise_count >= 5:
-                    self.has_peaked = False
-                    self.drop_count = 0
-            else:
-                self.rise_count = 0
-        else:
-            if signal == -1:
-                self.drop_count += 1
-                if self.drop_count >= 5:
-                    self.has_peaked = True
-                    self.rise_count = 0
-            else:
+            if self.rise_count >= 5:
+                self.has_peaked = False
                 self.drop_count = 0
+        else:
+            if self.drop_count >= 5:
+                self.has_peaked = True
+                self.rise_count = 0
 
     def reset_peak_detector(self):
 
