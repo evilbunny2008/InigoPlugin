@@ -104,7 +104,7 @@
             #set $var_name_max = $var_name_str + "_max"
             #set $var_name_maxtime = $var_name_str + "_maxtime"
             #set $var_name_gustdir = $var_name_str + "_gustdir"
-            #set $inigoData[$var_name_max] = $var_name.max.raw
+            #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
             #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
             #set $inigoData[$var_name_gustdir] = $var_name.gustdir.ordinal_compass.strip()
         #end if
