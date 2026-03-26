@@ -47,11 +47,11 @@
 ##
 ##
 #$inigoData.update({"current_windGust": $current.windGust.raw})
-#$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass})
+#$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass.raw})
 #$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
-#$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass})
+#$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass.raw})
 #$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
-#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
+#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass.raw})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
     #if $time_period_obj is not None
@@ -63,7 +63,7 @@
             #set $var_name_gustdir = $var_name_str + "_gustdir"
             #$inigoData.update({$var_name_max: $var_name.max.raw})
             #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
-            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
+            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass.raw})
         #end if
     #end if
 #end for
@@ -94,7 +94,7 @@
 #end if
 #if $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
-    #$inigoData.update({"unit_cloudbase": $unit.unit_type.cloudbase})
+    #$inigoData.update({"unit_cloudbase": str($unit.unit_type.cloudbase)})
 #end if
 ##
 ##
@@ -107,8 +107,8 @@
     #$inigoData.update({"moon_set": $almanac.moon.set.raw})
     #$inigoData.update({"next_full_moon": $almanac.next_full_moon.raw})
     #$inigoData.update({"next_new_moon": $almanac.next_new_moon.raw})
-    #$inigoData.update({"moon_phase": $almanac.moon_phase})
-    #$inigoData.update({"moon_fullness": $almanac.moon_fullness})
+    #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
+    #$inigoData.update({"moon_fullness": str($almanac.moon_fullness)})
 #end if
 ##
 ##
@@ -121,8 +121,8 @@
 ##
 ##
 #$inigoData.update({"appTemp": round($current.appTemp.raw, 1)})
-#$inigoData.update({"datetime1": $current.dateTime.format("%a, %d %b %Y")})
-#$inigoData.update({"datetime2": $current.dateTime.format("%H:%M %Z")})
+#$inigoData.update({"datetime1": str($current.dateTime.format("%a, %d %b %Y"))})
+#$inigoData.update({"datetime2": str($current.dateTime.format("%H:%M %Z"))})
 #$inigoData.update({"station_location": str($station.location)})
 ##
 ##
