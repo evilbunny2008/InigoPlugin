@@ -240,7 +240,8 @@ class PeakDetectorService(weewx.engine.StdService):
 
         signal = self.peak_detector.thresholding_algo(temp)
 
-        self.save_pickle_data()
+        # Saving on every loop packet is probably excessive when saving for archive records and on shutdown would be sufficient unless weeWX crashes frequently
+        #self.save_pickle_data()
 
         if signal == -1:
             self.drop_count += 1
