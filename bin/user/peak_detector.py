@@ -341,6 +341,7 @@ class PeakDetectorService(weewx.engine.StdService):
                         self.has_peaked = ret.has_peaked
                         self.rise_count = ret.rise_count
                         log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
+                        return
 
             except Exception as e:
                 pass
