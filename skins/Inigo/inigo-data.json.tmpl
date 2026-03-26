@@ -15,7 +15,11 @@
     #set $var_name = getattr($current, $var, None)
     #if $var_name is not None and $var_name.has_data
         #set $var_name_str = "current_" + $var
-        #$inigoData.update({$var_name_str: $var_name.raw})
+        #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
+            #$inigoData.update({$var_name_str: round($var_name.raw, 1)})
+        #else
+            #$inigoData.update({$var_name_str: $var_name.raw})
+        #end if
         #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
         #if $var_name.raw > $minus3600.raw
         #$inigoData.update({$var_name_str + "_trend": "Rising"})
@@ -46,9 +50,18 @@
 ##
 ##
 ##
+
+
+$current.windGust.formatted|$current.windSpeed.formatted|$current.windDir.formatted|$day.windSpeed.avg.formatted|$day.windDir.avg.ordinal_compass|$current.windDir.ordinal_compass|#slurp
+
+
+
+
+
+
 #$inigoData.update({"current_windGust": $current.windGust.raw})
 #$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass})
-#$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
+#$inigoData.update({"current_windSpeed": str($current.windSpeed.formatted)})
 #$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass})
 #$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
 #$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
@@ -108,7 +121,7 @@
     #$inigoData.update({"next_full_moon": $almanac.next_full_moon.raw})
     #$inigoData.update({"next_new_moon": $almanac.next_new_moon.raw})
     #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
-    #$inigoData.update({"moon_fullness": str($almanac.moon_fullness)})
+    #$inigoData.update({"moon_fullness": $almanac.moon_fullness})
 #end if
 ##
 ##
