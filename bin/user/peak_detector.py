@@ -104,6 +104,15 @@ class StrorageClass():
         self.has_peaked = has_peaked
         self.rise_count = rise_count
 
+class StrorageClassV2():
+
+    def __init__(self, dt, peak_detector, drop_count, rise_count):
+
+        self.dt = dt
+        self.peak_detector = peak_detector
+        self.drop_count = drop_count
+        self.rise_count = rise_count
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
@@ -121,8 +130,6 @@ class PeakDetectorService(weewx.engine.StdService):
         self.drop_count = 0
 
         self.rise_count = 0
-
-        self.has_peaked = False
 
         self.cache_dir = "/tmp/peak_detector"
 
@@ -181,11 +188,9 @@ class PeakDetectorService(weewx.engine.StdService):
             log.info(f"{self.__class__.__name__} OutTemp_min: {temp:.1f}")
 
             record["OutTemp_dropCount"] = self.drop_count
-            record["OutTemp_hasPeaked"] = self.has_peaked
             record["OutTemp_riseCount"] = self.rise_count
 
             log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
-            log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
             log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
 
             return
@@ -204,14 +209,6 @@ class PeakDetectorService(weewx.engine.StdService):
         if OutTemp_min is None or OutTemp_min > temp:
             OutTemp_min = temp
 
-        """
-        if self.has_peaked and (temp == OutTemp_max or now.hour < 6):
-            self.has_peaked = False
-
-        if not self.has_peaked and now.hour >= 16 and temp < OutTemp_max:
-            self.has_peaked = True
-        """
-
         if self.usUnit != weewx.US:
             temp = FtoC(temp)
             OutTemp_max = FtoC(OutTemp_max)
@@ -222,11 +219,9 @@ class PeakDetectorService(weewx.engine.StdService):
         log.info(f"{self.__class__.__name__} OutTemp_min: {OutTemp_min:.1f}")
 
         record["OutTemp_dropCount"] = self.drop_count
-        record["OutTemp_hasPeaked"] = self.has_peaked
         record["OutTemp_riseCount"] = self.rise_count
 
         log.info(f"{self.__class__.__name__} OutTemp_dropCount: {self.drop_count}")
-        log.info(f"{self.__class__.__name__} OutTemp_hasPeaked: {self.has_peaked}")
         log.info(f"{self.__class__.__name__} OutTemp_riseCount: {self.rise_count}")
 
         self.drop_count = 0
@@ -266,7 +261,6 @@ class PeakDetectorService(weewx.engine.StdService):
     def reset_peak_detector(self):
 
         self.drop_count = 0
-        self.has_peaked = False
         self.rise_count = 0
 
         now = datetime.now()
@@ -338,7 +332,14 @@ class PeakDetectorService(weewx.engine.StdService):
                         log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file with length of {ret.peak_detector.length}")
                         self.peak_detector = ret.peak_detector
                         self.drop_count = ret.drop_count
-                        self.has_peaked = ret.has_peaked
+                        self.rise_count = ret.rise_count
+                        log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
+                        return
+
+                    if isinstance(ret, StrorageClassV2) and ret.dt >= datetime.now() - timedelta(minutes=5):
+                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file with length of {ret.peak_detector.length}")
+                        self.peak_detector = ret.peak_detector
+                        self.drop_count = ret.drop_count
                         self.rise_count = ret.rise_count
                         log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
                         return
@@ -353,7 +354,7 @@ class PeakDetectorService(weewx.engine.StdService):
         try:
             with open(self.pickle_filename, "wb") as f:
 
-                storageClass = StrorageClass(datetime.now(), self.peak_detector, self.drop_count, self.has_peaked, self.rise_count)
+                storageClass = StrorageClassV2(datetime.now(), self.peak_detector, self.drop_count, self.rise_count)
 
                 pickle.dump(storageClass, f)
 
