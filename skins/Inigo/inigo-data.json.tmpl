@@ -13,7 +13,6 @@
 #set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
 #for $var in $vars
     #set $var_name = getattr($current, $var, None)
-    #set $var_format = getattr($unit.format, $var, None)
     #if $var_name is not None and $var_name.has_data
         #set $var_name_str = "current_" + $var
         #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
@@ -40,10 +39,10 @@
                 #set $var_name_mintime = $var_name_str + "_mintime"
                 #set $var_name_max = $var_name_str + "_max"
                 #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #$inigoData.update({$var_name_min: $var_name.min.raw})
-                #$inigoData.update({$var_name_mintime: $var_name.mintime.raw})
-                #$inigoData.update({$var_name_max: $var_name.max.raw})
-                #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+                #$inigoData.update({$var_name_min: float($var_name.min.raw)})
+                #$inigoData.update({$var_name_mintime: int($var_name.mintime.raw)})
+                #$inigoData.update({$var_name_max: float($var_name.max.raw)})
+                #$inigoData.update({$var_name_maxtime: int($var_name.maxtime.raw)})
             #end if
         #end if
     #end for
@@ -51,11 +50,11 @@
 ##
 ##
 ##
-#$inigoData.update({"current_windGust": $current.windGust.raw})
-#$inigoData.update({"current_windGustDir": $current.windGustDir.raw})
+#$inigoData.update({"current_windGust": float($current.windGust.raw, 1)})
+#$inigoData.update({"current_windGustDir": int($current.windGustDir.raw)})
 #$inigoData.update({"current_windGustDirCompass": str($current.windGustDir.ordinal_compass)})
-#$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
-#$inigoData.update({"current_windDir": $current.windDir.raw})
+#$inigoData.update({"current_windSpeed": float($current.windSpeed.raw)})
+#$inigoData.update({"current_windDir": float($current.windDir.raw)})
 #$inigoData.update({"current_windDirCompass": str($current.windDir.ordinal_compass)})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
@@ -66,8 +65,8 @@
             #set $var_name_max = $var_name_str + "_max"
             #set $var_name_maxtime = $var_name_str + "_maxtime"
             #set $var_name_gustdir = $var_name_str + "_gustdir"
-            #$inigoData.update({$var_name_max: $var_name.max.raw})
-            #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+            #$inigoData.update({$var_name_max: float($var_name.max.raw)})
+            #$inigoData.update({$var_name_maxtime: int($var_name.maxtime.raw)})
             #$inigoData.update({$var_name_gustdir: str($var_name.gustdir.ordinal_compass)})
         #end if
     #end if
@@ -82,7 +81,7 @@
         #if $time_period_obj is not None
             #set $var_name = getattr($time_period_obj, $var, None)
             #if $var_name is not None and $var_name.has_data
-                #$inigoData.update({$time_period + "_" + $var: str($var_name.sum.formatted)})
+                #$inigoData.update({$time_period + "_" + $var: float($var_name.sum.formatted)})
             #end if
         #end if
     #end for
@@ -104,8 +103,8 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name_max = $var_name_str + "_max"
                 #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #$inigoData.update({$var_name_max: $var_name.max.raw})
-                #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+                #$inigoData.update({$var_name_max: float($var_name.max.raw)})
+                #$inigoData.update({$var_name_maxtime: int($var_name.maxtime.raw)})
             #end if
         #end if
     #end for
@@ -124,15 +123,15 @@
 ##
 ##
 #if $almanac.hasExtras
-    #$inigoData.update({"sun_rise": $almanac.sun.rise.raw})
-    #$inigoData.update({"sun_set": $almanac.sun.set.raw})
-    #$inigoData.update({"sun_transit": $almanac.sun.transit.raw})
-    #$inigoData.update({"moon_rise": $almanac.moon.rise.raw})
-    #$inigoData.update({"moon_set": $almanac.moon.set.raw})
-    #$inigoData.update({"next_full_moon": $almanac.next_full_moon.raw})
-    #$inigoData.update({"next_new_moon": $almanac.next_new_moon.raw})
+    #$inigoData.update({"sun_rise": int($almanac.sun.rise.raw)})
+    #$inigoData.update({"sun_set": int($almanac.sun.set.raw)})
+    #$inigoData.update({"sun_transit": int($almanac.sun.transit.raw)})
+    #$inigoData.update({"moon_rise": int($almanac.moon.rise.raw)})
+    #$inigoData.update({"moon_set": int($almanac.moon.set.raw)})
+    #$inigoData.update({"next_full_moon": int($almanac.next_full_moon.raw)})
+    #$inigoData.update({"next_new_moon": int($almanac.next_new_moon.raw)})
     #$inigoData.update({"moon_phase": str($almanac.moon_phase)})
-    #$inigoData.update({"moon_fullness": $almanac.moon_fullness})
+    #$inigoData.update({"moon_fullness": int($almanac.moon_fullness)})
 #end if
 ##
 ##
@@ -152,10 +151,10 @@
 ##
 ##
 #if $almanac.moon.next_rise.has_data
-    #$inigoData.update({"moon_next_rise": $almanac.moon.next_rise.raw})
+    #$inigoData.update({"moon_next_rise": int($almanac.moon.next_rise.raw)})
 #end if
 #if $almanac.moon.next_set.has_data
-    #$inigoData.update({"moon_next_set": $almanac.moon.next_set.raw})
+    #$inigoData.update({"moon_next_set": int($almanac.moon.next_set.raw)})
 #end if
 ##
 ##
@@ -164,7 +163,7 @@
 #for $var in $vars
     #set $var_name = $span(time_delta=$var).rain
     #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"rain_" + str($var): $var_name.sum})
+        #$inigoData.update({"rain_" + str($var): float($var_name.sum)})
     #end if
 #end for
 ##
