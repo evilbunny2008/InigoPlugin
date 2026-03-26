@@ -267,7 +267,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
             mins = self.lag * 2 / 60
 
-            start = last_5min - (self.lag * 2) - 60
+            start = min5_ago - (self.lag * 2) - 60
 
             stats = TimespanBinder(TimeSpan(start, min5_ago), self.db_lookup)
 
