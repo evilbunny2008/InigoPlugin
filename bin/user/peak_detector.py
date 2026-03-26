@@ -204,11 +204,13 @@ class PeakDetectorService(weewx.engine.StdService):
         if OutTemp_min is None or OutTemp_min > temp:
             OutTemp_min = temp
 
+        """
         if self.has_peaked and (temp == OutTemp_max or now.hour < 6):
             self.has_peaked = False
 
         if not self.has_peaked and now.hour >= 16 and temp < OutTemp_max:
             self.has_peaked = True
+        """
 
         if self.usUnit != weewx.US:
             temp = FtoC(temp)
@@ -249,6 +251,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if signal == 1:
             self.rise_count += 1
 
+        """
         if self.has_peaked:
             # Allow reset if temp is clearly rising again
             if self.rise_count >= 5:
@@ -258,6 +261,7 @@ class PeakDetectorService(weewx.engine.StdService):
             if self.drop_count >= 5:
                 self.has_peaked = True
                 self.rise_count = 0
+        """
 
     def reset_peak_detector(self):
 
