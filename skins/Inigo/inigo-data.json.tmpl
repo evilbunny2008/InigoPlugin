@@ -26,17 +26,20 @@
         #end if
     #end if
     #for $time_period in $time_periods
-        #set $var_name = getattr($getVar($time_period), $var, None)
-        #if $var_name is not None and $var_name.has_data
-            #set $var_name_str = $time_period + "_" + $var
-            #set $var_name_min = $var_name_str + "_min"
-            #set $var_name_mintime = $var_name_str + "_mintime"
-            #set $var_name_max = $var_name_str + "_max"
-            #set $var_name_maxtime = $var_name_str + "_maxtime"
-            #$inigoData.update({$var_name_min: $var_name.min.formatted})
-            #$inigoData.update({$var_name_mintime: $var_name.mintime.raw})
-            #$inigoData.update({$var_name_max: $var_name.max.formatted})
-            #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+        #set $time_period_obj = getattr($self, $time_period, None)
+        #if $time_period_obj is not None
+            #set $var_name = getattr($time_period_obj, $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #set $var_name_str = $time_period + "_" + $var
+                #set $var_name_min = $var_name_str + "_min"
+                #set $var_name_mintime = $var_name_str + "_mintime"
+                #set $var_name_max = $var_name_str + "_max"
+                #set $var_name_maxtime = $var_name_str + "_maxtime"
+                #$inigoData.update({$var_name_min: $var_name.min.formatted})
+                #$inigoData.update({$var_name_mintime: $var_name.mintime.raw})
+                #$inigoData.update({$var_name_max: $var_name.max.formatted})
+                #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+            #end if
         #end if
     #end for
 #end for
@@ -50,15 +53,18 @@
 #$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.formatted})
 #$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
 #for $time_period in $time_periods
-    #set $var_name = getattr($getVar($time_period), "wind", None)
-    #if $var_name is not None and $var_name.has_data
-        #set $var_name_str = $time_period + "_wind"
-        #set $var_name_max = $var_name_str + "_max"
-        #set $var_name_maxtime = $var_name_str + "_maxtime"
-        #set $var_name_gustdir = $var_name_str + "_gustdir"
-        #$inigoData.update({$var_name_max: $var_name.max.formatted})
-        #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
-        #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
+    #set $time_period_obj = getattr($self, $time_period, None)
+    #if $time_period_obj is not None
+        #set $var_name = getattr($time_period_obj, "wind", None)
+        #if $var_name is not None and $var_name.has_data
+            #set $var_name_str = $time_period + "_wind"
+            #set $var_name_max = $var_name_str + "_max"
+            #set $var_name_maxtime = $var_name_str + "_maxtime"
+            #set $var_name_gustdir = $var_name_str + "_gustdir"
+            #$inigoData.update({$var_name_max: $var_name.max.formatted})
+            #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
+            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
+        #end if
     #end if
 #end for
 ##
@@ -67,9 +73,12 @@
 #set $vars = ["ET", "radiation", "UV"]
 #for $var in $vars
     #for $time_period in ["current"] + $time_periods
-        #set $var_name = getattr($getVar($time_period), $var, None)
-        #if $var_name is not None and $var_name.has_data
-            #$inigoData.update({$time_period + "_" + $var: $var_name.sum.formatted})
+        #set $time_period_obj = getattr($self, $time_period, None)
+        #if $time_period_obj is not None
+            #set $var_name = getattr($time_period_obj, $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #$inigoData.update({$time_period + "_" + $var: $var_name.sum.formatted})
+            #end if
         #end if
     #end for
 #end for
@@ -78,17 +87,8 @@
 ##
 #if $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
+    #$inigoData.update({"unit_cloudbase": $unit.unit_type.cloudbase})
 #end if
-##
-##
-##
-#set $vars = ["cloudbase"]
-#for $var in $vars
-    #set $var_name = getattr($unit.unit_type, $var, None)
-    #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"unit_" + $var: $var_name})
-    #end if
-#end for
 ##
 ##
 ##
