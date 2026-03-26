@@ -52,14 +52,11 @@
 ##
 ##
 #$inigoData.update({"current_windGust": $current.windGust.raw})
-#$inigoData.update({"current_windGustDir": $current.windGust.raw})
-#$inigoData.update({"current_windGustDirCompass": $current.windGust.ordinal_compass})
-#$inigoData.update({"current_windSpeed": str($current.windSpeed.formatted)})
-#$inigoData.update({"current_windSpeedDir": $current.windSpeed.raw})
-#$inigoData.update({"current_windSpeedDirCompass": $current.windSpeed.ordinal_compass})
-#$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
-#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.raw})
-#$inigoData.update({"current_windSpeedAvgDirCompass": $current.windSpeed.avg.ordinal_compass})
+#$inigoData.update({"current_windGustDir": $current.windGustDir.raw})
+#$inigoData.update({"current_windGustDirCompass": $current.windGustDir.ordinal_compass})
+#$inigoData.update({"current_windSpeed": $current.windSpeed})
+#$inigoData.update({"current_windDir": $current.windDir})
+#$inigoData.update({"current_windDirCompass": $current.windDir.ordinal_compass})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
     #if $time_period_obj is not None
