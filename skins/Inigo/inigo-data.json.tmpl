@@ -47,11 +47,11 @@
 ##
 ##
 #$inigoData.update({"current_windGust": $current.windGust.raw})
-#$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass.raw})
+#$inigoData.update({"current_windGustDir": $current.windGust.ordinal_compass})
 #$inigoData.update({"current_windSpeed": $current.windSpeed.raw})
-#$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass.raw})
+#$inigoData.update({"current_windSpeedDir": $current.windSpeed.ordinal_compass})
 #$inigoData.update({"current_windSpeedAvg": $current.windSpeed.avg.raw})
-#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass.raw})
+#$inigoData.update({"current_windSpeedAvgDir": $current.windSpeed.avg.ordinal_compass})
 #for $time_period in $time_periods
     #set $time_period_obj = getattr($self, $time_period, None)
     #if $time_period_obj is not None
@@ -63,7 +63,7 @@
             #set $var_name_gustdir = $var_name_str + "_gustdir"
             #$inigoData.update({$var_name_max: $var_name.max.raw})
             #$inigoData.update({$var_name_maxtime: $var_name.maxtime.raw})
-            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass.raw})
+            #$inigoData.update({$var_name_gustdir: $var_name.gustdir.ordinal_compass})
         #end if
     #end if
 #end for
@@ -74,7 +74,7 @@
 #for $var in $vars
     #set $var_name = getattr($current, $var, None)
     #if $var_name is not None and $var_name.has_data
-        #$inigoData.update({"current_" + $var: $var_name.sum.raw})
+        #$inigoData.update({"current_" + $var: str($var_name.sum.formatted)})
     #end if
     #for $time_period in $time_periods
         #set $time_period_obj = getattr($self, $time_period, None)
@@ -90,7 +90,7 @@
 ##
 ##
 #if $current.rainRate.has_data
-    #$inigoData.update({"rainRate": $current.rainRate.sum.raw})
+    #$inigoData.update({"rainRate": $current.rainRate.raw})
 #end if
 #if $current.cloudbase.has_data
     #$inigoData.update({"cloudbase": int(round($current.cloudbase.raw))})
