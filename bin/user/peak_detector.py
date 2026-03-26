@@ -102,6 +102,10 @@ class PeakDetectorService(weewx.engine.StdService):
 
         self.config_dict = config_dict
 
+        self.lag = 900
+        self.threshold = 2.0
+        self.influence = 0.02
+
         self.peak_detector = None
 
         self.drop_count = 0
@@ -247,35 +251,33 @@ class PeakDetectorService(weewx.engine.StdService):
         self.drop_count = 0
         self.rise_count = 0
 
-        lag = 900
-        threshold = 2.0
-        influence = 0.02
-
         now = datetime.now()
 
         if now.hour < 6:
 
-            initial_data = [0.0] * lag
+            initial_data = [0.0] * self.lag
 
             log.info(f"{self.__class__.__name__} Overnight reset, generated {len(initial_data)} zero data points")
 
-            self.peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=threshold, influence=influence)
+            self.peak_detector = real_time_peak_detection(initial_data, lag=self.lag, threshold=self.threshold, influence=self.influence)
 
         else:
 
             min5_ago = int(time.time() / 300) * 300
 
-            start = last_5min - (lag * 2) - 60
+            mins = self.lag * 2 / 60
+
+            start = last_5min - (self.lag * 2) - 60
 
             stats = TimespanBinder(TimeSpan(start, min5_ago), self.db_lookup)
 
             initial_data = [row.outTemp.raw for row in stats.records()]
 
-            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
+            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, self.lag), np.arange(len(initial_data)), initial_data).tolist()]
 
-            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past 15 minutes of archive records")
+            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
 
-            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
+            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=self.lag, threshold=self.threshold, influence=self.influence)
 
 
         self.save_pickle_data(True)
@@ -308,7 +310,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
                     ret = pickle.load(f)
 
-                    if isinstance(ret, real_time_peak_detection):
+                    if isinstance(ret, real_time_peak_detection) and ret.lag == self.lag and ret.threshold == self.threshold and ret.influence == self.influence:
                         log.info(f"{self.__class__.__name__} loading a real_time_peak_detection class from the pickle file with length of {ret.length}")
                         self.peak_detector = ret
                         log.info(f"{self.__class__.__name__} loaded a real_time_peak_detection class from the pickle file with length of {self.peak_detector.length} and lag of {self.peak_detector.lag}")
