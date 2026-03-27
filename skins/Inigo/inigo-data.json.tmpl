@@ -161,7 +161,7 @@
                 ## #echo "$since_rain_yesterday: " + $var_name
                 ## #set $inigoData["since_rain_yesterday"] = int($var_name)
             ## #end if
-        #end if
+        ## #end if
     #except
         #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
     #end try
