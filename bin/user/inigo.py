@@ -167,6 +167,8 @@ def processConfigDict(class_name, config_dict):
 
     pickle_filename = os.path.join(cache_dir, "cache.pkl")
 
+    log.info(f"{class_name} Pickle filename set to {pickle_filename}")
+
     db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
 
 def get_since_rain(class_name, timestamp):
