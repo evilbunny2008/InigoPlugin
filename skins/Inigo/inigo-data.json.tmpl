@@ -20,7 +20,7 @@
     ##
     ##
     #set $inigoData["now"] = $now
-    #set $inigoData["dtnow"] = str($current.dateTime)}
+    #set $inigoData["dtnow"] = str($current.dateTime)
     ##
     ##
     ##
@@ -300,19 +300,13 @@
     #set $outTemp_trend_count = []
     #try
         #if $inigo is not None
-            #for $rowid in range(0, 51)
-                #set $var_name_ts_str = "outTemp_trend_" + str($rowid) + "_ts"
-                #set $var_name_signal_str = "outTemp_trend_" + str($rowid) + "_signal"
-                #set $var_name_count_str = "outTemp_trend_" + str($rowid) + "_count"
-                #set $var_name_ts = $inigo.get($var_name_ts_str, None)
-                #set $var_name_signal = $inigo.get($var_name_signal_str, None)
-                #set $var_name_count = $inigo.get($var_name_count_str, None)
-                #if $var_name_ts is not None and $var_name_signal is not None and $var_name_count is not None
-                    #set $outTemp_trend_ts += [$var_name_ts]
-                    #set $outTemp_trend_signal += [$var_name_signal]
-                    #set $outTemp_trend_count += [$var_name_count]
-                #end if
-            #end for
+            #set $ts = $inigo.get("ts", 0)
+            #set $report = $inigo.get("report", {})
+            #if $ts is not None and $ts > 0 and $report is not None
+                #set $outTemp_trend_ts = $report.get("search_list_ts", [])
+                #set $outTemp_trend_signal = $report.get("search_list_signal", [])
+                #set $outTemp_trend_count = $report.get("search_list_count", [])
+            #end if
         #end if
     #except
         #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 10, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]

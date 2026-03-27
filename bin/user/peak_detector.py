@@ -39,6 +39,9 @@ usUnit = weewx.METRIC
 pickle_filename = None
 db_lookup = None
 
+last_report_ts = 0
+last_report = None
+
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 7):
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
@@ -243,6 +246,8 @@ class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
 
     def get_extension_list(self, timespan, db_lookup):
 
+        global last_report_ts, last_report
+
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, self.generator.config_dict)
             load_pickle_data(self.__class__.__name__, False)
@@ -253,48 +258,55 @@ class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
 
         t1 = time.time()
 
-        log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
+        if last_report_ts == timespan.stop and last_report is not None:
+            return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
+
         log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
 
-        search_list_extension = {}
+        search_list_ts = []
+        search_list_signal = []
+        search_list_count = []
 
-        trendCount = -1
+        if current_count > 0 and current_signal != 0 and current_ts <= timespan.stop:
 
-        if current_count > 0 and current_signal != 0:
+            search_list_ts += [current_ts]
+            search_list_signal += [current_signal]
+            search_list_count += [current_count]
 
-            trendCount += 1
-
-            search_list_extension[f"outTemp_trend_{trendCount}_ts"] = current_ts
-            search_list_extension[f"outTemp_trend_{trendCount}_signal"] = current_signal
-            search_list_extension[f"outTemp_trend_{trendCount}_count"] = current_count
-
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {current_ts}")
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {current_count}")
+            log.info(f"{self.__class__.__name__} search_list_ts: {current_ts}")
+            log.info(f"{self.__class__.__name__} search_list_signal: {current_signal}")
+            log.info(f"{self.__class__.__name__} search_list_count: {current_count}")
 
         for ts, signal, count in reversed(trend_history):
 
             if signal == 0:
                 continue
 
-            if not timespan.start <= ts <= timespan.stop:
+            if ts > timespan.stop:
                 continue
 
-            trendCount += 1
-
-            search_list_extension[f"outTemp_trend_{trendCount}_ts"] = ts
-            search_list_extension[f"outTemp_trend_{trendCount}_signal"] = signal
-            search_list_extension[f"outTemp_trend_{trendCount}_count"] = count
+            search_list_ts += [ts]
+            search_list_signal += [signal]
+            search_list_count += [count]
 
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
+        search_list_extension = {
+            "search_list_ts": search_list_ts,
+            "search_list_signal": search_list_signal,
+            "search_list_count": search_list_count,
+        }
+
+        last_report_ts = timespan.stop
+        last_report = search_list_extension
+
         t2 = time.time()
 
         log.info(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": search_list_extension}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
 
 class PeakDetectorService(weewx.engine.StdService):
 
@@ -315,21 +327,13 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def handle_archive_record(self, event):
 
-        #record = event.record
-
         now = datetime.now()
         if peak_detector.start_time.date() != now.date():
             log.info(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
 
             reset_peak_detector()
 
-            #self.outputTrendHistory(record)
-
-            #return
-
         save_pickle_data(self.__class__.__name__, True)
-
-        #self.outputTrendHistory(record)
 
     def handle_loop_packet(self, event):
 
@@ -362,38 +366,6 @@ class PeakDetectorService(weewx.engine.StdService):
             current_ts = ts
             current_signal = signal
             current_count = 1
-    """
-    def outputTrendHistory(self, record):
-
-        trendCount = -1
-
-        if current_count > 0 and current_signal != 0:
-
-            trendCount += 1
-
-            record[f"outTemp_trend_{trendCount}_ts"] = current_ts
-            record[f"outTemp_trend_{trendCount}_signal"] = current_signal
-            record[f"outTemp_trend_{trendCount}_count"] = current_count
-
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {current_ts}")
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {current_count}")
-
-        for ts, signal, count in reversed(trend_history):
-
-            if signal == 0:
-                continue
-
-            trendCount += 1
-
-            record[f"outTemp_trend_{trendCount}_ts"] = ts
-            record[f"outTemp_trend_{trendCount}_signal"] = signal
-            record[f"outTemp_trend_{trendCount}_count"] = count
-
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
-    """
 
     def getTemp(self, packet):
 
