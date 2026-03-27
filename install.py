@@ -65,7 +65,6 @@ class InigoInstaller(ExtensionInstaller):
                 "Inigo": {
                     "skin": "Inigo",
                     "enable": "True",
-                    "since": "midnight",
                     "Units": self.metric_cfg,
                 }
             }
@@ -84,12 +83,10 @@ class InigoInstaller(ExtensionInstaller):
             config=config_dict,
             files=[
                 ("skins/Inigo",
-                ["skins/Inigo/inigo-data.txt.tmpl",
-                 "skins/Inigo/inigo-data.json.tmpl",
+                ["skins/Inigo/inigo-data.json.tmpl",
                  "skins/Inigo/skin.conf"]),
                 ("bin/user",
-                ["bin/user/inigo-since.py",
-                 "bin/user/peak_detector.py"])
+                ["bin/user/peak_detector.py"])
             ]
         )
 

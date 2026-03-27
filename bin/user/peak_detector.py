@@ -39,6 +39,8 @@ usUnit = weewx.METRIC
 pickle_filename = None
 db_lookup = None
 
+since_hour = 0
+
 last_report_ts = 0
 last_report = None
 
@@ -138,13 +140,14 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, done_work, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup
+    global lag, threshold, influence, peak_detector, done_work, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
         inigo = cfg.get("Inigo", None)
         if inigo is not None:
              cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
+             since_hour = int(inigo.get("since_hour", 0))
              units = inigo.get("Units", None)
              if units is not None:
                  groups = units.get("Groups", None)
@@ -161,9 +164,37 @@ def processConfigDict(class_name, config_dict):
         raise weewx.UnsupportedFeature(
             f"{class_name} failed to start due to permissions on {cache_dir} directory uid: {uid}, cuid: {cuid}")
 
+    if not 0 <= since_hour <= 23:
+        since_hour = 0
+
     pickle_filename = os.path.join(cache_dir, "peak_detector.pkl")
 
     db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
+
+def get_since_rain(class_name, timestamp):
+
+    stop_time = datetime.fromtimestamp(timestamp)
+    start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
+
+    if stop_time < start_time:
+        start_time -= timedelta(days=1)
+
+    tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
+
+    today = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
+
+    start_time -= timedelta(days=1)
+    stop_time -= timedelta(days=1)
+
+    tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
+
+    yesterday = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
+
+    log.info(f"{class_name} since_hour: {since_hour}")
+    log.info(f"{class_name} today.rain.sum.raw: {today.rain.sum.raw}")
+    log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
+
+    return today.rain.sum.raw, yesterday.rain.sum.raw
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -293,7 +324,12 @@ class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
+        since_today, since_yesterday = get_since_rain
+
         search_list_extension = {
+            "since_hour": since_hour,
+            "since_today": since_today,
+            "since_yesterday": since_yesterday,
             "search_list_ts": search_list_ts,
             "search_list_signal": search_list_signal,
             "search_list_count": search_list_count,
