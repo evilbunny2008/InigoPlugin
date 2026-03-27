@@ -1,6 +1,4 @@
 
-# Simple weeWX loop and archive service to detect when outTemp has peaked.
-
 import logging
 import numpy as np
 import os
@@ -23,7 +21,7 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-PEAKDETECTOR_VERSION = "0.0.2"
+VERSION = "0.0.3"
 
 lag = 900
 threshold = 2.0
@@ -34,7 +32,7 @@ trend_history = deque(maxlen=50)
 current_ts = 0
 current_signal = 0
 current_count = 0
-cache_dir = "/tmp/peak_detector"
+cache_dir = "/tmp/inigo"
 usUnit = weewx.METRIC
 pickle_filename = None
 db_lookup = None
@@ -46,11 +44,11 @@ last_report = None
 
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 7):
     raise weewx.UnsupportedFeature(
-        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
+        f"InigoService v{VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
 
 if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
-        f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
+        f"InigoService v{VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
 def load_pickle_data(class_name, createOrLoadData):
 
@@ -146,7 +144,7 @@ def processConfigDict(class_name, config_dict):
     if cfg is not None:
         inigo = cfg.get("Inigo", None)
         if inigo is not None:
-             cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
+             cache_dir = inigo.get("cache_dir", "/tmp/inigo")
              since_hour = int(inigo.get("since_hour", 0))
              units = inigo.get("Units", None)
              if units is not None:
@@ -167,7 +165,7 @@ def processConfigDict(class_name, config_dict):
     if not 0 <= since_hour <= 23:
         since_hour = 0
 
-    pickle_filename = os.path.join(cache_dir, "peak_detector.pkl")
+    pickle_filename = os.path.join(cache_dir, "cache.pkl")
 
     db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
 
@@ -267,11 +265,11 @@ class StrorageClass():
         self.current_signal = current_signal
         self.current_count = current_count
 
-class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
+class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
     def __init__(self, generator):
 
-        super(PeakDetectorSearchList, self).__init__(generator)
+        super(InigoSearchList, self).__init__(generator)
 
         self.generator = generator
 
@@ -344,11 +342,11 @@ class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
 
         return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
 
-class PeakDetectorService(weewx.engine.StdService):
+class InigoService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
 
-        super(PeakDetectorService, self).__init__(engine, config_dict)
+        super(InigoService, self).__init__(engine, config_dict)
 
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, config_dict)
@@ -359,7 +357,7 @@ class PeakDetectorService(weewx.engine.StdService):
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
-        log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} started")
+        log.info(f"{self.__class__.__name__} v{VERSION} started")
 
     def handle_archive_record(self, event):
 
@@ -420,4 +418,4 @@ class PeakDetectorService(weewx.engine.StdService):
 
         save_pickle_data(self.__class__.__name__, True)
 
-        log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
+        log.info(f"{self.__class__.__name__} v{VERSION} stopped")

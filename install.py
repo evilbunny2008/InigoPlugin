@@ -86,7 +86,7 @@ class InigoInstaller(ExtensionInstaller):
                 ["skins/Inigo/inigo-data.json.tmpl",
                  "skins/Inigo/skin.conf"]),
                 ("bin/user",
-                ["bin/user/peak_detector.py"])
+                ["bin/user/inigo.py"])
             ]
         )
 
@@ -128,7 +128,7 @@ class InigoInstaller(ExtensionInstaller):
             engine.printer.out(f"SQLITE_ROOT is None, can't continue!")
             return False
 
-        cache_dir = os.path.join(data_dir, "peak_detector")
+        cache_dir = os.path.join(data_dir, "inigo")
 
         if os.path.exists(cache_dir) and not os.path.isdir(cache_dir):
             os.remove(cache_dir)
@@ -207,16 +207,16 @@ class InigoInstaller(ExtensionInstaller):
             services_dict = engine_dict.get("Services", None)
             if services_dict is not None:
 
-                prep_service = "user.peak_detector.PeakDetectorService"
+                data_service = "user.inigo.InigoService"
 
-                prep_services = services_dict.get("prep_services", None)
-                if prep_services is None:
-                    services_dict["prep_services"] = prep_service
-                elif prep_service not in prep_services:
-                    if isinstance(prep_services, str):
-                        prep_services = [prep_services, prep_service]
+                data_services = services_dict.get("data_services", None)
+                if data_services is None:
+                    services_dict["data_services"] = data_service
+                elif data_service not in data_services:
+                    if isinstance(data_services, str):
+                        data_services = [data_services, data_service]
                     else:
-                        prep_services.append(prep_service)
+                        data_services.append(data_service)
 
         if engine.dry_run:
             engine.printer.out(engine.config_dict)
