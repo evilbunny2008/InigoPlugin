@@ -331,7 +331,7 @@ class PeakDetectorService(weewx.engine.StdService):
         if peak_detector.start_time.date() != now.date():
             log.info(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
 
-            reset_peak_detector()
+            reset_peak_detector(self.__class__.__name__)
 
         save_pickle_data(self.__class__.__name__, True)
 
