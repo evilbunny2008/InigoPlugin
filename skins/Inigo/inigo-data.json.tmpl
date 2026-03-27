@@ -86,7 +86,7 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 1, var: " + $var + ", time_period: " + $time_period]
+        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period]
     #end try
     ##
     ##
@@ -130,7 +130,7 @@
             #end if
         #end for
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 2, var: " + $var + ", time_period: " + $time_period]
+        #set $inigoData["processingErrors"] += ["failed at block 2, var: " + $var + ", time_period: " + $time_period]
     #end try
     ##
     ##
@@ -146,34 +146,7 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3a, var: " + $var + ", time_period: " + $time_period]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #if $since is not None
-            #set $var = "since_hour"
-            #set $var_name = $since.get("since_hour", None)
-            #if $var_name is not None
-                #echo "$since_hour: " + $var_name
-                #set $inigoData["since_hour"] = int($var_name)
-            #end if
-            #set $var = "since_rain_today"
-            #set $var_name = $since.get("since_rain_today", None)
-            #if $var_name is not None
-                #echo "since_rain_today: " + $var_name
-                #set $inigoData["since_rain_today"] = int($var_name)
-            #end if
-            #set $var = "since_rain_yesterday"
-            #set $var_name = $since.get("since_yesterday_today", None)
-            #if $var_name is not None
-                #echo "$since_rain_yesterday: " + $var_name
-                #set $inigoData["since_rain_yesterday"] = int($var_name)
-            #end if
-        #end if
-    #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3b, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 3a, var: " + $var + ", time_period: " + $time_period]
     #end try
     ##
     ##
@@ -198,7 +171,7 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 4, var: " + $var + ", time_period: " + $time_period]
+        #set $inigoData["processingErrors"] += ["failed at block 4, var: " + $var + ", time_period: " + $time_period]
     #end try
     ##
     ##
@@ -214,7 +187,7 @@
             #set $inigoData["unit_cloudbase"] = $unit.unit_type.cloudbase.strip()
         #end if
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 5, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var]
     #end try
     ##
     ##
@@ -276,7 +249,7 @@
             #end if
         #end if
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 6, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 6, var: " + $var]
     #end try
     ##
     ##
@@ -291,7 +264,7 @@
         #set $var = "unit.label.windSpeed"
         #set $inigoData["label_windSpeed"] = $unit.label.windSpeed.strip()
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 7, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
     ##
     ##
@@ -306,7 +279,7 @@
         #set $var = "station.location"
         #set $inigoData["station_location"] = $station.location.strip()
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 8, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 8, var: " + $var]
     #end try
     ##
     ##
@@ -320,7 +293,7 @@
             #end if
         #end for
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 9, var: rain_" + str($var)]
+        #set $inigoData["processingErrors"] += ["failed at block 9, var: rain_" + str($var)]
     #end try
     ##
     ##
@@ -330,6 +303,9 @@
     #set $outTemp_trend_count = []
     #try
         #if $inigo is not None
+            #set $inigoData["since_hour"] = $report.get("since_hour", 0)
+            #set $inigoData["since_today"] = $report.get("since_today", 0)
+            #set $inigoData["since_yesterday"] = $report.get("since_yesterday", 0)
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None
@@ -339,7 +315,7 @@
             #end if
         #end if
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 10, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
+        #set $inigoData["processingErrors"] += ["failed at block 10, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
     #end try
     ##
     ##
@@ -348,9 +324,9 @@
     #set $inigoData["outTemp_trend_signal"] = $outTemp_trend_signal
     #set $inigoData["outTemp_trend_count"] = $outTemp_trend_count
 #except NameMapper.NotFound
-    #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 11"]
+    #set $inigoData["processingErrors"] += ["failed at block 11"]
 #except
-    #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 12"]
+    #set $inigoData["processingErrors"] += ["failed at block 12"]
 #end try
 ##
 ##

@@ -1,4 +1,4 @@
-data=https://example.com/weewx/inigo-data.txt
+data=https://example.com/weewx/inigo-data.json
 radtype=webpage
 radar=https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=radar&product=radar&level=surface&lat=-34&lon=151&message=false
 fctype=bom3
