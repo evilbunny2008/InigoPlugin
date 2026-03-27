@@ -146,15 +146,20 @@
             #end for
         #end for
         #if $since is not None
-            #set $var_name = getattr($since, "since_hour")
+            #set $var_name = $since.get("since_hour", None)
             #if $var_name is not None
                 #echo "$since_hour: " + $var_name
-                #set $inigoData["rain_since_hour"] = int($var_name)
+                #set $inigoData["since_hour"] = int($var_name)
             #end if
-            #set $var_name = getattr($since, "tspan_binder")
-            #if $var_name is not None and $var_name.has_data
-                #set $inigoData["rain_since_today"] = $since().rain.sum.raw
-                #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
+            #set $var_name = $since.get("since_rain_today", None)
+            #if $var_name is not None
+                #echo "since_rain_today: " + $var_name
+                #set $inigoData["since_rain_today"] = int($var_name)
+            #end if
+            #set $var_name = $since.get("since_yesterday_today", None)
+            #if $var_name is not None
+                #echo "$since_rain_yesterday: " + $var_name
+                #set $inigoData["since_rain_yesterday"] = int($var_name)
             #end if
         #end if
     #except
