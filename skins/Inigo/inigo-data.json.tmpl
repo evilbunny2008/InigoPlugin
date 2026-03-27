@@ -146,9 +146,9 @@
             #end for
         #end for
         #if $varExists('since')
-            #set #set $inigoData["rain_since_hour"] = $since.since_hour
-            #set #set $inigoData["rain_since_today"] = $since().rain.sum.raw
-            #set #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
+            #set $inigoData["rain_since_hour"] = $since.since_hour
+            #set $inigoData["rain_since_today"] = $since().rain.sum.raw
+            #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
         #end if
     #except
         #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
