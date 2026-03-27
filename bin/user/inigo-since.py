@@ -55,16 +55,16 @@ class Since(weewx.cheetahgenerator.SearchList):
 
         tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
-        today = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
+        today = weewx.tags.TimespanBinder(tspan, db_lookup, context="hour")
 
         start_time -= timedelta(days=1)
         stop_time -= timedelta(days=1)
 
         tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
-        yesterday = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
+        yesterday = weewx.tags.TimespanBinder(tspan, db_lookup, context="hour")
 
         t2 = time.time()
-        log.debug(f"{self.__class__.__name__} Since SLE executed in {(t2-t1)}:.3f seconds")
+        log.debug(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
 
         return [{"since": {"since_hour": since_hour, "since_rain_today": today.rain.sum.raw, "since_rain_yesterday": yesterday.rain.sum.raw}}]
