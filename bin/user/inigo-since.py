@@ -130,13 +130,9 @@ class Since(weewx.cheetahgenerator.SearchList):
         t2 = time.time()
         log.debug(f"{self.__class__.__name__} Since SLE executed in {(t2-t1)}:.3f seconds")
 
-        return [tspan_binder]
-
-    def since_hour(self):
-
         global since_hour
 
         if not 0 <= since_hour <= 23:
             since_hour = 0
 
-        return [since_hour]
+        return [{"since": {"since_hour": since_hour, "tspan_binder": tspan_binder}]

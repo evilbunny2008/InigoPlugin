@@ -145,13 +145,17 @@
                 #end if
             #end for
         #end for
-        #if $varExists('since_hour')
-            #echo "$since_hour: " + int($since_hour())
-        #end if
-        #if $varExists('since')
-            #set $inigoData["rain_since_hour"] = int($since.since_hour)
-            #set $inigoData["rain_since_today"] = $since().rain.sum.raw
-            #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
+        #if $since is not None
+            #set $var_name = getattr($since, "since_hour")
+            #if $var_name is not None
+                #echo "$since_hour: " + $var_name
+                #set $inigoData["rain_since_hour"] = int($var_name)
+            #end if
+            #set $var_name = getattr($since, "tspan_binder")
+            #if $var_name is not None and $var_name.has_data
+                #set $inigoData["rain_since_today"] = $since().rain.sum.raw
+                #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
+            #end if
         #end if
     #except
         #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
