@@ -145,17 +145,27 @@
                 #end if
             #end for
         #end for
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3a, var: " + $var + ", time_period: " + $time_period]
+    #end try
+    ##
+    ##
+    ##
+    #try
         #if $since is not None
+            #set $var = "since_hour"
             #set $var_name = $since.get("since_hour", None)
             #if $var_name is not None
                 #echo "$since_hour: " + $var_name
                 #set $inigoData["since_hour"] = int($var_name)
             #end if
+            #set $var = "since_rain_today"
             #set $var_name = $since.get("since_rain_today", None)
             #if $var_name is not None
                 #echo "since_rain_today: " + $var_name
                 #set $inigoData["since_rain_today"] = int($var_name)
             #end if
+            #set $var = "since_rain_yesterday"
             #set $var_name = $since.get("since_yesterday_today", None)
             #if $var_name is not None
                 #echo "$since_rain_yesterday: " + $var_name
@@ -163,7 +173,7 @@
             #end if
         #end if
     #except
-        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3b, var: " + $var]
     #end try
     ##
     ##
