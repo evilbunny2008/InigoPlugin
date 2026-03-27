@@ -67,4 +67,8 @@ class Since(weewx.cheetahgenerator.SearchList):
         t2 = time.time()
         log.debug(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
 
+        log.info(f"since_hour: {since_hour}")
+        log.info(f"today.rain.sum.raw: {today.rain.sum.raw}")
+        log.info(f"yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
+
         return [{"since": {"since_hour": since_hour, "since_rain_today": today.rain.sum.raw, "since_rain_yesterday": yesterday.rain.sum.raw}}]
