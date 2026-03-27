@@ -322,7 +322,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today, since_yesterday = get_since_rain
+        since_today, since_yesterday = get_since_rain(self.__class__.__name__, timespan.stop)
 
         search_list_extension = {
             "since_hour": since_hour,
