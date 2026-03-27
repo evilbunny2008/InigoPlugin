@@ -594,17 +594,3 @@ $span(day_delta=1).rain.sum.formatted|#slurp
 #else
 |#slurp
 #end if
-## 301
-#if $current.OutTemp_dropCount.has_data
-$current.OutTemp_dropCount.raw|#slurp
-#else
-|#slurp
-#end if
-## 302
-|#slurp
-## 303
-#if $current.OutTemp_riseCount.has_data
-$current.OutTemp_riseCount.raw|#slurp
-#else
-|#slurp
-#end if

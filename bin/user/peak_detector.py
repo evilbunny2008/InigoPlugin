@@ -9,9 +9,11 @@ import stat
 import sys
 import time
 import weewx
+import weewx.cheetahgenerator
 import weewx.engine
 import weewx.manager
 import weewx.units
+import weeutil.weeutil
 
 from collections import deque
 from datetime import datetime, timedelta
@@ -23,6 +25,20 @@ log = logging.getLogger(__name__)
 
 PEAKDETECTOR_VERSION = "0.0.2"
 
+lag = 900
+threshold = 2.0
+influence = 0.02
+peak_detector = None
+done_work = False
+trend_history = deque(maxlen=50)
+current_ts = 0
+current_signal = 0
+current_count = 0
+cache_dir = "/tmp/peak_detector"
+usUnit = weewx.METRIC
+pickle_filename = None
+db_lookup = None
+
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 7):
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
@@ -30,6 +46,121 @@ if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] 
 if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"PeakDetectorService v{PEAKDETECTOR_VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
+
+def load_pickle_data(class_name, createOrLoadData):
+
+    global peak_detector, trend_history, current_ts, current_signal, current_count
+
+    if os.path.exists(pickle_filename):
+
+        try:
+            with open(pickle_filename, "rb") as f:
+
+                ret = pickle.load(f)
+
+                if isinstance(ret, StrorageClass):
+                    log.info(f"{class_name} loading a StrorageClass object from {pickle_filename} pickle cache file")
+                    peak_detector = ret.peak_detector
+                    trend_history = ret.trend_history
+                    current_ts = ret.current_ts
+                    current_signal = ret.current_signal
+                    current_count = ret.current_count
+                    log.info(f"{class_name} loaded peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} from the pickle cache file")
+                    log.info(f"{class_name} loaded trend_history of length {len(trend_history)} from the pickle cache file")
+                    return
+
+        except Exception as e:
+            pass
+
+    if not createOrLoadData:
+        return
+
+    reset_peak_detector(class_name)
+
+def save_pickle_data(class_name, report=False):
+
+    if not done_work:
+        return
+
+    try:
+        with open(pickle_filename, "wb") as f:
+
+            storageClass = StrorageClass(datetime.now(), peak_detector, trend_history, current_ts, current_signal, current_count)
+
+            pickle.dump(storageClass, f)
+
+            if report:
+                log.info(f"{class_name} saved peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} to the pickle cache file")
+                log.info(f"{class_name} saved trend_history of length {len(trend_history)} to the pickle cache file")
+
+    except Exception as e:
+        raise e
+
+def reset_peak_detector(class_name):
+
+    global peak_detector
+
+    if not done_work:
+        return
+
+    now = datetime.now()
+
+    if now.hour < 6:
+
+        initial_data = [0.0] * lag
+
+        log.info(f"{class_name} Overnight reset, generated {len(initial_data)} zero data points")
+
+        peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=threshold, influence=influence)
+
+    else:
+
+        min5_ago = int(time.time() / 300) * 300
+
+        mins = lag * 2 / 60
+
+        start = min5_ago - (lag * 2) - 60
+
+        stats = TimespanBinder(TimeSpan(start, min5_ago), db_lookup)
+
+        initial_data = [row.outTemp.raw for row in stats.records()]
+
+        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
+
+        log.info(f"{class_name} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
+
+        peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
+
+    save_pickle_data(class_name, True)
+
+def processConfigDict(class_name, config_dict):
+
+    global lag, threshold, influence, peak_detector, done_work, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup
+
+    cfg = config_dict.get("StdReport", None)
+    if cfg is not None:
+        inigo = cfg.get("Inigo", None)
+        if inigo is not None:
+             cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
+             units = inigo.get("Units", None)
+             if units is not None:
+                 groups = units.get("Groups", None)
+                 if groups is not None:
+                     temp_group = groups.get("group_temperature", None)
+                     if temp_group is not None and temp_group == "degree_F":
+                         usUnit = weewx.US
+
+    uid = os.getuid()
+    statinfo = os.stat(cache_dir)
+    cuid = statinfo.st_uid
+
+    if uid != 0 and uid != cuid:
+        raise weewx.UnsupportedFeature(
+            f"{class_name} failed to start due to permissions on {cache_dir} directory uid: {uid}, cuid: {cuid}")
+
+    pickle_filename = os.path.join(cache_dir, "peak_detector.pkl")
+
+    db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -102,55 +233,80 @@ class StrorageClass():
         self.current_signal = current_signal
         self.current_count = current_count
 
+class PeakDetectorSearchList(weewx.cheetahgenerator.SearchList):
+
+    def __init__(self, generator):
+
+        super(PeakDetectorSearchList, self).__init__(generator)
+
+        self.generator = generator
+
+    def get_extension_list(self, timespan, db_lookup):
+
+        if peak_detector is None:
+            processConfigDict(self.__class__.__name__, self.generator.config_dict)
+            load_pickle_data(self.__class__.__name__, False)
+        else:
+            log.info(f"{self.__class__.__name__} Data already loaded")
+
+        log.info(f"{self.__class__.__name__} get_extension_list() called!")
+
+        t1 = time.time()
+
+        log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
+        log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
+
+        search_list_extension = {}
+
+        trendCount = -1
+
+        if current_count > 0 and current_signal != 0:
+
+            trendCount += 1
+
+            search_list_extension[f"outTemp_trend_{trendCount}_ts"] = current_ts
+            search_list_extension[f"outTemp_trend_{trendCount}_signal"] = current_signal
+            search_list_extension[f"outTemp_trend_{trendCount}_count"] = current_count
+
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {current_ts}")
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {current_signal}")
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {current_count}")
+
+        for ts, signal, count in reversed(trend_history):
+
+            if signal == 0:
+                continue
+
+            if not timespan.start <= ts <= timespan.stop:
+                continue
+
+            trendCount += 1
+
+            search_list_extension[f"outTemp_trend_{trendCount}_ts"] = ts
+            search_list_extension[f"outTemp_trend_{trendCount}_signal"] = signal
+            search_list_extension[f"outTemp_trend_{trendCount}_count"] = count
+
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
+
+        t2 = time.time()
+
+        log.info(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
+
+        return [{"inigo": search_list_extension}]
+
 class PeakDetectorService(weewx.engine.StdService):
 
     def __init__(self, engine, config_dict):
 
         super(PeakDetectorService, self).__init__(engine, config_dict)
 
-        self.config_dict = config_dict
-
-        self.lag = 900
-        self.threshold = 2.0
-        self.influence = 0.02
-
-        self.peak_detector = None
-        self.done_work = False
-
-        self.trend_history = deque(maxlen=50)
-        self.current_ts = 0
-        self.current_signal = 0
-        self.current_count = 0
-
-        self.cache_dir = "/tmp/peak_detector"
-
-        self.usUnit = weewx.METRIC
-        cfg = config_dict.get("StdReport", None)
-        if cfg is not None:
-            inigo = cfg.get("Inigo", None)
-            if inigo is not None:
-                 self.cache_dir = inigo.get("cache_dir", "/tmp/peak_detector")
-                 units = inigo.get("Units", None)
-                 if units is not None:
-                     groups = units.get("Groups", None)
-                     if groups is not None:
-                         temp_group = groups.get("group_temperature", None)
-                         if temp_group is not None and temp_group == "degree_F":
-                             self.usUnit = weewx.US
-
-        uid = os.getuid()
-        statinfo = os.stat(self.cache_dir)
-        cuid = statinfo.st_uid
-
-        if uid != 0 and uid != cuid:
-            raise weewx.UnsupportedFeature(
-                f"{self.__class__.__name__} failed to start due to permissions on {self.cache_dir} directory uid: {uid}, cuid: {cuid}")
-
-        self.pickle_filename = os.path.join(self.cache_dir, "peak_detector.pkl")
-
-        self.db_lookup = weewx.manager.DBBinder(self.config_dict).bind_default()
-
-        self.load_pickle_data()
+        if peak_detector is None:
+            processConfigDict(self.__class__.__name__, config_dict)
+            load_pickle_data(self.__class__.__name__, False)
+        else:
+            log.info(f"{self.__class__.__name__} Data already loaded")
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
@@ -159,23 +315,25 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def handle_archive_record(self, event):
 
-        record = event.record
+        #record = event.record
 
         now = datetime.now()
-        if self.peak_detector.start_time.date() != now.date():
-            log.info(f"{self.peak_detector.start_time.date()} != {now.date()} calling self.reset_peak_detector()")
+        if peak_detector.start_time.date() != now.date():
+            log.info(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
 
-            self.reset_peak_detector()
+            reset_peak_detector()
 
-            self.outputTrendHistory(record)
+            #self.outputTrendHistory(record)
 
-            return
+            #return
 
-        self.save_pickle_data(True)
+        save_pickle_data(self.__class__.__name__, True)
 
-        self.outputTrendHistory(record)
+        #self.outputTrendHistory(record)
 
     def handle_loop_packet(self, event):
+
+        global peak_detector, trend_history, current_ts, current_signal, current_count
 
         packet = event.packet
 
@@ -183,88 +341,59 @@ class PeakDetectorService(weewx.engine.StdService):
         if temp is None:
             return
 
-        self.done_work = True
+        done_work = True
 
-        signal = self.peak_detector.thresholding_algo(temp)
+        signal = peak_detector.thresholding_algo(temp)
 
         # Saving on every loop packet is probably excessive when saving for archive records and on shutdown would be sufficient unless weeWX crashes frequently
         #self.save_pickle_data()
 
-        if signal == self.current_signal and signal != 0:
-            self.current_count += 1
+        if signal == 0:
+            return
 
-        elif signal != 0:
+        if signal == current_signal:
+            current_count += 1
+
+        else:
             # Signal changed — store the completed run
-            if self.current_count > 0:
-                self.trend_history.append((self.current_ts, self.current_signal, self.current_count))
+            if current_count > 0:
+                trend_history.append((current_ts, current_signal, current_count))
 
-            self.current_ts = ts
-            self.current_signal = signal
-            self.current_count = 1
-
+            current_ts = ts
+            current_signal = signal
+            current_count = 1
+    """
     def outputTrendHistory(self, record):
 
         trendCount = -1
-        if self.current_count > 0 and self.current_signal != 0:
+
+        if current_count > 0 and current_signal != 0:
 
             trendCount += 1
 
-            record[f"outTemp_trend{trendCount}_ts"] = self.current_ts
-            record[f"outTemp_trend{trendCount}_signal"] = self.current_signal
-            record[f"outTemp_trend{trendCount}_count"] = self.current_count
+            record[f"outTemp_trend_{trendCount}_ts"] = current_ts
+            record[f"outTemp_trend_{trendCount}_signal"] = current_signal
+            record[f"outTemp_trend_{trendCount}_count"] = current_count
 
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {self.current_ts}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {self.current_signal}")
-            log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {self.current_count}")
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {current_ts}")
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {current_signal}")
+            log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {current_count}")
 
-        for ts, signal, count in reversed(self.trend_history):
+        for ts, signal, count in reversed(trend_history):
 
             if signal == 0:
                 continue
 
             trendCount += 1
 
-            record[f"outTemp_trend{trendCount}_ts"] = ts
-            record[f"outTemp_trend{trendCount}_signal"] = signal
-            record[f"outTemp_trend{trendCount}_count"] = count
+            record[f"outTemp_trend_{trendCount}_ts"] = ts
+            record[f"outTemp_trend_{trendCount}_signal"] = signal
+            record[f"outTemp_trend_{trendCount}_count"] = count
 
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_ts: {ts}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_signal: {signal}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend{trendCount}_count: {count}")
-
-    def reset_peak_detector(self):
-
-        self.done_work = True
-
-        now = datetime.now()
-
-        if now.hour < 6:
-
-            initial_data = [0.0] * self.lag
-
-            log.info(f"{self.__class__.__name__} Overnight reset, generated {len(initial_data)} zero data points")
-
-            self.peak_detector = real_time_peak_detection(initial_data, lag=self.lag, threshold=self.threshold, influence=self.influence)
-
-        else:
-
-            min5_ago = int(time.time() / 300) * 300
-
-            mins = self.lag * 2 / 60
-
-            start = min5_ago - (self.lag * 2) - 60
-
-            stats = TimespanBinder(TimeSpan(start, min5_ago), self.db_lookup)
-
-            initial_data = [row.outTemp.raw for row in stats.records()]
-
-            initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, self.lag), np.arange(len(initial_data)), initial_data).tolist()]
-
-            log.info(f"{self.__class__.__name__} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
-
-            self.peak_detector = real_time_peak_detection(initial_data_expanded, lag=self.lag, threshold=self.threshold, influence=self.influence)
-
-        self.save_pickle_data(True)
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
+            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
+    """
 
     def getTemp(self, packet):
 
@@ -281,50 +410,6 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def shutDown(self):
 
-        self.save_pickle_data(True)
+        save_pickle_data(self.__class__.__name__, True)
 
         log.info(f"{self.__class__.__name__} v{PEAKDETECTOR_VERSION} stopped")
-
-    def load_pickle_data(self):
-
-        if os.path.exists(self.pickle_filename):
-
-            try:
-                with open(self.pickle_filename, "rb") as f:
-
-                    ret = pickle.load(f)
-
-                    if isinstance(ret, StrorageClass):
-                        log.info(f"{self.__class__.__name__} loading a StrorageClass object from the pickle file")
-                        self.peak_detector = ret.peak_detector
-                        self.trend_history = ret.trend_history
-                        self.current_ts = ret.current_ts
-                        self.current_signal = ret.current_signal
-                        self.current_count = ret.current_count
-                        log.info(f"{self.__class__.__name__} loaded self.peak_detector of length {self.peak_detector.length} and lag of {self.peak_detector.lag} from the pickle cache file")
-                        log.info(f"{self.__class__.__name__} loaded self.trend_history of length {len(self.trend_history)} from the pickle cache file")
-                        return
-
-            except Exception as e:
-                pass
-
-        self.reset_peak_detector()
-
-    def save_pickle_data(self, report=False):
-
-        if not self.done_work:
-            return
-
-        try:
-            with open(self.pickle_filename, "wb") as f:
-
-                storageClass = StrorageClass(datetime.now(), self.peak_detector, self.trend_history, self.current_ts, self.current_signal, self.current_count)
-
-                pickle.dump(storageClass, f)
-
-                if report:
-                    log.info(f"{self.__class__.__name__} saved self.peak_detector of length {self.peak_detector.length} and lag of {self.peak_detector.lag} to the pickle cache file")
-                    log.info(f"{self.__class__.__name__} saved self.trend_history of length {len(self.trend_history)} to the pickle cache file")
-
-        except Exception as e:
-            raise e

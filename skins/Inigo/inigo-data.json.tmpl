@@ -1,150 +1,163 @@
 #errorCatcher Echo
-#import json
 #encoding UTF-8
 ##
 ##
+#import json
+#import pprint
 ##
-#set $now=$current.dateTime.raw
-##
-##
-##
-#set $inigoData = {"version": 2000000, "now": $now, "dtnow": str($current.dateTime)}
+#from Cheetah import NameMapper
 ##
 ##
 ##
-#set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
-#set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
+#set $inigoData = {"version": 2000000}
+#set $inigoData["processingErrors"] = []
 ##
 ##
-##
-#for $var in $vars
+#try
+    ##
+    #set $now=$current.dateTime.raw
+    ##
+    ##
+    ##
+    #set $inigoData["now"] = $now
+    #set $inigoData["dtnow"] = str($current.dateTime)}
+    ##
+    ##
+    ##
+    #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
+    #set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
+    ##
+    ##
+    ##
     #try
-        #set $var_name = getattr($current, $var, None)
-        #if $var_name is not None and $var_name.has_data
-            #set $var_name_str = "current_" + $var
-            #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                #set $inigoData[$var_name_str] = round($var_name.raw, 1)
-            #else
-                #set $inigoData[$var_name_str] = round($var_name.raw)
-            #end if
-            #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
-            #if $minus3600 is not None
-                #if $var_name.raw > $minus3600.raw
-                    #set $inigoData[$var_name_str + "_trend"] = "Rising"
-                #elif $var_name.raw < $minus3600.raw
-                    #set $inigoData[$var_name_str + "_trend"] = "Falling"
+        #for $var in $vars
+            #set $time_period = "current"
+            #set $var_name = getattr($current, $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #set $var_name_str = "current_" + $var
+                #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
+                    #set $inigoData[$var_name_str] = round($var_name.raw, 1)
                 #else
-                    #set $inigoData[$var_name_str + "_trend"] = "Steady"
+                    #set $inigoData[$var_name_str] = round($var_name.raw)
+                #end if
+                #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
+                #if $minus3600 is not None
+                    #if $var_name.raw > $minus3600.raw
+                        #set $inigoData[$var_name_str + "_trend"] = "Rising"
+                    #elif $var_name.raw < $minus3600.raw
+                        #set $inigoData[$var_name_str + "_trend"] = "Falling"
+                    #else
+                        #set $inigoData[$var_name_str + "_trend"] = "Steady"
+                    #end if
                 #end if
             #end if
+            ##
+            ##
+            ##
+            #for $time_period in $time_periods
+                #set $var_name = getattr($getVar($time_period), $var, None)
+                #if $var_name is not None and $var_name.has_data
+                    #set $var_name_str = $time_period + "_" + $var
+                    #set $var_name_min = $var_name_str + "_min"
+                    #set $var_name_mintime = $var_name_str + "_mintime"
+                    #set $var_name_max = $var_name_str + "_max"
+                    #set $var_name_maxtime = $var_name_str + "_maxtime"
+                    #if $var_name.min is not None and $var_name.min.has_data
+                        #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
+                            #set $inigoData[$var_name_min] = round($var_name.min.raw, 1)
+                        #else
+                            #set $inigoData[$var_name_min] = round($var_name.min.raw)
+                        #end if
+                    #end if
+                    #if $var_name.mintime is not None and $var_name.mintime.has_data
+                        #set $inigoData[$var_name_mintime] = round($var_name.mintime.raw)
+                    #end if
+                    #if $var_name.max is not None and $var_name.max.has_data
+                        #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
+                            #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
+                        #else
+                            #set $inigoData[$var_name_max] = round($var_name.max.raw)
+                        #end if
+                    #end if
+                    #if $var_name.maxtime is not None and $var_name.maxtime.has_data
+                        #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
+                    #end if
+                #end if
+            #end for
+        #end for
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 1, var: " + $var + ", time_period: " + $time_period]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var = "windGust"
+        #if $current.windGust is not None and $current.windGust.has_data
+            #set $inigoData["current_windGust"] = round($current.windGust.raw, 1)
+        #end if
+        #set $var = "windGustDir"
+        #if $current.windGustDir is not None and $current.windGustDir.has_data
+            #set $inigoData["current_windGustDir"] = round($current.windGustDir.raw)
+            #set $inigoData["current_windGustDirCompass"] = $current.windGustDir.ordinal_compass.strip()
+        #end if
+        #set $var = "windSpeed"
+        #if $current.windSpeed is not None and $current.windSpeed.has_data
+            #set $inigoData["current_windSpeed"] = round($current.windSpeed.raw, 1)
+        #end if
+        #set $var = "windDir"
+        #if $current.windDir is not None and $current.windDir.has_data
+            #set $inigoData["current_windDir"] = round($current.windDir.raw)
+            #set $inigoData["current_windDirCompass"] = $current.windDir.ordinal_compass.strip()
         #end if
         ##
         ##
         ##
+        #set $var = "wind"
         #for $time_period in $time_periods
-            #set $var_name = getattr($getVar($time_period), $var, None)
+            #set $var_name = getattr($getVar($time_period), "wind", None)
             #if $var_name is not None and $var_name.has_data
-                #set $var_name_str = $time_period + "_" + $var
-                #set $var_name_min = $var_name_str + "_min"
-                #set $var_name_mintime = $var_name_str + "_mintime"
+                #set $var_name_str = $time_period + "_wind"
                 #set $var_name_max = $var_name_str + "_max"
                 #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #if $var_name.min is not None and $var_name.min.has_data
-                    #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                        #set $inigoData[$var_name_min] = round($var_name.min.raw, 1)
-                    #else
-                        #set $inigoData[$var_name_min] = round($var_name.min.raw)
-                    #end if
-                #end if
-                #if $var_name.mintime is not None and $var_name.mintime.has_data
-                    #set $inigoData[$var_name_mintime] = round($var_name.mintime.raw)
-                #end if
-                #if $var_name.max is not None and $var_name.max.has_data
-                    #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                        #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
-                    #else
-                        #set $inigoData[$var_name_max] = round($var_name.max.raw)
-                    #end if
-                #end if
-                #if $var_name.maxtime is not None and $var_name.maxtime.has_data
-                    #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
-                #end if
+                #set $var_name_gustdir = $var_name_str + "_gustdir"
+                #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
+                #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
+                #set $inigoData[$var_name_gustdir] = $var_name.gustdir.ordinal_compass.strip()
             #end if
         #end for
     #except
-        #echo "failed at block 2"
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 2, var: " + $var + ", time_period: " + $time_period]
     #end try
-#end for
-##
-##
-##
-#try
-    #if $current.windGust is not None and $current.windGust.has_data
-        #set $inigoData["current_windGust"] = round($current.windGust.raw, 1)
-    #end if
-    #if $current.windGustDir is not None and $current.windGustDir.has_data
-        #set $inigoData["current_windGustDir"] = round($current.windGustDir.raw)
-        #set $inigoData["current_windGustDirCompass"] = $current.windGustDir.ordinal_compass.strip()
-    #end if
-    #if $current.windSpeed is not None and $current.windSpeed.has_data
-        #set $inigoData["current_windSpeed"] = round($current.windSpeed.raw, 1)
-    #end if
-    #if $current.windDir is not None and $current.windDir.has_data
-        #set $inigoData["current_windDir"] = round($current.windDir.raw)
-        #set $inigoData["current_windDirCompass"] = $current.windDir.ordinal_compass.strip()
-    #end if
-#except
-    #echo "failed at block 3"
-#end try
-#try
-    #for $time_period in $time_periods
-        #set $var_name = getattr($getVar($time_period), "wind", None)
-        #if $var_name is not None and $var_name.has_data
-            #set $var_name_str = $time_period + "_wind"
-            #set $var_name_max = $var_name_str + "_max"
-            #set $var_name_maxtime = $var_name_str + "_maxtime"
-            #set $var_name_gustdir = $var_name_str + "_gustdir"
-            #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
-            #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
-            #set $inigoData[$var_name_gustdir] = $var_name.gustdir.ordinal_compass.strip()
-        #end if
-    #end for
-#except
-    #echo "failed at block 4"
-#end try
-##
-##
-##
-#try
-    #set $vars = ["ET", "rain"]
-    #for $var in $vars
-        #for $time_period in $time_periods
-            #set $time_period_obj = getattr($self, $time_period, None)
-            #if $time_period_obj is not None and $time_period_obj.has_data
-                #set $var_name = getattr($time_period_obj, $var, None)
+    ##
+    ##
+    ##
+    #try
+        #set $vars = ["ET", "rain"]
+        #for $var in $vars
+            #for $time_period in $time_periods
+                #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$time_period + "_" + $var] = $var_name.sum.raw
+                    #set $inigoData[$time_period + "_" + $var] = round($var_name.sum.raw, 2)
                 #end if
-            #end if
+            #end for
         #end for
-    #end for
-#except
-    #echo "failed at block 5"
-#end try
-##
-##
-##
-#try
-    #set $vars = ["radiation", "UV"]
-    #for $var in $vars
-        #set $var_name = getattr($current, $var, None)
-        #if $var_name is not None and $var_name.has_data
-            #set $inigoData["current_" + $var] = $var_name.raw
-        #end if
-        #for $time_period in $time_periods
-            #set $time_period_obj = getattr($self, $time_period, None)
-            #if $time_period_obj is not None and $time_period_obj.has_data
-                #set $var_name = getattr($time_period_obj, $var, None)
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $vars = ["radiation", "UV"]
+        #for $var in $vars
+            #set $time_period = "current"
+            #set $var_name = getattr($current, $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #set $inigoData["current_" + $var] = $var_name.raw
+            #end if
+            #for $time_period in $time_periods
+                #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $var_name_str = $time_period + "_" + $var
                     #set $var_name_max = $var_name_str + "_max"
@@ -152,171 +165,169 @@
                     #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
                     #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
                 #end if
-            #end if
+            #end for
         #end for
-    #end for
-#except
-    #echo "failed at block 6"
-#end try
-##
-##
-##
-#try
-    #if $current.rainRate is not None and $current.rainRate.has_data
-        #set $inigoData["rainRate"] = $current.rainRate.raw
-    #end if
-    #if $current.cloudbase is not None and $current.cloudbase.has_data
-        #set $inigoData["cloudbase"] = round(round($current.cloudbase.raw))
-        #set $inigoData["unit_cloudbase"] = $unit.unit_type.cloudbase.strip()
-    #end if
-#except
-    #echo "failed at block 7"
-#end try
-##
-##
-##
-#try
-    #if $almanac is not None and $almanac.hasExtras
-        #try
-            #if $almanac.sun is not None
-                #try
-                    #if $almanac.sun.rise is not None
-                        #set $inigoData["sun_rise"] = round($almanac.sun.rise.raw)
-                    #end if
-                #except
-                    #echo "failed at block 8a\n"
-                #end try
-                #try
-                    #if $almanac.sun.set is not None
-                        #set $inigoData["sun_set"] = round($almanac.sun.set.raw)
-                    #end if
-                #except
-                    #echo "failed at block 8b\n"
-                #end try
-                #try
-                    #if $almanac.sun.transit is not None
-                        #set $inigoData["sun_transit"] = round($almanac.sun.transit.raw)
-                    #end if
-                #except
-                    #echo "failed at block 8c\n"
-                #end try
-            #end if
-        #except
-            #echo "failed at block 8d1\n"
-        #end try
-    #end if
-#except
-    #echo "failed at block 8d2\n"
-#end try
-##
-##
-##
-#try
-    #if $almanac is not None and $almanac.hasExtras
-        #if $almanac.moon is not None
-            #if $almanac.moon.rise is not None and $almanac.moon.rise.raw is not None
-                #set $inigoData["moon_rise"] = round($almanac.moon.rise.raw)
-            #end if
-            #if $almanac.moon.set is not None and $almanac.moon.set.raw is not None
-                #set $inigoData["moon_set"] = round($almanac.moon.set.raw)
-            #end if
-            #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.raw is not None
-                #set $inigoData["moon_next_rise"] = round($almanac.moon.next_rise.raw)
-            #end if
-            #if $almanac.moon.next_set is not None and $almanac.moon.next_set.raw is not None
-                #set $inigoData["moon_next_set"] = round($almanac.moon.next_set.raw)
-            #end if
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 4, var: " + $var + ", time_period: " + $time_period]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var = "rainRate"
+        #if $current.rainRate is not None and $current.rainRate.has_data
+            #set $inigoData["rainRate"] = $current.rainRate.raw
         #end if
-    #end if
-#except
-    #echo "failed at block 9d2"
-#end try
-##
-##
-##
-#try
-    #if $almanac is not None and $almanac.hasExtras
-        #try
+        #set $var = "cloudbase"
+        #if $current.cloudbase is not None and $current.cloudbase.has_data
+            #set $inigoData["cloudbase"] = round(round($current.cloudbase.raw))
+            #set $inigoData["unit_cloudbase"] = $unit.unit_type.cloudbase.strip()
+        #end if
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 5, var: " + $var]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #if $almanac is not None and $almanac.hasExtras
+            #set $var = "almanac.sun"
+            #if $almanac.sun is not None
+                #set $var = "almanac.sun.rise.raw"
+                #if $almanac.sun.rise is not None
+                    #set $inigoData["sun_rise"] = round($almanac.sun.rise.raw)
+                #end if
+                #set $var = "almanac.sun.set.raw"
+                #if $almanac.sun.set is not None
+                    #set $inigoData["sun_set"] = round($almanac.sun.set.raw)
+                #end if
+                #set $var = "almanac.sun.transit.raw"
+                #if $almanac.sun.transit is not None
+                    #set $inigoData["sun_transit"] = round($almanac.sun.transit.raw)
+                #end if
+            #end if
+            ##
+            ##
+            ##
+            #set $var = "almanac.moon"
+            #if $almanac.moon is not None
+                #set $var = "almanac.moon.rise.raw"
+                #if $almanac.moon.rise is not None and $almanac.moon.rise.raw is not None
+                    #set $inigoData["moon_rise"] = round($almanac.moon.rise.raw)
+                #end if
+                #set $var = "almanac.moon.set.raw"
+                #if $almanac.moon.set is not None and $almanac.moon.set.raw is not None
+                    #set $inigoData["moon_set"] = round($almanac.moon.set.raw)
+                #end if
+                #set $var = "almanac.moon.next_rise.raw"
+                #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.raw is not None
+                    #set $inigoData["moon_next_rise"] = round($almanac.moon.next_rise.raw)
+                #end if
+                #set $var = "almanac.moon.next_set.raw"
+                #if $almanac.moon.next_set is not None and $almanac.moon.next_set.raw is not None
+                    #set $inigoData["moon_next_set"] = round($almanac.moon.next_set.raw)
+                #end if
+            #end if
+            #set $var = "almanac.next_full_moon.raw"
             #if $almanac.next_full_moon is not None and $almanac.next_full_moon.raw is not None
                 #set $inigoData["next_full_moon"] = round($almanac.next_full_moon.raw)
             #end if
-        #except
-            #echo "failed at block 9e"
-        #end try
-        #try
+            #set $var = "almanac.next_new_moon.raw"
             #if $almanac.next_new_moon is not None and $almanac.next_new_moon.raw is not None
                 #set $inigoData["next_new_moon"] = round($almanac.next_new_moon.raw)
             #end if
-        #except
-            #echo "failed at block 9f"
-        #end try
-        #try
+            #set $var = "almanac.moon_phase"
             #if $almanac.moon_phase is not None
                 #set $inigoData["moon_phase"] = $almanac.moon_phase.strip()
             #end if
-        #except
-            #echo "failed at block 9g"
-        #end try
-        #try
+            #set $var = "almanac.moon_fullness"
             #if $almanac.moon_fullness is not None
                 #set $inigoData["moon_fullness"] = round($almanac.moon_fullness)
             #end if
-        #except
-            #echo "failed at block 9h"
-        #end try
-    #end if
+        #end if
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 6, var: " + $var]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var = "unit.label.barometer"
+        #set $inigoData["label_barometer"] = $unit.label.barometer.strip()
+        #set $var = "unit.label.outHumidity"
+        #set $inigoData["label_outHumidity"] = $unit.label.outHumidity.strip()
+        #set $var = "unit.label.outTemp"
+        #set $inigoData["label_outTemp"] = $unit.label.outTemp.strip()
+        #set $var = "unit.label.windSpeed"
+        #set $inigoData["label_windSpeed"] = $unit.label.windSpeed.strip()
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 7, var: " + $var]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var = "current.appTemp"
+        #set $inigoData["appTemp"] = round($current.appTemp.raw, 1)
+        #set $var = "datetime1"
+        #set $inigoData["datetime1"] = $current.dateTime.format("%a, %d %b %Y").strip()
+        #set $var = "datetime2"
+        #set $inigoData["datetime2"] = $current.dateTime.format("%H:%M %Z").strip()
+        #set $var = "station.location"
+        #set $inigoData["station_location"] = $station.location.strip()
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 8, var: " + $var]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $vars = [600, 1800, 3600, 21600, 86400]
+        #for $var in $vars
+            #set $var_name = $span(time_delta=$var).rain
+            #if $var_name is not None and $var_name.has_data
+                #set $inigoData["rain_" + str($var)] = $var_name.sum.raw
+            #end if
+        #end for
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 9, var: rain_" + str($var)]
+    #end try
+    ##
+    ##
+    ##
+    #set $outTemp_trend_ts = []
+    #set $outTemp_trend_signal = []
+    #set $outTemp_trend_count = []
+    #try
+        #if $inigo is not None
+            #for $rowid in range(0, 51)
+                #set $var_name_ts_str = "outTemp_trend_" + str($rowid) + "_ts"
+                #set $var_name_signal_str = "outTemp_trend_" + str($rowid) + "_signal"
+                #set $var_name_count_str = "outTemp_trend_" + str($rowid) + "_count"
+                #set $var_name_ts = $inigo.get($var_name_ts_str, None)
+                #set $var_name_signal = $inigo.get($var_name_signal_str, None)
+                #set $var_name_count = $inigo.get($var_name_count_str, None)
+                #if $var_name_ts is not None and $var_name_signal is not None and $var_name_count is not None
+                    #set $outTemp_trend_ts += [$var_name_ts]
+                    #set $outTemp_trend_signal += [$var_name_signal]
+                    #set $outTemp_trend_count += [$var_name_count]
+                #end if
+            #end for
+        #end if
+    #except
+        #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 10, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
+    #end try
+    ##
+    ##
+    ##
+    #set $inigoData["outTemp_trend_ts"] = $outTemp_trend_ts
+    #set $inigoData["outTemp_trend_signal"] = $outTemp_trend_signal
+    #set $inigoData["outTemp_trend_count"] = $outTemp_trend_count
+#except NameMapper.NotFound
+    #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 11"]
 #except
-    #echo "failed at block 9i"
+    #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 12"]
 #end try
-##
-##
-##
-#try
-    #set $inigoData["label_barometer"] = $unit.label.barometer.strip()
-    #set $inigoData["label_outHumidity"] = $unit.label.outHumidity.strip()
-    #set $inigoData["label_outTemp"] = $unit.label.outTemp.strip()
-    #set $inigoData["label_windSpeed"] = $unit.label.windSpeed.strip()
-#except
-    #echo "failed at block 10"
-#end try
-##
-##
-##
-#try
-    #set $inigoData["appTemp"] = round($current.appTemp.raw, 1)
-    #set $inigoData["datetime1"] = $current.dateTime.format("%a, %d %b %Y").strip()
-    #set $inigoData["datetime2"] = $current.dateTime.format("%H:%M %Z").strip()
-    #set $inigoData["station_location"] = $station.location.strip()
-#except
-    #echo "failed at block 11"
-#end try
-##
-##
-##
-#set $vars = [600, 1800, 3600, 21600, 86400]
-#for $var in $vars
-    #set $var_name = $span(time_delta=$var).rain
-    #if $var_name is not None and $var_name.has_data
-        #set $inigoData["rain_" + str($var)] = $var_name.sum.raw
-    #end if
-#end for
-##
-##
-##
-#for $rc in range(0, 51)
-    #set $var_name_ts = getattr($current, "outTemp_trend" + str($rc) + "_ts", None)
-    #set $var_name_signal = getattr($current, "outTemp_trend" + str($rc) + "_signal", None)
-    #set $var_name_count = getattr($current, "outTemp_trend" + str($rc) + "_count", None)
-    #if $var_name_ts is not None and $var_name_ts.has_data
-        #set $inigoData["trend_" + str($rc) + "_ts"] = $var_name_ts.raw
-    #end if
-    #if $var_name_ts is not None and $var_name_signal.has_data
-        #set $inigoData["trend_" + str($rc) + "_signal"] = $var_name_signal.raw
-    #end if
-    #if $var_name_ts is not None and $var_name_count.has_data
-        #set $inigoData["trend_" + str($rc) + "_count"] = $var_name_count.raw
-    #end if
-#end for
 ##
 ##
 ##
