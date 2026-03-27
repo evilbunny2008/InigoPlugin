@@ -65,6 +65,7 @@ class InigoInstaller(ExtensionInstaller):
                 "Inigo": {
                     "skin": "Inigo",
                     "enable": "True",
+                    "since": "midnight",
                     "Units": self.metric_cfg,
                 }
             }
@@ -72,9 +73,10 @@ class InigoInstaller(ExtensionInstaller):
 
         self.metric = True
         self.rainInInches = False
+        self.since_hour = -1
 
         super(InigoInstaller, self).__init__(
-            version="1.0.10",
+            version="2.0.0",
             name="Inigo",
             description="A skin to feed data to weeWx app",
             author="John Smith",
@@ -102,6 +104,11 @@ class InigoInstaller(ExtensionInstaller):
             if arg == "--rain-inches":
 
                 self.rainInInches = True
+
+            if arg.startswith("--since-hour-"):
+
+                split_strs = arg.split("--since-hour-", 2)
+                self.since_hour = int(split_strs[1])
 
     def configure(self, engine):
 
@@ -157,6 +164,18 @@ class InigoInstaller(ExtensionInstaller):
 
         if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
             inigo_dict["cache_dir"] = cache_dir
+
+        if "since_hour" not in inigo_dict:
+            if 0 <= self.since_hour <= 23:
+                inigo_dict["since_hour"] = self.since_hour
+
+        else:
+            tmpsince = int(inigo_dict.get("since_hour", 0))
+
+            if 0 <= self.since_hour <= 23 and self.since_hour != tmpsince:
+                inigo_dict["since_hour"] = self.since_hour
+            elif not 0 <= tmpsince <= 23:
+                del inigo_dict["since_hour"]
 
         units_dict = inigo_dict.get("Units")
         if units_dict is None:

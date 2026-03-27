@@ -3,8 +3,7 @@
 # A Search List Extension to provide aggregates since a given hour.
 #
 # python imports
-import datetime
-import syslog
+import logging
 import time
 
 # weeWX imports
@@ -12,29 +11,32 @@ import weeutil.weeutil
 import weewx.cheetahgenerator
 import weewx.units
 
-def logmsg(level, msg):
-    syslog.syslog(level, 'since: %s' % msg)
+from datetime import datetime, timedelta
 
-def logdbg(msg):
-    logmsg(syslog.LOG_DEBUG, msg)
+log = logging.getLogger(__name__)
 
-def logdbg2(msg):
-   if weewx.debug >= 2:
-        logmsg(syslog.LOG_DEBUG, msg)
+since_hour = 0
 
-def loginf(msg):
-    logmsg(syslog.LOG_INFO, msg)
+def processConfigDict(class_name, config_dict):
 
-def logerr(msg):
-    logmsg(syslog.LOG_ERR, msg)
+    global since_hour
 
+    cfg = config_dict.get("StdReport", None)
+    if cfg is not None:
+        inigo = cfg.get("Inigo", None)
+        if inigo is not None:
+             since_hour = int(inigo.get("since_hour", 0))
+
+    if not 0 <= since_hour <= 23:
+        since_hour = 0
 
 class Since(weewx.cheetahgenerator.SearchList):
     """SLE to provide aggregates since a given time of day."""
 
     def __init__(self, generator):
-        # call our parent's initialisation
         super(Since, self).__init__(generator)
+
+        processConfigDict(self.__class__.__name__, generator.config_dict)
 
     def get_extension_list(self, timespan, db_lookup):
         """Returns a NewBinder object that supports aggregates since a given
@@ -80,62 +82,35 @@ class Since(weewx.cheetahgenerator.SearchList):
             def __init__(self, db_lookup, report_time,
                          formatter=weewx.units.Formatter(),
                          converter=weewx.units.Converter(), **option_dict):
-                # call our parents initialisation
+
                 super(NewBinder, self).__init__(db_lookup, report_time,
                                                 formatter=formatter,
                                                 converter=converter,
                                                 **option_dict)
 
-            def since(self, data_binding=None, hour=0):
+            def since(self, data_binding=None, hour=since_hour, today=True):
                 """Return a TimeSpanBinder for the period since 'hour'."""
 
-                return since(self, data_binding, hour, True)
+                if not 0 <= hour <= 23:
+                    hour = 0
 
-            def since(self, data_binding=None, hour=0, today=True):
-                """Return a TimeSpanBinder for the period since 'hour'."""
+                stop_time = datetime.fromtimestamp(timespan.stop)
+                start_time = stop_time.replace(hour=hour, minute=0, second=0, microsecond=0)
 
-                # get datetime obj for the time of our report
-                stop_dt = datetime.datetime.fromtimestamp(timespan.stop)
-                # the timespan we want may be wholly within today or may have
-                # started yesterday, it depends on the value of the hour
-                # parameter
-                # first, get time obj for "hour" o'clock
-                hour_t = datetime.time(hour)
-                if stop_dt.hour >= hour:
-                    # our timespan is solely within today, the start ts is at
-                    # "hour" o'clock
-                    # get datetime obj for "hour" o'clock today
-                    hour_dt = datetime.datetime.combine(stop_dt, hour_t)
-                else:
-                    # our timespan starts yesterday and finishes today, so our
-                    # start ts is "hour" o'clock yesterday
-                    # first, get a datetime object for yesterday
-                    yest_dt = stop_dt + datetime.timedelta(days=-1)
-                    # get datetime obj for "hour" o'clock yesterday
-                    hour_dt = datetime.datetime.combine(yest_dt, hour_t)
-                # now get a ts, that is our start ts
-                start_ts = time.mktime(hour_dt.timetuple())
-                # and put together our timespan as a TimeSpan object
-                tspan = weeutil.weeutil.TimeSpan(start_ts, timespan.stop)
+                if stop_time < start_time:
+                    start_time -= timedelta(days=1)
 
-                if today:
-                    logdbg2("Since Start {}, Since stop {}".format(start_ts, timespan.stop))
-                else:
-                    # now subtract 1 day from our new datetime object
-                    yest_dt = hour_dt + datetime.timedelta(days=-1)
-                    # convert our yesterday datetime object to a timestamp
-                    yest_ts = time.mktime(yest_dt.timetuple())
+                if not today:
+                    start_time -= timedelta(days=1)
+                    stop_time -= timedelta(days=1)
 
-                    # and put together our timespan as a TimeSpan object
-                    tspan = weeutil.weeutil.TimeSpan(yest_ts, start_ts)
+                log.debug(f"{self.__class__.__name__} Since Start {start_time.strftime('%H:%M')}, Since stop {stop_time.strftime('%H:%M')}")
 
-                    logdbg2("SinceYesterday Start {}, Since stop {}".format(yest_ts, start_ts))
+                tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
-                # now return a TimespanBinder object, using the timespan we
-                # just calculated
                 return weewx.tags.TimespanBinder(tspan,
                                                  self.db_lookup,
-                                                 context='hour',
+                                                 context='"day",
                                                  data_binding=data_binding,
                                                  formatter=self.formatter,
                                                  converter=self.converter)
@@ -153,6 +128,6 @@ class Since(weewx.cheetahgenerator.SearchList):
                                 trend=trend_dict)
 
         t2 = time.time()
-        logdbg2("Since SLE executed in %0.3f seconds" % (t2-t1))
+        log.debug(f"{self.__class__.__name__} Since SLE executed in {(t2-t1)}:.3f seconds")
 
         return [tspan_binder]

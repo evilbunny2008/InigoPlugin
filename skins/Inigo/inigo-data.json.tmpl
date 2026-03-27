@@ -92,15 +92,6 @@
     ##
     ##
     #try
-        #set $var = "windGust"
-        #if $current.windGust is not None and $current.windGust.has_data
-            #set $inigoData["current_windGust"] = round($current.windGust.raw, 1)
-        #end if
-        #set $var = "windGustDir"
-        #if $current.windGustDir is not None and $current.windGustDir.has_data
-            #set $inigoData["current_windGustDir"] = round($current.windGustDir.raw)
-            #set $inigoData["current_windGustDirCompass"] = $current.windGustDir.ordinal_compass.strip()
-        #end if
         #set $var = "windSpeed"
         #if $current.windSpeed is not None and $current.windSpeed.has_data
             #set $inigoData["current_windSpeed"] = round($current.windSpeed.raw, 1)
@@ -108,22 +99,34 @@
         #set $var = "windDir"
         #if $current.windDir is not None and $current.windDir.has_data
             #set $inigoData["current_windDir"] = round($current.windDir.raw)
-            #set $inigoData["current_windDirCompass"] = $current.windDir.ordinal_compass.strip()
+            #set $inigoData["current_windDir_compass"] = $current.windDir.ordinal_compass.strip()
+        #end if
+        #set $var = "windGust"
+        #if $current.windGust is not None and $current.windGust.has_data
+            #set $inigoData["current_windGust"] = round($current.windGust.raw, 1)
+        #end if
+        #set $var = "windGustdir"
+        #if $current.windGustdir is not None and $current.windGustDir.has_data
+            #set $inigoData["current_windGustDir"] = round($current.windGustDir.raw)
+            #set $inigoData["current_windGustDir_compass"] = $current.windGustDir.ordinal_compass.strip()
         #end if
         ##
         ##
         ##
-        #set $var = "wind"
         #for $time_period in $time_periods
             #set $var_name = getattr($getVar($time_period), "wind", None)
             #if $var_name is not None and $var_name.has_data
                 #set $var_name_str = $time_period + "_wind"
+                #set $var_name_avg = $var_name_str + "_avg"
                 #set $var_name_max = $var_name_str + "_max"
                 #set $var_name_maxtime = $var_name_str + "_maxtime"
                 #set $var_name_gustdir = $var_name_str + "_gustdir"
+                #set $var_name_gustdir_compass = $var_name_str + "_gustdir_compass"
+                #set $inigoData[$var_name_avg] = round($var_name.avg.raw, 1)
                 #set $inigoData[$var_name_max] = round($var_name.max.raw, 1)
                 #set $inigoData[$var_name_maxtime] = round($var_name.maxtime.raw)
-                #set $inigoData[$var_name_gustdir] = $var_name.gustdir.ordinal_compass.strip()
+                #set $inigoData[$var_name_gustdir] = round($var_name.gustdir.raw)
+                #set $inigoData[$var_name_gustdir_compass] = $var_name.gustdir.ordinal_compass.strip()
             #end if
         #end for
     #except
@@ -142,6 +145,8 @@
                 #end if
             #end for
         #end for
+        #if $varExists('since')
+        
     #except
         #set $inigoData["processingErrors"] = $inigoData["processingErrors"] + ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
     #end try
@@ -325,4 +330,4 @@
 ##
 ##
 ##
-$json.dumps($inigoData)
+$json.dumps(dict(sorted($inigoData.items())))

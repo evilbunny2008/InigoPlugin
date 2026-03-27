@@ -369,7 +369,7 @@ class PeakDetectorService(weewx.engine.StdService):
 
     def getTemp(self, packet):
 
-        ts = packet.get("dateTime", int(time.time()))
+        ts = int(packet.get("dateTime", time.time()))
         temp = packet.get("outTemp", None)
 
         if temp is None:
