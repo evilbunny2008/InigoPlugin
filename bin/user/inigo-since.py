@@ -110,7 +110,7 @@ class Since(weewx.cheetahgenerator.SearchList):
 
                 return weewx.tags.TimespanBinder(tspan,
                                                  self.db_lookup,
-                                                 context='"day",
+                                                 context="day",
                                                  data_binding=data_binding,
                                                  formatter=self.formatter,
                                                  converter=self.converter)
