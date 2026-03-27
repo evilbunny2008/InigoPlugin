@@ -88,6 +88,10 @@ class Since(weewx.cheetahgenerator.SearchList):
                                                 converter=converter,
                                                 **option_dict)
 
+            def since(self, data_binding=None, hour=since_hour):
+
+                self.since(self, data_binding=data_binding, hour=hour, today=True)
+
             def since(self, data_binding=None, hour=since_hour, today=True):
                 """Return a TimeSpanBinder for the period since 'hour'."""
 

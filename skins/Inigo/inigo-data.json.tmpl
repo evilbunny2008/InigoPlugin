@@ -146,7 +146,7 @@
             #end for
         #end for
         #if $varExists('since')
-            #set $inigoData["rain_since_hour"] = $since.since_hour
+            #set $inigoData["rain_since_hour"] = int($since.since_hour)
             #set $inigoData["rain_since_today"] = $since().rain.sum.raw
             #set $inigoData["rain_since_yesterday"] = $since(today=False).rain.sum.raw
         #end if
