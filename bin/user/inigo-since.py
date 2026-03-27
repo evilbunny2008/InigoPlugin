@@ -135,4 +135,4 @@ class Since(weewx.cheetahgenerator.SearchList):
         if not 0 <= since_hour <= 23:
             since_hour = 0
 
-        return [{"since": {"since_hour": since_hour, "tspan_binder": tspan_binder}]
+        return [{"since": {"since_hour": since_hour, "tspan_binder": tspan_binder}}]
