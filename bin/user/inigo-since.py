@@ -53,8 +53,6 @@ class Since(weewx.cheetahgenerator.SearchList):
         if stop_time < start_time:
             start_time -= timedelta(days=1)
 
-        return [{"since": {"since_hour": since_hour, "since_rain_today": 0, "since_rain_yesterday": 0}}]
-
         tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
         today = weewx.tags.TimespanBinder(tspan, db_lookup, context="hour")
