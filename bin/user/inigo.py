@@ -28,6 +28,7 @@ threshold = 2.0
 influence = 0.02
 peak_detector = None
 trend_history = deque(maxlen=50)
+last_ts = 0
 current_ts = 0
 current_signal = 0
 current_count = 0
@@ -51,7 +52,7 @@ if weewx.__version__ < "4":
 
 def load_pickle_data(class_name):
 
-    global peak_detector, trend_history, current_ts, current_signal, current_count
+    global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
 
     if os.path.exists(pickle_filename):
 
@@ -62,7 +63,7 @@ def load_pickle_data(class_name):
 
                 if isinstance(ret, StrorageClass):
 
-                    if time.time() - ret.current_ts > 600:
+                    if time.time() - ret.last_ts > 600:
 
                         log.info(f"{class_name} StrorageClass object from {pickle_filename} is too old, skipping...")
 
@@ -72,6 +73,7 @@ def load_pickle_data(class_name):
 
                         peak_detector = ret.peak_detector
                         trend_history = ret.trend_history
+                        last_ts = ret.last_ts
                         current_ts = ret.current_ts
                         current_signal = ret.current_signal
                         current_count = ret.current_count
@@ -92,7 +94,7 @@ def save_pickle_data(class_name, report=False):
     try:
         with open(pickle_filename, "wb") as f:
 
-            storageClass = StrorageClass(datetime.now(), peak_detector, trend_history, current_ts, current_signal, current_count)
+            storageClass = StrorageClass(datetime.now(), peak_detector, trend_history, int(time.time()), current_ts, current_signal, current_count)
 
             pickle.dump(storageClass, f)
 
@@ -260,11 +262,12 @@ class real_time_peak_detection():
 
 class StrorageClass():
 
-    def __init__(self, dt, peak_detector, trend_history, current_ts, current_signal, current_count):
+    def __init__(self, dt, peak_detector, trend_history, last_ts, current_ts, current_signal, current_count):
 
         self.dt = dt
         self.peak_detector = peak_detector
         self.trend_history = trend_history
+        self.last_ts = last_ts
         self.current_ts = current_ts
         self.current_signal = current_signal
         self.current_count = current_count
@@ -373,13 +376,15 @@ class InigoService(weewx.engine.StdService):
 
     def handle_loop_packet(self, event):
 
-        global peak_detector, trend_history, current_ts, current_signal, current_count
+        global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
 
         packet = event.packet
 
         ts, temp = self.getTemp(packet)
         if temp is None:
             return
+
+        last_ts = ts
 
         signal = peak_detector.thresholding_algo(temp)
 
