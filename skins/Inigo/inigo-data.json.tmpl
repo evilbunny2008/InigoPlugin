@@ -252,11 +252,11 @@
     ##
     #try
         #set $var = "group_unit_dict"
-        #set $inigoData[$var] = $converter.group_unit_dict
+        #set $inigoData[$var] = dict(sorted($converter.group_unit_dict.items()))
         #set $var = "unit_format_dict"
-        #set $inigoData[$var] = $formatter.unit_format_dict
+        #set $inigoData[$var] = dict(sorted($formatter.unit_format_dict.items()))
         #set $var = "unit_label_dict"
-        #set $inigoData[$var] = $formatter.unit_label_dict
+        #set $inigoData[$var] = dict(sorted($formatter.unit_label_dict.items()))
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
