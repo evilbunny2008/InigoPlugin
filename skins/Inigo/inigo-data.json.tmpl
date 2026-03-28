@@ -271,36 +271,6 @@
         #set $inigoData[$var] = $unit.label.UV.strip()
         #set $var = "format_UV"
         #set $inigoData[$var] = $unit.format.UV.strip()
-        ##
-        ##
-        ##
-
-#for $key in dir($unit)
-    #if not $key.startswith("_")
-        #try
-            $key: ${getattr($unit, $key)}
-        #except
-        #end try
-    #end if
-#end for
-#for $key in dir($unit.label)
-    #if not $key.startswith("_")
-        #try
-            $key: ${getattr($unit.label, $key)}
-        #except
-        #end try
-    #end if
-#end for
-unit.unit_type:
-#for $key in dir($unit.unit_type)
-    #if not $key.startswith("_")
-        #try
-            $key: ${getattr($unit.unit_type, $key)}
-        #except
-        #end try
-    #end if
-#end for
-
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
@@ -360,7 +330,10 @@ unit.unit_type:
 ##
 ##
 #try
-##    $json.dumps(dict(sorted($inigoData.items())))
+    ## $json.dumps(dict(sorted($inigoData.items())))
+    #if $inigoData["processingErrors"] is not None
+        #echo $inigoData["processingErrors"]
+    #end if
 #except
     #secho "failed at block 13"
 #end try
