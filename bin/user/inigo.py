@@ -62,15 +62,25 @@ def load_pickle_data(class_name, createOrLoadData):
                 ret = pickle.load(f)
 
                 if isinstance(ret, StrorageClass):
-                    log.info(f"{class_name} loading a StrorageClass object from {pickle_filename} pickle cache file")
-                    peak_detector = ret.peak_detector
-                    trend_history = ret.trend_history
-                    current_ts = ret.current_ts
-                    current_signal = ret.current_signal
-                    current_count = ret.current_count
-                    log.info(f"{class_name} loaded peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} from the pickle cache file")
-                    log.info(f"{class_name} loaded trend_history of length {len(trend_history)} from the pickle cache file")
-                    return
+
+                    if time.time() - ret.current_ts > 600:
+
+                        log.info(f"{class_name} StrorageClass object from {pickle_filename} is too old, skipping...")
+
+                    else:
+
+                        log.info(f"{class_name} loading a StrorageClass object from {pickle_filename} pickle cache file")
+
+                        peak_detector = ret.peak_detector
+                        trend_history = ret.trend_history
+                        current_ts = ret.current_ts
+                        current_signal = ret.current_signal
+                        current_count = ret.current_count
+
+                        log.info(f"{class_name} loaded peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} from the pickle cache file")
+                        log.info(f"{class_name} loaded trend_history of length {len(trend_history)} from the pickle cache file")
+
+                        return
 
         except Exception as e:
             pass
