@@ -52,7 +52,7 @@ if weewx.__version__ < "4":
 
 def load_pickle_data(class_name, createOrLoadData):
 
-    global peak_detector, trend_history, current_ts, current_signal, current_count
+    global peak_detector, trend_history, current_ts, current_signal, current_count, done_work
 
     if os.path.exists(pickle_filename):
 
@@ -79,6 +79,8 @@ def load_pickle_data(class_name, createOrLoadData):
         log.info(f"{class_name} {pickle_filename} doesn't exist, but not allowed to create one either")
         return
 
+    done_work = True
+    log.info(f"{class_name} {pickle_filename} doesn't exist, creating it")
     reset_peak_detector(class_name)
 
 def save_pickle_data(class_name, report=False):
