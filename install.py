@@ -6,6 +6,7 @@ import configobj
 import os
 import stat
 import weeutil.weeutil
+import weewx
 
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
@@ -107,6 +108,9 @@ class InigoInstaller(ExtensionInstaller):
                 split_strs = arg.split("--since-hour-", 2)
                 self.since_hour = int(split_strs[1])
 
+                if not 0 <= self.since_hour <= 23:
+                    raise weewx.UnsupportedFeature(f"Since hour isn't valid, you need to specify a number between 0 and 23")
+
     def configure(self, engine):
 
         if engine.config_dict is None:
@@ -162,6 +166,9 @@ class InigoInstaller(ExtensionInstaller):
         if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
             inigo_dict["cache_dir"] = cache_dir
 
+        if "since" in inigo_dict:
+            del inigo_dict["since"]
+
         if "since_hour" not in inigo_dict:
             if 0 <= self.since_hour <= 23:
                 inigo_dict["since_hour"] = self.since_hour
@@ -169,10 +176,14 @@ class InigoInstaller(ExtensionInstaller):
         else:
             tmpsince = int(inigo_dict.get("since_hour", 0))
 
-            if 0 <= self.since_hour <= 23 and self.since_hour != tmpsince:
-                inigo_dict["since_hour"] = self.since_hour
-            elif not 0 <= tmpsince <= 23:
-                del inigo_dict["since_hour"]
+            if 0 <= self.since_hour <= 23:
+
+                if self.since_hour != tmpsince:
+                    tmpsince = self.since_hour
+                    inigo_dict["since_hour"] = self.since_hour
+
+            if not 0 <= tmpsince <= 23:
+               del inigo_dict["since_hour"]
 
         units_dict = inigo_dict.get("Units")
         if units_dict is None:
