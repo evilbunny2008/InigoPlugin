@@ -298,9 +298,6 @@
     ##
     ##
     ##
-    #set $outTemp_trend_ts = []
-    #set $outTemp_trend_signal = []
-    #set $outTemp_trend_count = []
     #try
         #if $inigo is not None
             #set $inigoData["since_hour"] = $inigo.get("since_hour", 0)
@@ -309,9 +306,9 @@
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None
-                #set $outTemp_trend_ts = $report.get("search_list_ts", [])
-                #set $outTemp_trend_signal = $report.get("search_list_signal", [])
-                #set $outTemp_trend_count = $report.get("search_list_count", [])
+                #set $inigoData["outTemp_trend_ts"] = $report.get("search_list_ts", [])
+                #set $inigoData["outTemp_trend_signal"] = $report.get("search_list_signal", [])
+                #set $inigoData["outTemp_trend_count"] = $report.get("search_list_count", [])
             #end if
         #end if
     #except
@@ -320,9 +317,6 @@
     ##
     ##
     ##
-    #set $inigoData["outTemp_trend_ts"] = $outTemp_trend_ts
-    #set $inigoData["outTemp_trend_signal"] = $outTemp_trend_signal
-    #set $inigoData["outTemp_trend_count"] = $outTemp_trend_count
 #except NameMapper.NotFound
     #set $inigoData["processingErrors"] += ["failed at block 11"]
 #except
