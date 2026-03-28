@@ -76,6 +76,7 @@ def load_pickle_data(class_name, createOrLoadData):
             pass
 
     if not createOrLoadData:
+        log.info(f"{class_name} {pickle_filename} doesn't exist, but not allowed to create one either")
         return
 
     reset_peak_detector(class_name)
@@ -134,6 +135,7 @@ def reset_peak_detector(class_name):
 
         peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
 
+    log.info(f"{class_name} {pickle_filename} saved to")
     save_pickle_data(class_name, True)
 
 def processConfigDict(class_name, config_dict):
