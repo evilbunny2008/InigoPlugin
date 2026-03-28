@@ -328,13 +328,16 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         since_today, since_yesterday = get_since_rain(self.__class__.__name__, timespan.stop)
 
+        def sort_dict(dict_name):
+            return dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
+
         search_list_extension = {
-            "since_hour": since_hour,
-            "since_today": since_today,
-            "since_yesterday": since_yesterday,
             "search_list_ts": search_list_ts,
             "search_list_signal": search_list_signal,
             "search_list_count": search_list_count,
+            "since_hour": since_hour,
+            "since_today": since_today,
+            "since_yesterday": since_yesterday,
         }
 
         last_report_ts = timespan.stop
@@ -344,7 +347,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.info(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
 class InigoService(weewx.engine.StdService):
 

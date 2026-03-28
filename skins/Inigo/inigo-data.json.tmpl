@@ -3,7 +3,6 @@
 ##
 ##
 #import json
-#import pprint
 ##
 #from Cheetah import NameMapper
 ##
@@ -14,12 +13,6 @@
 ##
 ##
 #try
-    #def sort_dict($dict_name)
-        #echo dict(sorted($dict_name.items(), key=lambda $x: $x[0].lower()))
-    #end def
-    ##
-    ##
-    ##
     #set $now=$current.dateTime.raw
     #set $inigoData["now"] = $now
     ##
@@ -257,11 +250,11 @@
     ##
     #try
         #set $var = "group_unit_dict"
-        #set $inigoData[$var] = sort_dict($converter.group_unit_dict.items())
+        #set $inigoData[$var] = $sort_dict($converter.group_unit_dict)
         #set $var = "unit_format_dict"
-        #set $inigoData[$var] = sort_dict($formatter.unit_format_dict.items())
+        #set $inigoData[$var] = $sort_dict($formatter.unit_format_dict)
         #set $var = "unit_label_dict"
-        #set $inigoData[$var] = sort_dict($formatter.unit_label_dict.items())
+        #set $inigoData[$var] = $sort_dict($formatter.unit_label_dict)
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
@@ -321,7 +314,7 @@
 ##
 ##
 #try
-    #echo $json.dumps(sort_dict($inigoData.items()))
+    #echo $json.dumps($sort_dict($inigoData))
 #except
     #secho "failed at block 13"
 #end try
