@@ -251,26 +251,12 @@
     ##
     ##
     #try
-        #set $var = "label_barometer"
-        #set $inigoData[$var] = $unit.label.barometer.strip()
-        #set $var = "format_barometer"
-        #set $inigoData[$var] = $unit.format.barometer.strip()
-        #set $var = "label_outHumidity"
-        #set $inigoData[$var] = $unit.label.outHumidity.strip()
-        #set $var = "format_outHumidity"
-        #set $inigoData[$var] = $unit.format.outHumidity.strip()
-        #set $var = "label_outTemp"
-        #set $inigoData[$var] = $unit.label.outTemp.strip()
-        #set $var = "format_outTemp"
-        #set $inigoData[$var] = $unit.format.outTemp.strip()
-        #set $var = "label_windSpeed"
-        #set $inigoData[$var] = $unit.label.windSpeed.strip()
-        #set $var = "format_windSpeed"
-        #set $inigoData[$var] = $unit.format.windSpeed.strip()
-        #set $var = "label_UV"
-        #set $inigoData[$var] = $unit.label.UV.strip()
-        #set $var = "format_UV"
-        #set $inigoData[$var] = $unit.format.UV.strip()
+        #set $var = "time_format_dict"
+        #set $inigoData[$var] = $formatter.time_format_dict
+        #set $var = "unit_format_dict"
+        #set $inigoData[$var] = $formatter.unit_format_dict
+        #set $var = "unit_label_dict"
+        #set $inigoData[$var] = $formatter.unit_label_dict
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
