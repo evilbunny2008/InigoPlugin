@@ -16,11 +16,7 @@
 #try
     ##
     #set $now=$current.dateTime.raw
-    ##
-    ##
-    ##
     #set $inigoData["now"] = $now
-    #set $inigoData["dtnow"] = str($current.dateTime)
     ##
     ##
     ##
@@ -255,14 +251,56 @@
     ##
     ##
     #try
-        #set $var = "unit.label.barometer"
-        #set $inigoData["label_barometer"] = $unit.label.barometer.strip()
-        #set $var = "unit.label.outHumidity"
-        #set $inigoData["label_outHumidity"] = $unit.label.outHumidity.strip()
-        #set $var = "unit.label.outTemp"
-        #set $inigoData["label_outTemp"] = $unit.label.outTemp.strip()
-        #set $var = "unit.label.windSpeed"
-        #set $inigoData["label_windSpeed"] = $unit.label.windSpeed.strip()
+        #set $var = "label_barometer"
+        #set $inigoData[$var] = $unit.label.barometer.strip()
+        #set $var = "format_barometer"
+        #set $inigoData[$var] = $unit.format.barometer.strip()
+        #set $var = "label_outHumidity"
+        #set $inigoData[$var] = $unit.label.outHumidity.strip()
+        #set $var = "format_outHumidity"
+        #set $inigoData[$var] = $unit.format.outHumidity.strip()
+        #set $var = "label_outTemp"
+        #set $inigoData[$var] = $unit.label.outTemp.strip()
+        #set $var = "format_outTemp"
+        #set $inigoData[$var] = $unit.format.outTemp.strip()
+        #set $var = "label_windSpeed"
+        #set $inigoData[$var] = $unit.label.windSpeed.strip()
+        #set $var = "format_windSpeed"
+        #set $inigoData[$var] = $unit.format.windSpeed.strip()
+        #set $var = "label_UV"
+        #set $inigoData[$var] = $unit.label.UV.strip()
+        #set $var = "format_UV"
+        #set $inigoData[$var] = $unit.format.UV.strip()
+        ##
+        ##
+        ##
+
+#for $key in dir($unit)
+    #if not $key.startswith("_")
+        #try
+            $key: ${getattr($unit, $key)}
+        #except
+        #end try
+    #end if
+#end for
+#for $key in dir($unit.label)
+    #if not $key.startswith("_")
+        #try
+            $key: ${getattr($unit.label, $key)}
+        #except
+        #end try
+    #end if
+#end for
+unit.unit_type:
+#for $key in dir($unit.unit_type)
+    #if not $key.startswith("_")
+        #try
+            $key: ${getattr($unit.unit_type, $key)}
+        #except
+        #end try
+    #end if
+#end for
+
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
@@ -272,10 +310,6 @@
     #try
         #set $var = "current.appTemp"
         #set $inigoData["appTemp"] = round($current.appTemp.raw, 1)
-        #set $var = "datetime1"
-        #set $inigoData["datetime1"] = $current.dateTime.format("%a, %d %b %Y").strip()
-        #set $var = "datetime2"
-        #set $inigoData["datetime2"] = $current.dateTime.format("%H:%M %Z").strip()
         #set $var = "station.location"
         #set $inigoData["station_location"] = $station.location.strip()
     #except
@@ -326,7 +360,7 @@
 ##
 ##
 #try
-    $json.dumps(dict(sorted($inigoData.items())))
+##    $json.dumps(dict(sorted($inigoData.items())))
 #except
     #secho "failed at block 13"
 #end try
