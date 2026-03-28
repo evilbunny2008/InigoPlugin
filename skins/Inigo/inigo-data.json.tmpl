@@ -316,10 +316,7 @@
 ##
 ##
 #try
-    ## $json.dumps(dict(sorted($inigoData.items())))
-    #if $inigoData["processingErrors"] is not None
-        #echo $inigoData["processingErrors"]
-    #end if
+    $json.dumps(dict(sorted($inigoData.items())))
 #except
     #secho "failed at block 13"
 #end try
