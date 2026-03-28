@@ -19,56 +19,7 @@ class InigoInstaller(ExtensionInstaller):
 
     def __init__(self):
 
-        self.metric_cfg = {
-            "Groups": {
-                "group_altitude": "meter",
-                "group_degree_day": "degree_C_day",
-                "group_distance": "km",
-                "group_pressure": "hPa",
-                "group_rain": "mm",
-                "group_rainrate": "mm_per_hour",
-                "group_speed": "km_per_hour",
-                "group_speed2": "km_per_hour2",
-                "group_temperature": "degree_C",
-            }
-        }
-
-        self.metric_rain_in_inches_cfg = {
-            "Groups": {
-                "group_altitude": "meter",
-                "group_degree_day": "degree_C_day",
-                "group_distance": "km",
-                "group_pressure": "hPa",
-                "group_rain": "inch",
-                "group_rainrate": "inch_per_hour",
-                "group_speed": "km_per_hour",
-                "group_speed2": "km_per_hour2",
-                "group_temperature": "degree_C",
-            }
-        }
-
-        self.imperial_cfg = {
-            "Groups": {
-                "group_altitude": "foot",
-                "group_degree_day": "degree_F_day",
-                "group_distance": "mile",
-                "group_pressure": "mmHg",
-                "group_rain": "inch",
-                "group_rainrate": "inch_per_hour",
-                "group_speed": "mile_per_hour",
-                "group_speed2": "mile_per_hour2",
-                "group_temperature": "degree_F",
-            }
-        }
-
         config_dict = {
-            "StdReport": {
-                "Inigo": {
-                    "skin": "Inigo",
-                    "enable": "True",
-                    "Units": self.metric_cfg,
-                }
-            }
         }
 
         self.metric = True
@@ -81,7 +32,14 @@ class InigoInstaller(ExtensionInstaller):
             description="A skin to feed data to weeWx app",
             author="John Smith",
             author_email="deltafoxtrot256@gmail.com",
-            config=config_dict,
+            config={
+                "StdReport": {
+                    "Inigo": {
+                        "skin": "Inigo",
+                        "enable": "True",
+                    }
+                }
+            },
             files=[
                 ("skins/Inigo",
                 ["skins/Inigo/inigo-data.json.tmpl",
@@ -95,14 +53,6 @@ class InigoInstaller(ExtensionInstaller):
 
         for arg in args:
 
-            if arg == "--imperial":
-
-                self.metric = False
-
-            if arg == "--rain-inches":
-
-                self.rainInInches = True
-
             if arg.startswith("--since-hour-"):
 
                 split_strs = arg.split("--since-hour-", 2)
@@ -114,13 +64,11 @@ class InigoInstaller(ExtensionInstaller):
     def configure(self, engine):
 
         if engine.config_dict is None:
-            engine.printer.out(f"engine.config_dict is None, can't continue!")
-            return False
+            raise weewx.UnsupportedFeature("engine.config_dict is None, can't continue...")
 
         skin_dir = engine.root_dict.get('SKIN_DIR')
         if skin_dir is None:
-            engine.printer.out(f"skin_dir is None, can't continue!")
-            return False
+            raise weewx.UnsupportedFeature("skin_dir is None, can't continue...")
 
         uid = os.getuid()
         statinfo = os.stat(skin_dir)
@@ -129,8 +77,7 @@ class InigoInstaller(ExtensionInstaller):
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
         if data_dir is None:
-            engine.printer.out(f"SQLITE_ROOT is None, can't continue!")
-            return False
+            raise weewx.UnsupportedFeature("SQLITE_ROOT is None, can't continue...")
 
         cache_dir = os.path.join(data_dir, "inigo")
 
@@ -157,11 +104,11 @@ class InigoInstaller(ExtensionInstaller):
 
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
-            return False
+            raise weewx.UnsupportedFeature("StdReport is None, can't continue...")
 
         inigo_dict = stdreport_dict.get("Inigo")
         if inigo_dict is None:
-            return False
+            raise weewx.UnsupportedFeature("Inigo section of weewx.conf is None, can't continue...")
 
         if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
             inigo_dict["cache_dir"] = cache_dir
@@ -183,58 +130,38 @@ class InigoInstaller(ExtensionInstaller):
                     inigo_dict["since_hour"] = self.since_hour
 
             if not 0 <= tmpsince <= 23:
-               del inigo_dict["since_hour"]
+               inigo_dict["since_hour"] = 0
 
-        units_dict = inigo_dict.get("Units")
-        if units_dict is None:
-            return False
-
-        groups_dict = inigo_dict.get("Units")
-        if groups_dict is None:
-            return False
-
-        if self.rainInInches:
-
-            engine.printer.out(f"Removing metric rainfall settings")
-
-            groups_dict.update(self.metric_rain_in_inches_cfg)
-
-        elif not self.metric:
-
-            engine.printer.out(f"Removing metric settings")
-
-            groups_dict.update(self.imperial_cfg)
-
-        else:
-
-            engine.printer.out(f"Installing metric settings")
-
-            groups_dict.update(self.metric_cfg)
-
+        if "Units" in inigo_dict:
+            del inigo_dict["Units"]
 
         engine_dict = engine.config_dict.get("Engine", None)
-        if engine_dict is not None:
+        if engine_dict is None:
+            engine.config_dict["Engine"] = {}
+            engine_dict = engine.config_dict.get("Engine", None)
 
+        services_dict = engine_dict.get("Services", None)
+        if services_dict is None:
+            engine_dict["Services"] = {}
             services_dict = engine_dict.get("Services", None)
-            if services_dict is not None:
 
-                prep_service = "user.peak_detector.PeakDetectorService"
-                prep_services = services_dict.get("prep_services", None)
-                if prep_services is not None:
-                    if isinstance(prep_services, str) and prep_services == prep_service:
-                        del prep_services
-                    elif prep_service in prep_services:
-                        prep_services.remove(prep_service)
+        prep_service = "user.peak_detector.PeakDetectorService"
+        prep_services = services_dict.get("prep_services", None)
+        if prep_services is not None:
+            if isinstance(prep_services, str) and prep_services == prep_service:
+                del services_dict["prep_services"]
+            elif prep_service in prep_services:
+                prep_services.remove(prep_service)
 
-                data_service = "user.inigo.InigoService"
-                data_services = services_dict.get("data_services", None)
-                if data_services is None:
-                    services_dict["data_services"] = data_service
-                elif data_service not in data_services:
-                    if isinstance(data_services, str):
-                        data_services = [data_services, data_service]
-                    else:
-                        data_services.append(data_service)
+        data_service = "user.inigo.InigoService"
+        data_services = services_dict.get("data_services", None)
+        if data_services is None:
+            services_dict["data_services"] = data_service
+        elif data_service not in data_services:
+            if isinstance(data_services, str):
+                data_services = [data_services, data_service]
+            else:
+                data_services.append(data_service)
 
         if engine.dry_run:
             engine.printer.out(engine.config_dict)
