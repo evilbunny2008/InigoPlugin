@@ -27,7 +27,6 @@ lag = 900
 threshold = 2.0
 influence = 0.02
 peak_detector = None
-done_work = False
 trend_history = deque(maxlen=50)
 current_ts = 0
 current_signal = 0
@@ -50,9 +49,9 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"InigoService v{VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
-def load_pickle_data(class_name, createOrLoadData):
+def load_pickle_data(class_name):
 
-    global peak_detector, trend_history, current_ts, current_signal, current_count, done_work
+    global peak_detector, trend_history, current_ts, current_signal, current_count
 
     if os.path.exists(pickle_filename):
 
@@ -85,18 +84,10 @@ def load_pickle_data(class_name, createOrLoadData):
         except Exception as e:
             pass
 
-    if not createOrLoadData:
-        log.info(f"{class_name} {pickle_filename} doesn't exist, but not allowed to create one either")
-        return
-
-    done_work = True
     log.info(f"{class_name} {pickle_filename} doesn't exist, creating it")
     reset_peak_detector(class_name)
 
 def save_pickle_data(class_name, report=False):
-
-    if not done_work:
-        return
 
     try:
         with open(pickle_filename, "wb") as f:
@@ -115,9 +106,6 @@ def save_pickle_data(class_name, report=False):
 def reset_peak_detector(class_name):
 
     global peak_detector
-
-    if not done_work:
-        return
 
     now = datetime.now()
 
@@ -152,7 +140,7 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, done_work, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
@@ -293,13 +281,10 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         global last_report_ts, last_report
 
-        if peak_detector is None:
-            processConfigDict(self.__class__.__name__, self.generator.config_dict)
-            load_pickle_data(self.__class__.__name__, False)
-        else:
-            log.info(f"{self.__class__.__name__} Data already loaded")
-
         log.info(f"{self.__class__.__name__} get_extension_list() called!")
+
+        if peak_detector is None:
+            raise weewx.UnsupportedFeature(f"{self.__class__.__name__} failed to detect InigoService running, exitting...")
 
         t1 = time.time()
 
@@ -367,7 +352,7 @@ class InigoService(weewx.engine.StdService):
 
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, config_dict)
-            load_pickle_data(self.__class__.__name__, True)
+            load_pickle_data(self.__class__.__name__)
         else:
             log.info(f"{self.__class__.__name__} Data already loaded")
 
@@ -388,15 +373,13 @@ class InigoService(weewx.engine.StdService):
 
     def handle_loop_packet(self, event):
 
-        global peak_detector, trend_history, current_ts, current_signal, current_count, done_work
+        global peak_detector, trend_history, current_ts, current_signal, current_count
 
         packet = event.packet
 
         ts, temp = self.getTemp(packet)
         if temp is None:
             return
-
-        done_work = True
 
         signal = peak_detector.thresholding_algo(temp)
 
