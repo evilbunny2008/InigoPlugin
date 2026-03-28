@@ -306,6 +306,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
 
+        log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
         log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
 
         search_list_ts = []
