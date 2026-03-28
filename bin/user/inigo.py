@@ -377,7 +377,7 @@ class InigoService(weewx.engine.StdService):
 
     def handle_loop_packet(self, event):
 
-        global peak_detector, trend_history, current_ts, current_signal, current_count
+        global peak_detector, trend_history, current_ts, current_signal, current_count, done_work
 
         packet = event.packet
 
