@@ -51,85 +51,6 @@ if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"InigoService v{VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
 
-# https://github.com/Iddoyadlin/Py2JDatetime
-class Java:
-    DAY_OF_MONTH = 'd'
-    YEAR = 'y'
-    MONTH_OF_YEAR = 'M'
-    HOUR_OF_DAY = 'H'
-    SECOND_OF_MINUTE = 's'
-    DAY_OF_WEEK = 'e'
-    CLOCK_HOUR_OF_AM_PM = 'h'
-    AM_PM_OF_DAY = 'a'
-    TIME_ZONE_NAME = 'z'
-    DAY_OF_YEAR = 'D'
-    WEEK_OF_YEAR = 'w'
-    MINUTE_OF_HOUR = 'm'
-
-    TEXT_SHORT_FORM = 3
-    TEXT_FULL_FORM = 4
-    TEXT_NARROW_FORM = 5
-    NUMBER_NO_PADDING = 1
-    NUMBER_TWO_PADDING = 2
-    NUMBER_THREE_PADDING = 3
-    NUMBER_FOUR_PADDING = 4
-    NUMBER_OR_TEXT_TEXT_FORM = 3
-    NUMBER_OR_TEXT_NUMBER_FORM = 2
-    YEAR_REDUCED_FORM = 2
-    YEAR_FULL_FORM = 4
-    ZONE_NAME_SHORT_FORM = 3
-    ZONE_NAME_FULL_FORM = 4
-
-class C:
-    DAY_OF_MONTH = '%d'
-    DAY_OF_WEEK_SHORT_FORM = '%a'
-    DAY_OF_WEEK_FULL_FORM = '%A'
-    DAY_OF_WEEK_NUMBER_FORM = '%w'
-    MONTH_SHORT_FORM = '%b'
-    MONTH_FULL_FORM = '%B'
-    MONTH_NUMBER_FROM = '%m'
-    YEAR_SHORT_FROM = '%y'
-    YEAR_FULL_FORM = '%Y'
-    HOUR_OF_DAY = '%H'
-    CLOCK_HOUR_OF_AM_PM = '%I'
-    AM_PM_OF_DAY = '%p'
-    MINUTE_OF_HOUR = '%M'
-    SECOND_OF_MINUTE = '%S'
-    MILLISECOND = '%f'
-    UTC_OFFSET = '%z'
-    TIMEZONE_NAME = '%Z'
-    DAY_OF_YEAR = '%j'
-    WEEK_OF_YEAR = '%U'
-    WEEK_OF_YEAR_MONDAY = '%W'
-
-class PatternConverter:
-
-    DIRECTIVE_MAP = {
-        C.DAY_OF_MONTH: Java.DAY_OF_MONTH * Java.NUMBER_TWO_PADDING,
-        C.YEAR_FULL_FORM: Java.YEAR * Java.YEAR_FULL_FORM,
-        C.YEAR_SHORT_FROM: Java.YEAR * Java.YEAR_REDUCED_FORM,
-        C.MONTH_FULL_FORM: Java.MONTH_OF_YEAR * Java.TEXT_FULL_FORM,
-        C.MONTH_SHORT_FORM: Java.MONTH_OF_YEAR * Java.TEXT_SHORT_FORM,
-        C.MONTH_NUMBER_FROM: Java.MONTH_OF_YEAR * Java.NUMBER_TWO_PADDING,
-        C.HOUR_OF_DAY: Java.HOUR_OF_DAY * Java.NUMBER_TWO_PADDING,
-        C.MINUTE_OF_HOUR: Java.MINUTE_OF_HOUR * Java.NUMBER_TWO_PADDING,
-        C.SECOND_OF_MINUTE: Java.SECOND_OF_MINUTE * Java.NUMBER_TWO_PADDING,
-        C.MILLISECOND: '',
-        C.DAY_OF_WEEK_SHORT_FORM: Java.DAY_OF_WEEK * Java.TEXT_SHORT_FORM,
-        C.DAY_OF_WEEK_FULL_FORM: Java.DAY_OF_WEEK * Java.TEXT_FULL_FORM,
-        C.DAY_OF_WEEK_NUMBER_FORM: Java.DAY_OF_WEEK * Java.NUMBER_NO_PADDING,
-        C.CLOCK_HOUR_OF_AM_PM: Java.CLOCK_HOUR_OF_AM_PM * Java.NUMBER_TWO_PADDING,
-        C.AM_PM_OF_DAY: Java.AM_PM_OF_DAY,
-        C.TIMEZONE_NAME: Java.TIME_ZONE_NAME * Java.ZONE_NAME_SHORT_FORM,
-        C.UTC_OFFSET: '',
-        C.DAY_OF_YEAR: Java.DAY_OF_YEAR * Java.NUMBER_THREE_PADDING,
-        C.WEEK_OF_YEAR: Java.WEEK_OF_YEAR * Java.NUMBER_TWO_PADDING,
-        C.WEEK_OF_YEAR_MONDAY: ''
-    }
-
-    def convert_to_iso_8601(self, pattern):
-        return reduce(lambda a, kv: a.replace(*kv), self.DIRECTIVE_MAP.items(), pattern)
-
 def load_pickle_data(class_name):
 
     global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
@@ -407,21 +328,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         since_today, since_yesterday = get_since_rain(self.__class__.__name__, timespan.stop)
 
-
-        converter = PatternConverter()
-        formatter = self.generator.formatter
-        time_formats = formatter.time_format_dict
-
-        java_formats = {}
-        for key, fmt in time_formats.items():
-            try:
-                java_formats[key] = converter.convert_to_iso_8601(pattern=fmt)
-            except:
-                java_formats[key] = fmt
-
-
         search_list_extension = {
-            "java_formats": java_formats,
             "since_hour": since_hour,
             "since_today": since_today,
             "since_yesterday": since_yesterday,

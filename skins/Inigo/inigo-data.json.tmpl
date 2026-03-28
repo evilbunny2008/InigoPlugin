@@ -293,7 +293,6 @@
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None
-                #set $inigoData["java_formats"] = $report.get("java_formats", 0)
                 #set $inigoData["since_hour"] = $report.get("since_hour", 0)
                 #set $inigoData["since_today"] = $report.get("since_today", 0)
                 #set $inigoData["since_yesterday"] = $report.get("since_yesterday", 0)
