@@ -303,9 +303,9 @@
     #set $outTemp_trend_count = []
     #try
         #if $inigo is not None
-            #set $inigoData["since_hour"] = $report.get("since_hour", 0)
-            #set $inigoData["since_today"] = $report.get("since_today", 0)
-            #set $inigoData["since_yesterday"] = $report.get("since_yesterday", 0)
+            #set $inigoData["since_hour"] = $inigo.get("since_hour", 0)
+            #set $inigoData["since_today"] = $inigo.get("since_today", 0)
+            #set $inigoData["since_yesterday"] = $inigo.get("since_yesterday", 0)
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None
