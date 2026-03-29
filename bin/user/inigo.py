@@ -24,11 +24,12 @@ log = logging.getLogger(__name__)
 
 VERSION = "0.0.3"
 
-lag = 900
-threshold = 2.0
-influence = 0.02
+lag = default_lag = 900
+threshold = default_threshold = 3.0
+influence = default_influence = 0.02
 peak_detector = None
-trend_history = deque(maxlen=50)
+trend_history_maxlen = 50
+trend_history = deque(maxlen=trend_history_maxlen)
 last_ts = 0
 current_ts = 0
 current_signal = 0
@@ -67,6 +68,18 @@ def load_pickle_data(class_name):
                     if time.time() - ret.last_ts > 600:
 
                         log.info(f"{class_name} StrorageClass object from {pickle_filename} is too old, skipping...")
+
+                    elif ret.peak_detector.lag != default_lag:
+
+                        log.info(f"{class_name} StrorageClass object from {pickle_filename} different lag, skipping...")
+
+                    elif ret.peak_detector.influence != default_influence:
+
+                        log.info(f"{class_name} StrorageClass object from {pickle_filename} different influence, skipping...")
+
+                    elif ret.peak_detector.threshold != default_threshold:
+
+                        log.info(f"{class_name} StrorageClass object from {pickle_filename} different threshold, skipping...")
 
                     else:
 
