@@ -1,8 +1,19 @@
+# For the stable version of the weeWX Weather App in the Google Play store
 data=https://example.com/weewx/inigo-data.txt
+
+# For the beta version of the app which will be the new stable version at some point
 jsondata=https://example.com/weewx/inigo-data.json
+
+# Configuration of the radar screen in the app
 radtype=webpage
 radar=https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=11&overlay=radar&product=radar&level=surface&lat=-34&lon=151&message=false
+
+# Example forcast, see the GitHub
 fctype=bom3
 forecast=r3gwbqz
+
+# Webcam URL
 webcam=http://mx.cafesydney.com:8888/mjpg/video.mjpg
+
+# URL for the Custom screen in the app
 custom=http://m.bom.gov.au/nsw/sydney/radar/
