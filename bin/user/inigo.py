@@ -22,13 +22,13 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-VERSION = "0.0.3"
+VERSION = "2.0.0"
 
-lag = default_lag = 900
-threshold = default_threshold = 3.0
+lag = default_lag = 1800
+threshold = default_threshold = 2.0
 influence = default_influence = 0.02
 peak_detector = None
-trend_history_maxlen = 50
+trend_history_maxlen = 25
 trend_history = deque(maxlen=trend_history_maxlen)
 last_ts = 0
 current_ts = 0
