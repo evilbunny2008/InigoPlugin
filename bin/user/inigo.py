@@ -416,7 +416,7 @@ class InigoService(weewx.engine.StdService):
 
         else:
             # Signal changed — store the completed run
-            log.info(f"{self.__class__.__name__} signal switched from {current_signal} to {signal}")
+            log.info(f"{self.__class__.__name__} signal switched from {current_signal} with count {current_count} to {signal}")
 
             if current_count > 0:
                 trend_history.append((current_ts, current_signal, current_count))
