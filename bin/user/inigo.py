@@ -398,6 +398,7 @@ class InigoService(weewx.engine.StdService):
 
         if signal == current_signal:
             current_count += 1
+            log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
             log.info(f"{self.__class__.__name__} current_count: {current_count}")
 
         else:
@@ -408,8 +409,8 @@ class InigoService(weewx.engine.StdService):
             current_ts = ts
             current_signal = signal
             current_count = 1
-
             log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
+            log.info(f"{self.__class__.__name__} current_count: {current_count}")
 
     def getTemp(self, packet):
 
