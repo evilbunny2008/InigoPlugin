@@ -411,19 +411,19 @@ class InigoService(weewx.engine.StdService):
 
         if signal == current_signal:
             current_count += 1
-            log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} current_count: {current_count}")
+            #log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
+            #log.info(f"{self.__class__.__name__} current_count: {current_count}")
 
         else:
             # Signal changed — store the completed run
+            log.info(f"{self.__class__.__name__} signal switched from {current_signal} to {signal}")
+
             if current_count > 0:
                 trend_history.append((current_ts, current_signal, current_count))
 
             current_ts = ts
             current_signal = signal
             current_count = 1
-            log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} current_count: {current_count}")
 
     def getTemp(self, packet):
 
