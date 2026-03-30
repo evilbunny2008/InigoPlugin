@@ -404,7 +404,11 @@ class InigoService(weewx.engine.StdService):
 
         packet = event.packet
 
-        ts, temp = self.getTemp(packet)
+        ret = self.getTemp(packet)
+        if ret is None or len(ret) != 2:
+            return
+
+        ts, temp = ret
         if temp is None:
             return
 
@@ -440,12 +444,14 @@ class InigoService(weewx.engine.StdService):
         temp = packet.get("outTemp", None)
 
         if temp is None:
-            return None
+            return ts, None
 
         try:
             return ts, round(float(temp), 1)
         except (ValueError, TypeError):
             return ts, None
+
+        return ts, None
 
     def shutDown(self):
 
