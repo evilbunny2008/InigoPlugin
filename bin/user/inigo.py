@@ -382,13 +382,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         t1 = time.time()
 
         def sort_dict(dict_name):
-            if dict_name.get("version", "") != "":
+            if dict_name.get("version", None) is not None:
                 del dict_name["version"]
 
             new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
-            new_dict = {"version": JSONversion, **new_dict}
-
-            return new_dict
+            return {"version": JSONversion, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
