@@ -5,6 +5,7 @@ import pickle
 import stat
 import sys
 import time
+import weecfg
 import weewx
 import weewx.cheetahgenerator
 import weewx.engine
@@ -21,7 +22,9 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-VERSION = "2.0.2"
+_, installer = weecfg.get_extension_installer("Inigo")
+
+VERSION = installer.get("version")
 
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
@@ -150,9 +153,15 @@ def reset_peak_detector(class_name):
 
         stats = TimespanBinder(TimeSpan(start, min5_ago), db_lookup)
 
-        initial_data = [row.outTemp.raw for row in stats.records()]
+        initial_data = []
+        for row in stats.records():
+            outTemp = convert_temp_to_float(row.outTemp.raw)
+            if outTemp is None:
+                continue
 
-        initial_data_expanded = [round(outTemp, 1) for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
+            initial_data += [outTemp]
+
+        initial_data_expanded = [outTemp for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
 
         log.info(f"{class_name} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
 
@@ -220,6 +229,21 @@ def get_since_rain(class_name, timestamp):
     log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
 
     return today.rain.sum.raw, yesterday.rain.sum.raw
+
+def convert_temp_to_float(temp):
+
+    try:
+        temp_f = weeutil.to_float(temp)
+        if temp_f is None:
+            return None
+
+        if not isinstance(temp_f, float):
+            log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f)}' but this is probably wrong, no error generated, skipping...")
+            return None
+
+        return temp_f
+    except (ValueError, TypeError, Exception) as e:
+        log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: str(e)), skipping...")
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -444,18 +468,9 @@ class InigoService(weewx.engine.StdService):
         if temp is None:
             return ts, None
 
-        try:
-            temp_f = float(temp)
+        temp = convert_temp_to_float(temp)
 
-            if not isinstance(temp_f, float):
-                log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f)}' but this is probably wrong, no error generated, skipping...")
-                return ts, None
-
-            return ts, temp_f
-        except (ValueError, TypeError, Exception) as e:
-            log.info(f"Failed to convert '{temp}' to a float, e: str(e)), skipping...")
-
-        return ts, None
+        return ts, temp
 
     def shutDown(self):
 
