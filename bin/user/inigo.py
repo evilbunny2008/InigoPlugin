@@ -172,7 +172,9 @@ def processConfigDict(class_name, config_dict):
 
     global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION
 
-    ext_dir = config_dict.get("EXT_DIR", None)
+    root_dict = weeutil.startup.extract_roots(config_dict)
+
+    ext_dir = root_dict.get("EXT_DIR", None)
     if ext_dir is not None:
         ext_cache_dir = os.path.join(ext_dir, "Inigo")
         _, installer = weecfg.get_extension_installer("Inigo")
