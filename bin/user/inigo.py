@@ -382,10 +382,16 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         t1 = time.time()
 
         def sort_dict(dict_name):
-            return dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
+            if dict_name.get("version", "") != "":
+                del dict_name["version"]
+
+            new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
+            new_dict = {"version": JSONversion, **new_dict}
+
+            return new_dict
 
         if last_report_ts == timespan.stop and last_report is not None:
-            return [{"inigo": {"version": JSONversion, "ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
         #log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
         #log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
@@ -438,7 +444,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.info(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"version": JSONversion, "ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
 class InigoService(weewx.engine.StdService):
 
