@@ -260,9 +260,9 @@ def get_since_rain(class_name, timestamp):
 
     yesterday = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
 
-    log.info(f"{class_name} since_hour: {since_hour}")
-    log.info(f"{class_name} today.rain.sum.raw: {today.rain.sum.raw}")
-    log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
+    #log.info(f"{class_name} since_hour: {since_hour}")
+    #log.info(f"{class_name} today.rain.sum.raw: {today.rain.sum.raw}")
+    #log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
 
     return today.rain.sum.raw, yesterday.rain.sum.raw
 
