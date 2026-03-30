@@ -94,9 +94,8 @@ class InigoInstaller(ExtensionInstaller):
         try:
             import numpy as np
             np.array([1.0, 2.0, 3.0])
-            del numpy
-        except (ImportError, Exception) as e:
-            print(str(e))
+            del np
+        except (ImportError, Exception):
             fatal_error(f"The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
