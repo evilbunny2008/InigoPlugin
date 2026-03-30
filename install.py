@@ -11,6 +11,8 @@ import weewx
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
+VERSION="2.0.3"
+
 def loader():
 
     return InigoInstaller()
@@ -43,7 +45,7 @@ class InigoInstaller(ExtensionInstaller):
         self.since_hour = -1
 
         super(InigoInstaller, self).__init__(
-            version="2.0.2",
+            version=VERSION,
             name="Inigo",
             description="A skin to feed data to weeWx app",
             author="John Smith",

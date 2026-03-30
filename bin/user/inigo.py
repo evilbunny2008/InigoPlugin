@@ -47,21 +47,26 @@ last_report = None
 
 REQUIRED_WEEWX = "5.3.0"
 
+def fatal_error(error_str):
+
+    print()
+    print(error_str)
+    print()
+    print()
+    raise weewx.UnsupportedFeature("Fatal Error")
+
+
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 7):
-    raise weewx.UnsupportedFeature(
-        f"InigoService requires Python 3.7 or later, found %s.%s" % (sys.version_info[0], sys.version_info[1]))
+    fatal_error(f"InigoService requires Python 3.7 or later, found {sys.version_info[0]}.{sys.version_info[1]}")
 
 if weeutil.weeutil.version_compare(weewx.__version__, REQUIRED_WEEWX) < 0:
-    raise weewx.UnsupportedFeature(
-        f"InigoService v{VERSION} requires WeeWX 5.3.0 or later, found %s" % weewx.__version__)
+    fatal_error(f"InigoService requires WeeWX {REQUIRED_WEEWX} or later, found {weewx.__version__}")
 
 try:
     import numpy as np
     np.array([1.0, 2.0, 3.0])
 except (ImportError, Exception):
-    log.info(f"InigoService v{VERSION} requires the numpy python module to be installed.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
-    raise weewx.UnsupportedFeature(
-        f"InigoService v{VERSION} requires the numpy python module to be installed.")
+    fatal_error(f"InigoService requires the numpy python module to be installed.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
 def load_pickle_data(class_name):
 
@@ -128,7 +133,7 @@ def save_pickle_data(class_name, report=False):
                 log.info(f"{class_name} saved trend_history of length {len(trend_history)} to the pickle cache file")
 
     except Exception as e:
-        raise e
+        fatal_error(f" Error!, e: {str(e)}")
 
 def reset_peak_detector(class_name):
 
@@ -222,8 +227,7 @@ def processConfigDict(class_name, config_dict):
     cuid = statinfo.st_uid
 
     if uid != 0 and uid != cuid:
-        raise weewx.UnsupportedFeature(
-            f"{class_name} failed to start due to permissions on {cache_dir} directory uid: {uid}, cuid: {cuid}")
+        fatal_error(f"{class_name} failed to start due to permissions on {cache_dir} directory uid: {uid}, cuid: {cuid}")
 
     if not 0 <= since_hour <= 23:
         since_hour = 0
@@ -370,7 +374,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         log.info(f"{self.__class__.__name__} get_extension_list() called!")
 
         if peak_detector is None:
-            raise weewx.UnsupportedFeature(f"{self.__class__.__name__} failed to detect InigoService running, exitting...")
+            fatal_error(f"{self.__class__.__name__} failed to detect InigoService running, exitting...")
 
         t1 = time.time()
 
