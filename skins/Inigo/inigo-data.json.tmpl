@@ -298,7 +298,7 @@
                 ##
                 ##
                 ##
-                #set $time_periods = ["today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
+                #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
                 #for $time_period in $time_periods
                     #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
                 #end for
