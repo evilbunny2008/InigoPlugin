@@ -270,11 +270,8 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     elif time_period == "last_month":
         start_time = current_stop_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        log.info(f"start_time: {start_time}")
         start_time = start_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
-        log.info(f"start_time: {start_time}")
         stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        log.info(f"stop_time: {stop_time}")
 
     elif time_period == "year_to_date":
         stop_time = current_stop_time
@@ -282,22 +279,18 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     elif time_period == "last_year":
         start_time = current_stop_time.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        log.info(f"start_time: {start_time}")
         start_time = start_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
-        log.info(f"start_time: {start_time}")
         stop_time = current_stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        log.info(f"stop_time: {stop_time}")
 
     elif time_period == "alltime":
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        log.info(f"start_time: {start_time}")
 
     tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
     period = weewx.tags.TimespanBinder(tspan, db_lookup, context=context)
 
-    log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
+    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
     return period.rain.sum.raw
 
@@ -500,6 +493,14 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             "since_last_year": since_last_year,
             "since_alltime": since_alltime,
         }
+
+        log.info(f"since_today: {since_today}")
+        log.info(f"since_yesterday: {since_yesterday}")
+        log.info(f"since_month_to_date: {since_month_to_date}")
+        log.info(f"since_last_month: {since_last_month}")
+        log.info(f"since_year_to_date: {since_year_to_date}")
+        log.info(f"since_last_year: {since_last_year}")
+        log.info(f"since_alltime: {since_alltime}")
 
         last_report_ts = timespan.stop
         last_report = search_list_extension
