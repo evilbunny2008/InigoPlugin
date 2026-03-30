@@ -308,7 +308,7 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
-    rain = period.rain
+    rain = period.rain.sum
 
     if rain_unit == mm:
         rain = rain.convert("mm")
@@ -316,7 +316,7 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
     if rain_unit == cm:
         rain = rain.convert("cm")
 
-    return rain.sum.raw
+    return rain.raw
 
 def convert_to_int(str):
 
