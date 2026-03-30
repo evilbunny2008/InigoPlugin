@@ -54,15 +54,6 @@ last_report = None
 
 REQUIRED_WEEWX = "5.3.0"
 
-weewx.units.obs_group_dict["since_hour"] = "group_time"
-weewx.units.obs_group_dict["since_today"] = "group_rain"
-weewx.units.obs_group_dict["since_yesterday"] = "group_rain"
-weewx.units.obs_group_dict["since_month_to_date"] = "group_rain"
-weewx.units.obs_group_dict["since_last_month"] = "group_rain"
-weewx.units.obs_group_dict["since_year_to_date"] = "group_rain"
-weewx.units.obs_group_dict["since_last_year"] = "group_rain"
-weewx.units.obs_group_dict["since_alltime"] = "group_rain"
-
 def fatal_error(error_str):
 
     print()
@@ -317,7 +308,15 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
-    return period.rain.sum.raw
+    rain_vt = weewx.units.as_value_tuple(period, 'rain')
+
+    if rain_unit == mm:
+        rain_vt = weewx.units.convert(rain_vt, 'mm')
+
+    if rain_unit == cm:
+        rain_vt = weewx.units.convert(rain_vt, 'cm')
+
+    return rain_vt.sum.raw
 
 def convert_to_int(str):
 
