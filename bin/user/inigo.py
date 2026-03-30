@@ -172,16 +172,19 @@ def processConfigDict(class_name, config_dict):
 
     global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION
 
-    root_dict = weeutil.startup.extract_roots(config_dict)
-    if root_dict is not None:
+    try:
+        root_dict = weeutil.startup.extract_roots(config_dict)
+        if root_dict is not None:
 
-        ext_dir = root_dict.get("EXT_DIR", None)
-        if ext_dir is not None:
-            log.info(f"root_dict: {root_dict}")
-            ext_cache_dir = os.path.join(ext_dir, "Inigo")
-            _, installer = weecfg.get_extension_installer("Inigo")
-            VERSION = installer.get("version")
-            log.info(f"VERSION = {VERSION}")
+            ext_dir = root_dict.get("EXT_DIR", None)
+            if ext_dir is not None:
+                log.info(f"root_dict: {root_dict}")
+                ext_cache_dir = os.path.join(ext_dir, "Inigo")
+                _, installer = weecfg.get_extension_installer("Inigo")
+                VERSION = installer.get("version")
+                log.info(f"VERSION = {VERSION}")
+    except Exception as e:
+        log.info(f"Error! e: {str(e)}")
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
