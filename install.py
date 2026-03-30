@@ -26,10 +26,13 @@ def fatal_error(error_str):
 def is_integer(s):
 
     try:
+        print(f"Checking if '{s}' is an integer")
         int(s)
+        print(f"'{s}' is an integer")
         return True
     except (ValueError, TypeError) as e:
         print(str(e))
+        print(f"'{s}' isn't an integer")
         return False
 
 class InigoInstaller(ExtensionInstaller):
