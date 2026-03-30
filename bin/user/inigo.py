@@ -1,6 +1,5 @@
 
 import logging
-import numpy as np
 import os
 import pickle
 import stat
@@ -51,6 +50,16 @@ if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] 
 if weewx.__version__ < "4":
     raise weewx.UnsupportedFeature(
         f"InigoService v{VERSION} requires WeeWX 4 or later, found %s" % weewx.__version__)
+
+try:
+    import numpy as np
+    np.array([1.0, 2.0, 3.0])
+except (ImportError, Exception):
+    log.info(f"InigoService v{VERSION} requires the numpy python module to be installed.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
+    raise weewx.UnsupportedFeature(
+        f"InigoService v{VERSION} requires the numpy python module to be installed.")
+
+
 
 def load_pickle_data(class_name):
 

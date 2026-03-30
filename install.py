@@ -92,10 +92,11 @@ class InigoInstaller(ExtensionInstaller):
             fatal_error("engine.config_dict is None, can't continue...")
 
         try:
-            import numpy
+            import numpy as np
+            np.array([1.0, 2.0, 3.0])
             del numpy
-        except ImportError:
-            fatal_error("The numpy python module wasn't detected, this is required to try and detect peak daily temperature in real time.")
+        except (ImportError, Exception):
+            fatal_error(f"The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
         if data_dir is None:
