@@ -178,7 +178,6 @@
         #set $var = "cloudbase"
         #if $current.cloudbase is not None and $current.cloudbase.has_data
             #set $inigoData["cloudbase"] = $current.cloudbase.raw
-            #set $inigoData["unit_cloudbase"] = $unit.unit_type.cloudbase.strip()
         #end if
     #except
         #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var]
