@@ -23,6 +23,13 @@ def fatal_error(error_str):
     print()
     raise weewx.UnsupportedFeature("Fatal Error")
 
+def is_integer(s):
+
+    try:
+        int(s)
+        return True
+    except (ValueError, TypeError):
+        return False
 
 class InigoInstaller(ExtensionInstaller):
 
@@ -66,10 +73,17 @@ class InigoInstaller(ExtensionInstaller):
 
             if arg == "--since-hour":
 
-                self.since_hour = int(next(args_iter, 0))
+                arg = next(args_iter, "0")
 
-                if not 0 <= self.since_hour <= 23:
-                    fatal_error("Since hour isn't valid, you need to specify a number between 0 and 23 or leave unset for midnight")
+                if is_integer(arg):
+
+                    self.since_hour = int(arg)
+
+                    if 0 <= self.since_hour <= 23:
+                        fatal_error("'{self.since_hour}' isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
+
+                else:
+                    fatal_error("{arg} isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
 
     def configure(self, engine):
 
