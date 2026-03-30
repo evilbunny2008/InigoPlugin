@@ -251,7 +251,7 @@ def convert_temp_to_float(temp):
 
         return temp_f
     except (ValueError, TypeError, Exception) as e:
-        log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e))}, skipping...")
+        log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
