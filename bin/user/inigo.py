@@ -22,9 +22,7 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-_, installer = weecfg.get_extension_installer("Inigo")
-
-VERSION = installer.get("version")
+VERSION = "x.x.x"
 
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
@@ -172,7 +170,14 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION
+
+    ext_dir = config_dict.get("EXT_DIR", None)
+    if ext_dir is not None:
+        ext_cache_dir = os.path.join(ext_dir, "Inigo")
+        _, installer = weecfg.get_extension_installer("Inigo")
+        VERSION = installer.get("version")
+        log.info(f"VERSION = {VERSION}")
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
