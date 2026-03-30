@@ -66,18 +66,20 @@ class InigoInstaller(ExtensionInstaller):
         if engine.config_dict is None:
             raise weewx.UnsupportedFeature("engine.config_dict is None, can't continue...")
 
-        skin_dir = engine.root_dict.get('SKIN_DIR')
-        if skin_dir is None:
-            raise weewx.UnsupportedFeature("skin_dir is None, can't continue...")
-
-        uid = os.getuid()
-        statinfo = os.stat(skin_dir)
-        suid = statinfo.st_uid
-        sgid = statinfo.st_gid
+        try:
+            import numpy
+            del numpy
+        except ImportError:
+            raise weewx.UnsupportedFeature("The numpy python module wasn't detected, this is required to try and detect peak daily temperature in real time.")
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
         if data_dir is None:
             raise weewx.UnsupportedFeature("SQLITE_ROOT is None, can't continue...")
+
+        uid = os.getuid()
+        statinfo = os.stat(data_dir)
+        duid = statinfo.st_uid
+        dgid = statinfo.st_gid
 
         cache_dir = os.path.join(data_dir, "inigo")
 
@@ -86,6 +88,9 @@ class InigoInstaller(ExtensionInstaller):
 
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir, exist_ok=True)
+
+        if not os.path.exists(cache_dir):
+            raise weewx.UnsupportedFeature("Failed to create the directory for the InigoService cache files, can't continue...")
 
         desired_mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH | stat.S_ISGID
         current_mode = os.stat(cache_dir).st_mode
@@ -102,6 +107,9 @@ class InigoInstaller(ExtensionInstaller):
             for fn in os.listdir(cache_dir):
                 os.chown(os.path.join(cache_dir, fn), suid, sgid)
 
+        if current_mode != desired_mode | stat.S_IFDIR or cuid != suid or cgid != sgid:
+            raise weewx.UnsupportedFeature("Failed to set the correct permissions for the InigoService cache directory, can't continue...")
+
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
             raise weewx.UnsupportedFeature("StdReport is None, can't continue...")
@@ -109,9 +117,6 @@ class InigoInstaller(ExtensionInstaller):
         inigo_dict = stdreport_dict.get("Inigo")
         if inigo_dict is None:
             raise weewx.UnsupportedFeature("Inigo section of weewx.conf is None, can't continue...")
-
-        if not os.path.exists(cache_dir):
-            raise weewx.UnsupportedFeature("Failed to create or change ownership of {cache_dir}, can't continue...")
 
         if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
             inigo_dict["cache_dir"] = cache_dir
