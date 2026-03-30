@@ -25,6 +25,12 @@ log = logging.getLogger(__name__)
 VERSION = "1.0.0"
 JSONversion = 1000000
 
+mm = 0
+inch = 1
+cm = 2
+C = 0
+F = 1
+
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
 influence = default_influence = 0.02
@@ -36,7 +42,8 @@ current_ts = 0
 current_signal = 0
 current_count = 0
 cache_dir = "/tmp/inigo"
-usUnit = weewx.METRIC
+temp_unit = C
+rain_unit = mm
 pickle_filename = None
 db_lookup = None
 
@@ -46,6 +53,15 @@ last_report_ts = 0
 last_report = None
 
 REQUIRED_WEEWX = "5.3.0"
+
+weewx.units.obs_group_dict["since_hour"] = "group_time"
+weewx.units.obs_group_dict["since_today"] = "group_rain"
+weewx.units.obs_group_dict["since_yesterday"] = "group_rain"
+weewx.units.obs_group_dict["since_month_to_date"] = "group_rain"
+weewx.units.obs_group_dict["since_last_month"] = "group_rain"
+weewx.units.obs_group_dict["since_year_to_date"] = "group_rain"
+weewx.units.obs_group_dict["since_last_year"] = "group_rain"
+weewx.units.obs_group_dict["since_alltime"] = "group_rain"
 
 def fatal_error(error_str):
 
@@ -179,7 +195,7 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION, JSONversion
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -219,11 +235,20 @@ def processConfigDict(class_name, config_dict):
              since_hour = int(inigo.get("since_hour", 0))
              units = inigo.get("Units", None)
              if units is not None:
+
                  groups = units.get("Groups", None)
                  if groups is not None:
+
+                     rain_group = groups.get("group_rain", None)
+                     if rain_group is not None and rain_group == "inch":
+                         rain_unit = inch
+
+                     if rain_group is not None and rain_group == "cm":
+                         rain_unit = cm
+
                      temp_group = groups.get("group_temperature", None)
                      if temp_group is not None and temp_group == "degree_F":
-                         usUnit = weewx.US
+                         temp_unit = imperial
 
     uid = os.getuid()
     statinfo = os.stat(cache_dir)
