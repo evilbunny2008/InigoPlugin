@@ -243,41 +243,44 @@ def processConfigDict(class_name, config_dict):
 
 def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
-    if time_period in (time_periods().today, time_periods().yesterday):
+    if time_period in ("today", "yesterday"):
         context="day"
-    elif time_period in (time_periods().month_to_date, time_periods().last_month):
+    elif time_period in ("month_to_date", "last_month"):
         context="month"
-    elif time_period in (time_periods().year_to_date, time_periods().last_year):
+    elif time_period in ("year_to_date", "last_year"):
         context="year"
-    else:
+    elif time_period == "alltime":
         context="alltime"
+    else:
+        log.info(f"'{time_period}' is invalid, skipping...")
+        return
 
     stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
     start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
     if stop_time < start_time:
         start_time -= timedelta(days=1)
 
-    if time_period == time_periods().yesterday:
+    if time_period == "yesterday":
         stop_time = start_time - timedelta(microseconds=1)
         start_time -= timedelta(days=1)
 
-    elif time_period == time_periods().month_to_date:
+    elif time_period == "month_to_date":
         stop_time = current_stop_time
         start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods().last_month:
+    elif time_period == "last_month":
         stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
         start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods().year_to_date:
+    elif time_period == "year_to_date":
         stop_time = current_stop_time
         start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods().last_year:
+    elif time_period == "last_year":
         stop_time = current_stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
         start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods().alltime:
+    elif time_period == "alltime":
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -285,7 +288,7 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     period = weewx.tags.TimespanBinder(tspan, db_lookup, context=context)
 
-    log.info(f"{class_name} period.rain.sum.raw: {period.rain.sum.raw}")
+    log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
     return period.rain.sum.raw
 
@@ -314,18 +317,6 @@ def convert_temp_to_float(temp):
         return temp_f
     except (ValueError, TypeError, Exception) as e:
         log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
-
-class time_periods():
-
-    def __init__(self):
-
-        self.today = 0
-        self.yesterday = 1
-        self.month_to_date = 2
-        self.last_month = 3
-        self.year_to_date = 4
-        self.last_year = 5
-        self.alltime = 6
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -479,13 +470,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().today)
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().yesterday)
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().month_to_date)
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().last_month)
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().year_to_date)
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().last_year)
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().alltime)
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "today")
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "yesterday")
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "month_to_date")
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "last_month")
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "year_to_date")
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "last_year")
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "alltime")
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
@@ -516,6 +507,8 @@ class InigoService(weewx.engine.StdService):
 
         super(InigoService, self).__init__(engine, config_dict)
 
+        self.done_work = False
+
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, config_dict)
             load_pickle_data(self.__class__.__name__)
@@ -540,6 +533,8 @@ class InigoService(weewx.engine.StdService):
     def handle_loop_packet(self, event):
 
         global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
+
+        self.done_work = True
 
         packet = event.packet
 
@@ -593,6 +588,7 @@ class InigoService(weewx.engine.StdService):
 
     def shutDown(self):
 
-        save_pickle_data(self.__class__.__name__, True)
+        if self.done_work:
+            save_pickle_data(self.__class__.__name__, True)
 
         log.info(f"{self.__class__.__name__} v{VERSION} stopped")
