@@ -376,15 +376,18 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         log.info(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
 
         if peak_detector is None:
-            fatal_error(f"{self.__class__.__name__} failed to detect InigoService running, exitting...")
+            fatal_error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, exitting...")
 
         t1 = time.time()
 
-        if last_report_ts == timespan.stop and last_report is not None:
-            return [{"inigo": {"ts": last_report_ts, "report": last_report}}]
+        def sort_dict(dict_name):
+            return dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
 
-        log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
-        log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
+        if last_report_ts == timespan.stop and last_report is not None:
+            return [{"inigo": {"version": JSONversion, "ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+
+        #log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
+        #log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
 
         search_list_ts = []
         search_list_signal = []
@@ -396,9 +399,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             search_list_signal += [current_signal]
             search_list_count += [current_count]
 
-            log.info(f"{self.__class__.__name__} search_list_ts: {current_ts}")
-            log.info(f"{self.__class__.__name__} search_list_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} search_list_count: {current_count}")
+            log.info(f"{self.__class__.__name__} InigoSearchList current_ts: {current_ts}")
+            log.info(f"{self.__class__.__name__} InigoSearchList current_signal: {current_signal}")
+            log.info(f"{self.__class__.__name__} InigoSearchList current_count: {current_count}")
 
         for ts, signal, count in reversed(trend_history):
 
@@ -417,9 +420,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
         since_today, since_yesterday = get_since_rain(self.__class__.__name__, timespan.stop)
-
-        def sort_dict(dict_name):
-            return dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
