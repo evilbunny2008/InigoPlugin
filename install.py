@@ -93,6 +93,7 @@ class InigoInstaller(ExtensionInstaller):
 
         try:
             import numpy
+            print("The numpy python module was found")
             del numpy
         except ImportError:
             fatal_error("The numpy python module wasn't detected, this is required to try and detect peak daily temperature in real time.")
