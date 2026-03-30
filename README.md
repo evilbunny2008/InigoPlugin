@@ -38,7 +38,7 @@ sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin
 
 ### Install with the rain reset at 9am
 
-Historically rainfall in Australia was given to 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the old [Bureau of Meteorology](https://reg.bom.gov.au) website. To enable this use the --since-hour command line argument while installing with an hour between 0 and 23, otherwise midnight will be used.
+Historically rainfall in Australia was given to 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the old [Bureau of Meteorology](https://reg.bom.gov.au) website. To enable this use the --since-hour command line argument on first install with an hour between 0 and 23, otherwise midnight will be used.
 
 ```
 sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --since-hour 9
