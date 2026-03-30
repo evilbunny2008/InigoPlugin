@@ -59,8 +59,6 @@ except (ImportError, Exception):
     raise weewx.UnsupportedFeature(
         f"InigoService v{VERSION} requires the numpy python module to be installed.")
 
-
-
 def load_pickle_data(class_name):
 
     global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
@@ -447,9 +445,15 @@ class InigoService(weewx.engine.StdService):
             return ts, None
 
         try:
-            return ts, round(float(temp), 1)
-        except (ValueError, TypeError):
-            return ts, None
+            temp_f = float(temp)
+
+            if not isinstance(temp_f, float):
+                log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f)}' but this is probably wrong, no error generated, skipping...")
+                return ts, None
+
+            return ts, temp_f
+        except (ValueError, TypeError, Exception) as e:
+            log.info(f"Failed to convert '{temp}' to a float, e: str(e)), skipping...")
 
         return ts, None
 
