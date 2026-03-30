@@ -488,10 +488,12 @@ class InigoService(weewx.engine.StdService):
             return
 
         ts, temp = ret
+
+        if ts is not None and ts > 0:
+            last_ts = ts
+
         if temp is None:
             return
-
-        last_ts = ts
 
         signal = peak_detector.thresholding_algo(temp)
 
