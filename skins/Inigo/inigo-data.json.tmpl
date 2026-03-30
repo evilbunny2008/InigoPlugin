@@ -298,12 +298,6 @@
                 ##
                 #set $time_periods = ["today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
                 #for $time_period in $time_periods
-                    #echo "since_" + $time_period + "\n"
-                    #try
-                        #echo $report["since_" + $time_period] + "\n"
-                    #except
-                        #echo "failed to access since_" + $time_period + "\n"
-                    #end try
                     #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
                 #end for
                 ##
