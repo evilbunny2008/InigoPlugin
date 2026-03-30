@@ -28,7 +28,8 @@ def is_integer(s):
     try:
         int(s)
         return True
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as e:
+        print(str(e))
         return False
 
 class InigoInstaller(ExtensionInstaller):
