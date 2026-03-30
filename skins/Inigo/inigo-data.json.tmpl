@@ -3,6 +3,7 @@
 ##
 ##
 #import json
+#import weewx.units
 ##
 #from Cheetah import NameMapper
 ##
@@ -250,6 +251,8 @@
     #try
         #set $var = "group_unit_dict"
         #set $inigoData[$var] = $sort_dict($converter.group_unit_dict)
+        #set $var = "obs_group_dict"
+        #set $inigoData[$var] = $sort_dict($weewx.units.obs_group_dict)
         #set $var = "unit_format_dict"
         #set $inigoData[$var] = $sort_dict($formatter.unit_format_dict)
         #set $var = "unit_label_dict"

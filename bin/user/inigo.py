@@ -60,7 +60,6 @@ weewx.units.obs_group_dict['since_year_to_date'] = 'group_rain'
 weewx.units.obs_group_dict['since_last_year'] = 'group_rain'
 weewx.units.obs_group_dict['since_alltime'] = 'group_rain'
 
-
 REQUIRED_WEEWX = "5.3.0"
 
 def fatal_error(error_str):
@@ -454,20 +453,25 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             processingErrors = dict_name.get("processingErrors", None)
             if processingErrors is not None:
                 del dict_name["processingErrors"]
-            else:
-                processingErrors = []
 
-            if dict_name.get("version", None) is not None:
+            version = dict_name.get("version", None)
+            if version is not None:
                 del dict_name["version"]
 
             new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
 
             now_dict = {}
 
+            if version is not None:
+                now_dict["version"] = version
+
             if now is not None:
                 now_dict["now"] = now
 
-            return {"version": JSONversion, **now_dict, "processingErrors": processingErrors, **new_dict}
+            if processingErrors is not None:
+                now_dict["processingErrors"] = processingErrors
+
+            return {**now_dict, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
