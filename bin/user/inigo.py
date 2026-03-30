@@ -16,7 +16,7 @@ import weeutil.weeutil
 from collections import deque
 from datetime import datetime, timedelta
 from functools import reduce
-from weeutil.weeutil import TimeSpan
+from weeutil.weeutil import TimeSpan, to_float
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
 
@@ -271,7 +271,7 @@ def convert_temp_to_float(temp):
         return temp
 
     try:
-        temp_f = weeutil.to_float(temp)
+        temp_f = to_float(temp)
         if temp_f is None:
             return None
 
