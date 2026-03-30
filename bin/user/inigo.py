@@ -41,6 +41,7 @@ pickle_filename = None
 db_lookup = None
 
 since_hour = 0
+time_periods = time_periods()
 
 last_report_ts = 0
 last_report = None
@@ -241,30 +242,55 @@ def processConfigDict(class_name, config_dict):
 
     db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
 
-def get_since_rain(class_name, timestamp):
+def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
-    stop_time = datetime.fromtimestamp(timestamp)
+    if time_period in (time_periods.today, time_periods.yesterday):
+        context="day"
+    elif time_period in (time_periods.month_to_date, time_periods.last_month):
+        context="month"
+    elif time_period in (time_periods.year_to_date, time_periods.last_year):
+        context="year"
+    else:
+        context="alltime"
+
+    stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
     start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
-
     if stop_time < start_time:
         start_time -= timedelta(days=1)
 
+    if time_period == time_periods.yesterday:
+        stop_time = start_time - timedelta(microseconds=1)
+        start_time -= timedelta(days=1)
+
+    elif time_period == time_periods.month_to_date:
+        stop_time = current_stop_time
+        start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+
+    elif time_period == time_periods.last_month:
+        stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        start_time = stop_time - timedelta(months=1)
+        stop_time -= timedelta(microseconds=1)
+
+    elif time_period == time_periods.year_to_date:
+        stop_time = current_stop_time
+        start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+
+    elif time_period == time_periods.last_year:
+        stop_time = current_stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        start_time = stop_time - timedelta(years=1)
+        stop_time -= timedelta(microseconds=1)
+
+    elif time_period == time_periods.alltime:
+        stop_time = current_stop_time
+        start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
     tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
-    today = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
+    period = weewx.tags.TimespanBinder(tspan, db_lookup, context=context)
 
-    start_time -= timedelta(days=1)
-    stop_time -= timedelta(days=1)
+    log.info(f"{class_name} period.rain.sum.raw: {period.rain.sum.raw}")
 
-    tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
-
-    yesterday = weewx.tags.TimespanBinder(tspan, db_lookup, context="day")
-
-    #log.info(f"{class_name} since_hour: {since_hour}")
-    #log.info(f"{class_name} today.rain.sum.raw: {today.rain.sum.raw}")
-    #log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
-
-    return today.rain.sum.raw, yesterday.rain.sum.raw
+    return period.rain.sum.raw
 
 def convert_to_int(str):
 
@@ -291,6 +317,18 @@ def convert_temp_to_float(temp):
         return temp_f
     except (ValueError, TypeError, Exception) as e:
         log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
+
+class time_periods():
+
+    def __init__(self):
+
+        self.today = 0
+        self.yesterday = 1
+        self.month_to_date = 2
+        self.last_month = 3
+        self.year_to_date = 4
+        self.last_year = 5
+        self.alltime = 6
 
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
@@ -444,7 +482,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today, since_yesterday = get_since_rain(self.__class__.__name__, timespan.stop)
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.today)
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.yesterday)
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.month_to_date)
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.last_month)
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.year_to_date)
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.last_year)
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.alltime)
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
@@ -453,6 +497,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             "since_hour": since_hour,
             "since_today": since_today,
             "since_yesterday": since_yesterday,
+            "since_month_to_date": since_month_to_date,
+            "since_last_month": since_last_month,
+            "since_year_to_date": since_year_to_date,
+            "since_last_year": since_last_year,
+            "since_alltime": since_alltime,
         }
 
         last_report_ts = timespan.stop
