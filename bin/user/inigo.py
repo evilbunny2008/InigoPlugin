@@ -22,7 +22,8 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-VERSION = "x.x.x"
+VERSION = "1.0.0"
+JSONversion = 1000000
 
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
@@ -170,21 +171,35 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, usUnit, pickle_filename, db_lookup, since_hour, VERSION, JSONversion
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
         if root_dict is not None:
             ext_dir = root_dict.get("EXT_DIR", None)
             if ext_dir is not None:
-                log.info(f"root_dict: {root_dict}")
                 ext_cache_dir = os.path.join(ext_dir, "Inigo")
-                log.info(f"ext_cache_dir: {ext_cache_dir}")
                 _, installer = weecfg.get_extension_installer(ext_cache_dir)
-                VERSION = installer.get("version")
+                VERSION = installer.get("version", "0.0.0")
                 log.info(f"VERSION = {VERSION}")
+
+                major = minor = patch = 0
+                version = VERSON.split(".")
+                if len(version) > 0:
+                    major = convert_to_int(version[0])
+                if len(version) > 1:
+                    minor = convert_to_int(version[1])
+                if len(version) > 2:
+                    patch = convert_to_int(version[2])
+
+                if major < 1:
+                    major = 1
+
+                JSONversion = int(f"{major}{minor:03d}{patch:03d}")
+                log.info(f"JSONversion: {JSONversion}")
+
     except Exception as e:
-        log.info(f"Error! e: {str(e)}")
+        log.info(f"Error! Unable to get plugin version, e: {str(e)}")
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
@@ -241,6 +256,14 @@ def get_since_rain(class_name, timestamp):
     log.info(f"{class_name} yesterday.rain.sum.raw: {yesterday.rain.sum.raw}")
 
     return today.rain.sum.raw, yesterday.rain.sum.raw
+
+def convert_to_int(str):
+
+    newnum = convert_temp_to_float(str)
+    if newnum is None:
+        return 0
+
+    return int(newnum)
 
 def convert_temp_to_float(temp):
 
@@ -406,7 +429,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.info(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+        return [{"inigo": {"version": JSONversion, "ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
 class InigoService(weewx.engine.StdService):
 

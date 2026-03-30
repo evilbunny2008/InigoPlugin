@@ -8,11 +8,17 @@
 ##
 ##
 ##
-#set $inigoData = {"version": 2000002}
+#set $inigoData = {"version": 1000000}
 #set $inigoData["processingErrors"] = []
 ##
 ##
 #try
+    #if $inigo is not None
+        #set $inigoData["version"] = $inigo.get("version", 1000000)
+    #end if
+    ##
+    ##
+    ##
     #set $now=$current.dateTime.raw
     #set $inigoData["now"] = $now
     ##
