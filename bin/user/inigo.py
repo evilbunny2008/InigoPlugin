@@ -52,6 +52,15 @@ since_hour = 0
 last_report_ts = 0
 last_report = None
 
+weewx.units.obs_group_dict['since_today'] = 'group_rain'
+weewx.units.obs_group_dict['since_yesterday'] = 'group_rain'
+weewx.units.obs_group_dict['since_month_to_date'] = 'group_rain'
+weewx.units.obs_group_dict['since_last_month'] = 'group_rain'
+weewx.units.obs_group_dict['since_year_to_date'] = 'group_rain'
+weewx.units.obs_group_dict['since_last_year'] = 'group_rain'
+weewx.units.obs_group_dict['since_alltime'] = 'group_rain'
+
+
 REQUIRED_WEEWX = "5.3.0"
 
 def fatal_error(error_str):
