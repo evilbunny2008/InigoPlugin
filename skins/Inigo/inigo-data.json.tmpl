@@ -289,6 +289,12 @@
         #if $inigo is not None
             #set $time_periods = ["today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
             #for $time_period in $time_periods
+                #echo "since_" + $time_period
+                #try
+                    #echo $inigo["since_" + $time_period]
+                #except
+                    #echo "failed to access since_" + $time_period
+                #end try
                 #set $inigoData["since_" + $time_period] = $inigo.get("since_" + $time_period, 0)
             #end for
             ##
