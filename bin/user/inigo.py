@@ -207,16 +207,16 @@ def processConfigDict(class_name, config_dict):
 
                 major = 1
                 minor = patch = 0
-                version = VERSION.split(".")
+                Inigoversion = VERSION.split(".")
 
-                if len(version) > 0:
-                    major = convert_to_int(version[0])
+                if len(Inigoversion) > 0:
+                    major = convert_to_int(Inigoversion[0])
 
-                if len(version) > 1:
-                    minor = convert_to_int(version[1])
+                if len(Inigoversion) > 1:
+                    minor = convert_to_int(Inigoversion[1])
 
-                if len(version) > 2:
-                    patch = convert_to_int(version[2])
+                if len(Inigoversion) > 2:
+                    patch = convert_to_int(Inigoversion[2])
 
                 if major < 1:
                     major = 1
@@ -454,16 +454,16 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if processingErrors is not None:
                 del dict_name["processingErrors"]
 
-            version = dict_name.get("version", None)
-            if version is not None:
+            dict_version = dict_name.get("version", None)
+            if dict_version is not None:
                 del dict_name["version"]
 
             new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
 
             now_dict = {}
 
-            if version is not None:
-                now_dict["version"] = version
+            if dict_version is not None:
+                now_dict["version"] = dict_version
 
             if now is not None:
                 now_dict["now"] = now
