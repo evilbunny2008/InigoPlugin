@@ -163,6 +163,7 @@ def reset_peak_detector(class_name):
         for row in stats.records():
             outTemp = convert_temp_to_float(row.outTemp.raw)
             if outTemp is None:
+                log.info(f"outTemp '{row.outTemp.raw}' type '{type(row.outTemp.raw).__name__}' failed to convert to float, skipping...")
                 continue
 
             initial_data += [outTemp]
@@ -284,7 +285,7 @@ def convert_temp_to_float(temp):
             return None
 
         if not isinstance(temp_f, float):
-            log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f)}' but this is probably wrong, no error generated, skipping...")
+            log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f).__name__}' but this is probably wrong, no error generated, skipping...")
             return None
 
         return temp_f
