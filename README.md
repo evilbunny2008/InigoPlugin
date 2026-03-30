@@ -11,7 +11,7 @@ Before you can use the app, you need to add this plugin to weeWX. To find out mo
 
 It's surprisingly difficult to calculate when the daily peak temperature has been reached in real time, as passing clouds and other weather phenomenon can temporarily cause the temperatures to decrease before increasing again and given the right set of circumstances this can prematurely trigger notifications in the app.
 
-A possible was to detect peak daily temperature in real time is by using [a z-score algorithm](https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135) and to supply temperature data from loop packets to the algorithm.
+A possible way to detect peak daily temperature in real time is by using [a z-score algorithm](https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135) and to supply temperature data from loop packets to the algorithm.
 
 You need to install the numpy library so the peak detection algorithm can synthesise loop packet temperature data from archive records on startup.
 
