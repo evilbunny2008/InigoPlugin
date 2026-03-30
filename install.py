@@ -73,17 +73,18 @@ class InigoInstaller(ExtensionInstaller):
 
             if arg == "--since-hour":
 
-                arg = next(args_iter, "0")
+                arg = next(args_iter, "-1")
 
-                if is_integer(arg):
+                if arg != "-1":
+                    if is_integer(arg):
 
-                    self.since_hour = int(arg)
+                        self.since_hour = int(arg)
 
-                    if not 0 <= self.since_hour <= 23:
-                        fatal_error(f"'{self.since_hour}' isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
+                        if not 0 <= self.since_hour <= 23:
+                            fatal_error(f"'{self.since_hour}' isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
 
-                else:
-                    fatal_error(f"{arg} isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
+                    else:
+                        fatal_error(f"{arg} isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
 
     def configure(self, engine):
 
