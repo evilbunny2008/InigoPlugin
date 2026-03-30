@@ -110,7 +110,10 @@ class InigoInstaller(ExtensionInstaller):
         if inigo_dict is None:
             raise weewx.UnsupportedFeature("Inigo section of weewx.conf is None, can't continue...")
 
-        if os.path.exists(cache_dir) and "cache_dir" not in inigo_dict:
+        if not os.path.exists(cache_dir):
+            raise weewx.UnsupportedFeature("Failed to create or change ownership of {cache_dir}, can't continue...")
+
+        if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
             inigo_dict["cache_dir"] = cache_dir
 
         if "since" in inigo_dict:
@@ -119,18 +122,18 @@ class InigoInstaller(ExtensionInstaller):
         if "since_hour" not in inigo_dict:
             if 0 <= self.since_hour <= 23:
                 inigo_dict["since_hour"] = self.since_hour
+            else:
+                inigo_dict["since_hour"] = 0
 
         else:
-            tmpsince = int(inigo_dict.get("since_hour", 0))
+            tmpsince = int(inigo_dict.get("since_hour", -1))
 
             if 0 <= self.since_hour <= 23:
-
                 if self.since_hour != tmpsince:
-                    tmpsince = self.since_hour
                     inigo_dict["since_hour"] = self.since_hour
 
-            if not 0 <= tmpsince <= 23:
-               inigo_dict["since_hour"] = 0
+            elif not 0 <= tmpsince <= 23:
+                inigo_dict["since_hour"] = 0
 
         if "Units" in inigo_dict:
             del inigo_dict["Units"]
