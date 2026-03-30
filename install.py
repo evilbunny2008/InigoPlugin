@@ -26,13 +26,9 @@ def fatal_error(error_str):
 def is_integer(s):
 
     try:
-        print(f"Checking if '{s}' is an integer")
         int(s)
-        print(f"'{s}' is an integer")
         return True
     except (ValueError, TypeError) as e:
-        print(str(e))
-        print(f"'{s}' isn't an integer")
         return False
 
 class InigoInstaller(ExtensionInstaller):
@@ -83,7 +79,7 @@ class InigoInstaller(ExtensionInstaller):
 
                     self.since_hour = int(arg)
 
-                    if 0 <= self.since_hour <= 23:
+                    if not 0 <= self.since_hour <= 23:
                         fatal_error(f"'{self.since_hour}' isn't valid hour, you need to specify a number between 0 and 23 or leave unset to keep the current setting")
 
                 else:
