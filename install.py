@@ -112,11 +112,12 @@ class InigoInstaller(ExtensionInstaller):
         cache_uid = statinfo.st_uid
         cache_gid = statinfo.st_gid
 
-        if cache_uid != dir_uid or cache_gid != data_gid:
+        if cache_uid != data_uid or cache_gid != data_gid:
             os.chown(cache_dir, data_uid, data_gid)
             for fn in os.listdir(cache_dir):
                 os.chown(os.path.join(cache_dir, fn), data_uid, data_gid)
 
+        current_mode = os.stat(cache_dir).st_mode
         statinfo = os.stat(cache_dir)
         cache_uid = statinfo.st_uid
         cache_gid = statinfo.st_gid
