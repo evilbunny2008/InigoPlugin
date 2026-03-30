@@ -436,7 +436,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         t2 = time.time()
 
-        log.info(f"{self.__class__.__name__} Since SLE executed in {(t2-t1):.3f} seconds")
+        log.info(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
         return [{"inigo": {"version": JSONversion, "ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
