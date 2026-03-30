@@ -267,7 +267,7 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
     elif time_period == time_periods().last_month:
         stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        start_time = stop_time.replace.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
     elif time_period == time_periods().year_to_date:
         stop_time = current_stop_time
