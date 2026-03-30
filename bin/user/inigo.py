@@ -382,6 +382,14 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         t1 = time.time()
 
         def sort_dict(dict_name):
+
+            if dict_name is None or len(dict_name) == 0:
+                return dict_name
+
+            now = dict_name.get("now", None)
+            if now is not None:
+                del dict_name["now"]
+
             processingErrors = dict_name.get("processingErrors", None)
             if processingErrors is not None:
                 del dict_name["processingErrors"]
@@ -392,7 +400,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 del dict_name["version"]
 
             new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
-            return {"version": JSONversion, "processingErrors": processingErrors, **new_dict}
+
+            now_dict = {}
+
+            if now is not None:
+                now_dict["now"] = now
+
+            return {"version": JSONversion, **now_dict, "processingErrors": processingErrors, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
