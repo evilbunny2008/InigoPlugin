@@ -455,6 +455,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 del dict_name["processingErrors"]
 
             dict_version = dict_name.get("version", None)
+
+            log.info(f"dict_version: {dict_version}")
+
             if dict_version is not None:
                 del dict_name["version"]
 
