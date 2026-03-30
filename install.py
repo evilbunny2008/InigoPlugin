@@ -15,6 +15,15 @@ def loader():
 
     return InigoInstaller()
 
+def fatal_error(error_str):
+
+    print()
+    print(error_str)
+    print()
+    print()
+    raise weewx.UnsupportedFeature("Fatal Error")
+
+
 class InigoInstaller(ExtensionInstaller):
 
     def __init__(self):
@@ -51,30 +60,31 @@ class InigoInstaller(ExtensionInstaller):
 
     def process_args(self, args):
 
-        for arg in args:
+        args_iter = iter(args)
 
-            if arg.startswith("--since-hour-"):
+        for arg in args_iter:
 
-                split_strs = arg.split("--since-hour-", 2)
-                self.since_hour = int(split_strs[1])
+            if arg == "--since-hour":
+
+                self.since_hour = int(next(args_iter, 0))
 
                 if not 0 <= self.since_hour <= 23:
-                    raise weewx.UnsupportedFeature(f"Since hour isn't valid, you need to specify a number between 0 and 23")
+                    fatal_error("Since hour isn't valid, you need to specify a number between 0 and 23")
 
     def configure(self, engine):
 
         if engine.config_dict is None:
-            raise weewx.UnsupportedFeature("engine.config_dict is None, can't continue...")
+            fatal_error("engine.config_dict is None, can't continue...")
 
         try:
             import numpy
             del numpy
         except ImportError:
-            raise weewx.UnsupportedFeature("The numpy python module wasn't detected, this is required to try and detect peak daily temperature in real time.")
+            fatal_error("The numpy python module wasn't detected, this is required to try and detect peak daily temperature in real time.")
 
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
         if data_dir is None:
-            raise weewx.UnsupportedFeature("SQLITE_ROOT is None, can't continue...")
+            fatal_error("SQLITE_ROOT is None, can't continue...")
 
         uid = os.getuid()
         statinfo = os.stat(data_dir)
@@ -90,7 +100,7 @@ class InigoInstaller(ExtensionInstaller):
             os.makedirs(cache_dir, exist_ok=True)
 
         if not os.path.exists(cache_dir):
-            raise weewx.UnsupportedFeature("Failed to create the directory for the InigoService cache files, can't continue...")
+            fatal_error("Failed to create the directory for the InigoService cache files, can't continue...")
 
         desired_mode = stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH | stat.S_ISGID
         current_mode = os.stat(cache_dir).st_mode
@@ -112,15 +122,15 @@ class InigoInstaller(ExtensionInstaller):
         cache_gid = statinfo.st_gid
 
         if current_mode != desired_mode | stat.S_IFDIR or cache_uid != data_uid or cache_gid != data_gid:
-            raise weewx.UnsupportedFeature("Failed to set the correct permissions for the InigoService cache directory, can't continue...")
+            fatal_error("Failed to set the correct permissions for the InigoService cache directory, can't continue...")
 
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
-            raise weewx.UnsupportedFeature("StdReport is None, can't continue...")
+            fatal_error("StdReport is None, can't continue...")
 
         inigo_dict = stdreport_dict.get("Inigo")
         if inigo_dict is None:
-            raise weewx.UnsupportedFeature("Inigo section of weewx.conf is None, can't continue...")
+            fatal_error("Inigo section of weewx.conf is None, can't continue...")
 
         if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
             inigo_dict["cache_dir"] = cache_dir
