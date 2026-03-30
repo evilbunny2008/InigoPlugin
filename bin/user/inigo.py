@@ -456,8 +456,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             dict_version = dict_name.get("version", None)
 
-            log.info(f"dict_version: {dict_version}")
-
             if dict_version is not None:
                 del dict_name["version"]
 
@@ -534,7 +532,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             "since_alltime": since_alltime,
         }
 
-        log.info(f"{self.__class__.__name__} since_hour: {since_hour}")
+        #log.info(f"{self.__class__.__name__} since_hour: {since_hour}")
         #log.info(f"since_today: {since_today}")
         #log.info(f"since_yesterday: {since_yesterday}")
         #log.info(f"since_month_to_date: {since_month_to_date}")
