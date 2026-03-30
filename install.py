@@ -78,8 +78,8 @@ class InigoInstaller(ExtensionInstaller):
 
         uid = os.getuid()
         statinfo = os.stat(data_dir)
-        duid = statinfo.st_uid
-        dgid = statinfo.st_gid
+        data_uid = statinfo.st_uid
+        data_gid = statinfo.st_gid
 
         cache_dir = os.path.join(data_dir, "inigo")
 
@@ -99,15 +99,19 @@ class InigoInstaller(ExtensionInstaller):
             os.chmod(cache_dir, desired_mode)
 
         statinfo = os.stat(cache_dir)
-        cuid = statinfo.st_uid
-        cgid = statinfo.st_gid
+        cache_uid = statinfo.st_uid
+        cache_gid = statinfo.st_gid
 
-        if cuid != suid or cgid != sgid:
-            os.chown(cache_dir, suid, sgid)
+        if cache_uid != dir_uid or cache_gid != data_gid:
+            os.chown(cache_dir, data_uid, data_gid)
             for fn in os.listdir(cache_dir):
-                os.chown(os.path.join(cache_dir, fn), suid, sgid)
+                os.chown(os.path.join(cache_dir, fn), data_uid, data_gid)
 
-        if current_mode != desired_mode | stat.S_IFDIR or cuid != suid or cgid != sgid:
+        statinfo = os.stat(cache_dir)
+        cache_uid = statinfo.st_uid
+        cache_gid = statinfo.st_gid
+
+        if current_mode != desired_mode | stat.S_IFDIR or cache_uid != data_uid or cache_gid != data_gid:
             raise weewx.UnsupportedFeature("Failed to set the correct permissions for the InigoService cache directory, can't continue...")
 
         stdreport_dict = engine.config_dict.get("StdReport", None)
