@@ -13,7 +13,7 @@ It's surprisingly difficult to calculate when the daily peak temperature has bee
 
 A possible way to detect peak daily temperature in real time is by using [a z-score algorithm](https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135) and to supply temperature data from loop packets to the algorithm.
 
-You need to install the numpy library so the peak detection algorithm can synthesise loop packet temperature data from archive records on startup.
+So the peak detection algorithm can synthesise loop packet temperature data from archive records on startup, the Python numpy module is required, to install numpy do one of the following:
 
 ```
 sudo apt update
