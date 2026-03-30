@@ -41,7 +41,6 @@ pickle_filename = None
 db_lookup = None
 
 since_hour = 0
-time_periods = time_periods()
 
 last_report_ts = 0
 last_report = None
@@ -244,11 +243,11 @@ def processConfigDict(class_name, config_dict):
 
 def get_modified_rain_reset_time(class_name, timestamp, time_period):
 
-    if time_period in (time_periods.today, time_periods.yesterday):
+    if time_period in (time_periods().today, time_periods().yesterday):
         context="day"
-    elif time_period in (time_periods.month_to_date, time_periods.last_month):
+    elif time_period in (time_periods().month_to_date, time_periods().last_month):
         context="month"
-    elif time_period in (time_periods.year_to_date, time_periods.last_year):
+    elif time_period in (time_periods().year_to_date, time_periods().last_year):
         context="year"
     else:
         context="alltime"
@@ -258,29 +257,29 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
     if stop_time < start_time:
         start_time -= timedelta(days=1)
 
-    if time_period == time_periods.yesterday:
+    if time_period == time_periods().yesterday:
         stop_time = start_time - timedelta(microseconds=1)
         start_time -= timedelta(days=1)
 
-    elif time_period == time_periods.month_to_date:
+    elif time_period == time_periods().month_to_date:
         stop_time = current_stop_time
         start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods.last_month:
+    elif time_period == time_periods().last_month:
         stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
         start_time = stop_time - timedelta(months=1)
         stop_time -= timedelta(microseconds=1)
 
-    elif time_period == time_periods.year_to_date:
+    elif time_period == time_periods().year_to_date:
         stop_time = current_stop_time
         start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
-    elif time_period == time_periods.last_year:
+    elif time_period == time_periods().last_year:
         stop_time = current_stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
         start_time = stop_time - timedelta(years=1)
         stop_time -= timedelta(microseconds=1)
 
-    elif time_period == time_periods.alltime:
+    elif time_period == time_periods().alltime:
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -482,13 +481,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.today)
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.yesterday)
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.month_to_date)
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.last_month)
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.year_to_date)
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.last_year)
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods.alltime)
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().today)
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().yesterday)
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().month_to_date)
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().last_month)
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().year_to_date)
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().last_year)
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, time_periods().alltime)
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
