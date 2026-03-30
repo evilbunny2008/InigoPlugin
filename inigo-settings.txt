@@ -1,5 +1,5 @@
 # For the stable version of the weeWX Weather App in the Google Play store
-data=https://example.com/weewx/inigo-data.txt
+#data=https://example.com/weewx/inigo-data.txt
 
 # For the beta version of the app which will be the new stable version at some point
 jsondata=https://example.com/weewx/inigo-data.json

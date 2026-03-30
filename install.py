@@ -43,7 +43,7 @@ class InigoInstaller(ExtensionInstaller):
         self.since_hour = -1
 
         super(InigoInstaller, self).__init__(
-            version="2.0.0",
+            version="2.0.2",
             name="Inigo",
             description="A skin to feed data to weeWx app",
             author="John Smith",

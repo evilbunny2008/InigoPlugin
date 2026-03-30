@@ -21,7 +21,7 @@ from weewx.tags import TimespanBinder
 
 log = logging.getLogger(__name__)
 
-VERSION = "2.0.0"
+VERSION = "2.0.2"
 
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
