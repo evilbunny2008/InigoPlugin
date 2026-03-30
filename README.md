@@ -28,7 +28,7 @@ pip install numpy
 
 ## How to Install the InigoPlugin on weeWX 5.3 or above
 
-### Install with rain reset at midnight
+### Install with rain reset at midnight or when updating
 
 ```
 sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
