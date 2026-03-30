@@ -187,15 +187,18 @@ def processConfigDict(class_name, config_dict):
             if ext_dir is not None:
                 ext_cache_dir = os.path.join(ext_dir, "Inigo")
                 _, installer = weecfg.get_extension_installer(ext_cache_dir)
-                VERSION = installer.get("version", "0.0.0")
-                log.info(f"VERSION = {VERSION}")
+                VERSION = installer.get("version", "1.0.0")
 
-                major = minor = patch = 0
+                major = 1
+                minor = patch = 0
                 version = VERSION.split(".")
+
                 if len(version) > 0:
                     major = convert_to_int(version[0])
+
                 if len(version) > 1:
                     minor = convert_to_int(version[1])
+
                 if len(version) > 2:
                     patch = convert_to_int(version[2])
 
@@ -203,7 +206,6 @@ def processConfigDict(class_name, config_dict):
                     major = 1
 
                 JSONversion = int(f"{major}{minor:03d}{patch:03d}")
-                log.info(f"JSONversion: {JSONversion}")
 
     except Exception as e:
         log.info(f"Error! Unable to get plugin version, e: {str(e)}")
@@ -371,7 +373,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         global last_report_ts, last_report
 
-        log.info(f"{self.__class__.__name__} get_extension_list() called!")
+        log.info(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
 
         if peak_detector is None:
             fatal_error(f"{self.__class__.__name__} failed to detect InigoService running, exitting...")
