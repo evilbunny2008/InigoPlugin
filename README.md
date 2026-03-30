@@ -6,30 +6,42 @@ The Inigo plugin for [weeWX](https://weeWX.com) was created to feed current cond
 
 Before you can use the app, you need to add this plugin to weeWX. To find out more about setting up and running weeWX, you can find more details on the [weeWX website](https://weewx.com/downloads/).
 
+
+## Peak Temperature Detection
+
+It's surprisingly difficult to calculate when the daily peak temperature has been reached in real time, as passing clouds and other weather phenomenon can temporarily cause the temperatures to decrease before increasing again and given the right set of circumstances this can prematurely trigger notifications in the app.
+
+One way to reliably detect peak daily temperature is by using [a z-score algorithm](https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135) and to feed the algorithm from temperature data from loop packets.
+
+You need to install the numpy library so the peak detector algorithm can synthesize loop packet temperature data from archive records on startup.
+
+```
+sudo apt update
+sudo apt -y install python3-numpy
+```
+
+or for pip installs
+
+```
+pip install numpy
+```
+
 ## How to Install the InigoPlugin on weeWX 5.3 or above
 
-weeWX 5.3 allows command line arguments to be passed to extention installation scripts
+weeWX 5.3 allows command line arguments to be passed to extension installation scripts
 
-### Install with metric defaults
+### Install with rain reset at midnight
 
 ```
 sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
 ```
 
-### Install with metric defaults but rain in imperial
+### Install with the rain reset at 9am
 
-Use the --rain-inches argument
-
-```
-sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --rain-inches
-```
-
-### Install with imperial defaults
-
-Use the --imperial argument
+Historically rainfall in Australia was given to 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the old [Bureau of Meteorology](https://reg.bom.gov.au) website. To enable this use the --since-hour-9 command line argument while installing.
 
 ```
-sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --imperial
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --since-hour-9
 ```
 
 ### Non system package installs
@@ -40,26 +52,14 @@ If installed weeWX using pip, instead of a system package, you may need to use f
 sudo /opt/weewx/weewx-venv/bin/weectl extension install --yes --config /opt/weewx/weewx-data/weewx.conf https://github.com/evilbunny2008/InigoPlugin/archive/master.zip 
 ```
 
-## Installing an Almanac (optional)
+## Installing the Skyfield almanac weeWX extension (optional)
 
-If you would like to see next moon rise/set in the app, you just need to install the skyfield extension
+If you would like to see next moon rise/set in the app, you need to install the Skyfield extension
 
 ```
 sudo apt update
 sudo apt -y install python3-numpy python3-pandas python3-skyfield
 sudo weectl extension install --yes https://github.com/roe-dl/weewx-skyfield-almanac/archive/master.zip
-```
-
-## Using offset rain times (optional)
-
-Historically rainfall is measured in Australia at 9am, so it's useful for comparison reasons to be able to display rain records matching time of day with the [Bureau of Meteorology](https://www.bom.gov.au). To enable this simply edit /etc/weewx/since.tmpl and paste the following into it:
-
-```
-#if $varExists('since')
-$since($hour=9).rain.sum.formatted|$since($hour=9,$today=False).rain.sum.formatted|9am|#slurp
-#else
-|||#slurp
-#end if
 ```
 
 ## Restarting weeWX
