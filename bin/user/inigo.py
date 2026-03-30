@@ -184,7 +184,7 @@ def processConfigDict(class_name, config_dict):
                 log.info(f"VERSION = {VERSION}")
 
                 major = minor = patch = 0
-                version = VERSON.split(".")
+                version = VERSION.split(".")
                 if len(version) > 0:
                     major = convert_to_int(version[0])
                 if len(version) > 1:
