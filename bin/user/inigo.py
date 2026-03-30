@@ -175,12 +175,12 @@ def processConfigDict(class_name, config_dict):
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
         if root_dict is not None:
-
             ext_dir = root_dict.get("EXT_DIR", None)
             if ext_dir is not None:
                 log.info(f"root_dict: {root_dict}")
                 ext_cache_dir = os.path.join(ext_dir, "Inigo")
-                _, installer = weecfg.get_extension_installer("Inigo")
+                log.info(f"ext_cache_dir: {ext_cache_dir}")
+                _, installer = weecfg.get_extension_installer(ext_cache_dir)
                 VERSION = installer.get("version")
                 log.info(f"VERSION = {VERSION}")
     except Exception as e:
