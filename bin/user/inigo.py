@@ -534,13 +534,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             "since_alltime": since_alltime,
         }
 
-        log.info(f"since_today: {since_today}")
-        log.info(f"since_yesterday: {since_yesterday}")
-        log.info(f"since_month_to_date: {since_month_to_date}")
-        log.info(f"since_last_month: {since_last_month}")
-        log.info(f"since_year_to_date: {since_year_to_date}")
-        log.info(f"since_last_year: {since_last_year}")
-        log.info(f"since_alltime: {since_alltime}")
+        #log.info(f"since_today: {since_today}")
+        #log.info(f"since_yesterday: {since_yesterday}")
+        #log.info(f"since_month_to_date: {since_month_to_date}")
+        #log.info(f"since_last_month: {since_last_month}")
+        #log.info(f"since_year_to_date: {since_year_to_date}")
+        #log.info(f"since_last_year: {since_last_year}")
+        #log.info(f"since_alltime: {since_alltime}")
 
         last_report_ts = timespan.stop
         last_report = search_list_extension
