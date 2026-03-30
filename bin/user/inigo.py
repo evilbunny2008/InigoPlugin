@@ -269,22 +269,29 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
         start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
     elif time_period == "last_month":
+        start_time = current_stop_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
+        log.info(f"start_time: {start_time}")
+        start_time = start_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        log.info(f"start_time: {start_time}")
         stop_time = current_stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
         log.info(f"stop_time: {stop_time}")
-        start_time = stop_time.replace(day=1, hour=since_hour, minute=0, second=0, microsecond=0)
-        log.info(f"start_time: {start_time}")
 
     elif time_period == "year_to_date":
         stop_time = current_stop_time
         start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
 
     elif time_period == "last_year":
+        start_time = current_stop_time.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
+        log.info(f"start_time: {start_time}")
+        start_time = start_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        log.info(f"start_time: {start_time}")
         stop_time = current_stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
-        start_time = stop_time.replace(month=1, day=1, hour=since_hour, minute=0, second=0, microsecond=0)
+        log.info(f"stop_time: {stop_time}")
 
     elif time_period == "alltime":
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        log.info(f"start_time: {start_time}")
 
     tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
