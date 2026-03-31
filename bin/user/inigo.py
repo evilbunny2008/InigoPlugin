@@ -33,6 +33,9 @@ cm = 2
 C = 0
 F = 1
 
+_config_dict = None
+_skin_dict = None
+
 lag = default_lag = 1800
 threshold = default_threshold = 2.0
 influence = default_influence = 0.02
@@ -196,7 +199,9 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit, _config_dict
+
+    _config_dict = config_dict
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -459,20 +464,20 @@ class PeriodicReportTiming(ReportTiming):
                 ts_hi is checked.
         """
 
-        skin_name = self.skin_dict["SKIN_NAME"]
+        skin_name = _skin_dict["SKIN_NAME"]
 
         log.info(f"Checking report timing for {skin_name}")
 
         if skin_name == "Inigo-Dicts":
 
-            html_dest_dir = self.config_dict["WEEWX_ROOT"]
+            html_dest_dir = _config_dict["WEEWX_ROOT"]
 
-            copy_dict = self.skin_dict.get("PeriodicReportGenerator", None)
+            copy_dict = _skin_dict.get("PeriodicReportGenerator", None)
 
             if copy_dict is not None:
                 log_success = to_bool(weeutil.config.search_up(copy_dict, "log_success", True))
 
-            templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
+            templates = dict_search(_skin_dict.get("CheetahGenerator", None), "template")
 
             for template in templates:
 
@@ -550,6 +555,17 @@ class PeriodicReportTiming(ReportTiming):
         # return None
         return None
 
+original_run = weewx.reportengine.StdReportEngine.run
+
+def patched_run(self):
+
+    global _skin_dict
+
+    _skin_dict = self.skin_dict
+
+    original_run(self)
+
+weewx.reportengine.StdReportEngine.run = patched_run
 weewx.reportengine.ReportTiming = PeriodicReportTiming
 
 
