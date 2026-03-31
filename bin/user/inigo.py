@@ -555,18 +555,132 @@ class PeriodicReportTiming(ReportTiming):
         # return None
         return None
 
-original_run = weewx.reportengine.StdReportEngine.run
+def patched_run(self, reports=None):
+    """This is where the actual work gets done.
 
-def patched_run(self):
+    Args:
+        reports(list[str]|None): If None, run all enabled reports. If a list, run only the
+            reports in the list, whether they are enabled or not.
+    """
 
-    global _skin_dict
+    if self.gen_ts:
+        log.debug("Running reports for time %s",
+                  weeutil.weeutil.timestamp_to_string(self.gen_ts))
+    else:
+        log.debug("Running reports for latest time in the database.")
 
-    _skin_dict = self.skin_dict
+    # If we have not been given a list of reports to run, then run all reports (although not
+    # all of them may be enabled).
+    run_reports = reports or self.config_dict['StdReport'].sections
 
-    original_run(self)
+    # Iterate over each requested report
+    for report in run_reports:
+
+        # Ignore the [[Defaults]] section
+        if report == 'Defaults':
+            continue
+
+        # If reports is None, then we need to check whether this particular report has
+        # been enabled.
+        if reports is None:
+            enabled = to_bool(self.config_dict['StdReport'][report].get('enable', True))
+            if not enabled:
+                log.debug("Report '%s' not enabled. Skipping.", report)
+                continue
+
+        log.debug("Running report '%s'", report)
+
+        # Fetch and build the skin_dict:
+        try:
+            skin_dict = build_skin_dict(self.config_dict, report)
+        except SyntaxError as e:
+            log.error("Syntax error: %s", e)
+            log.error("   ****       Report ignored")
+            continue
+
+        # Default action is to run the report. Only reason to not run it is
+        # if we have a valid report report_timing, and it did not trigger.
+        if self.record:
+            # StdReport called us not "weectl report run" so look for a report_timing
+            # entry if we have one.
+            timing_line = skin_dict.get('report_timing')
+            if timing_line:
+                # Get a ReportTiming object.
+                timing = PeriodicReportTiming(timing_line)
+                if timing.is_valid:
+                    # Get timestamp and interval, so we can check if the
+                    # report timing is triggered.
+                    _ts = self.record['dateTime']
+                    _interval = self.record['interval'] * 60
+                    # Is our report timing triggered? timing.is_triggered
+                    # returns True if triggered, False if not triggered
+                    # and None if an invalid report timing line.
+                    if timing.is_triggered(_ts, _ts - _interval) is False:
+                        # report timing was valid but not triggered so do
+                        # not run the report.
+                        log.debug("Report '%s' skipped due to report_timing setting", report)
+                        continue
+                else:
+                    log.debug("Invalid report_timing setting for report '%s', "
+                              "running report anyway", report)
+                    log.debug("       ****  %s", timing.validation_error)
+
+        skin_dir = Path(self.config_dict['WEEWX_ROOT'],
+                        skin_dict['SKIN_ROOT'],
+                        skin_dict['skin'])
+
+        # We are using two "with" statements below:
+        # 1. Set the current working directory to the skin's location. This allows #include
+        # statements to work.
+        # 2. Set the locale to 'lang'. If 'lang' was not specified, set it to the user's
+        # default locale.
+        with set_cwd(skin_dir) as cwd, set_locale(skin_dict.get('lang', '')) as loc:
+            log.debug("Running generators for report '%s' in directory '%s' with locale '%s'",
+                      report, cwd, loc)
+
+            if 'Generators' in skin_dict and 'generator_list' in skin_dict['Generators']:
+                for generator in weeutil.weeutil.option_as_list(
+                        skin_dict['Generators']['generator_list']):
+
+                    try:
+                        # Instantiate an instance of the class.
+                        obj = weeutil.weeutil.get_object(generator)(
+                            self.config_dict,
+                            skin_dict,
+                            self.gen_ts,
+                            self.first_run,
+                            self.stn_info,
+                            self.record)
+                    except Exception as e:
+                        log.error("Unable to instantiate generator '%s'", generator)
+                        log.error("        ****  %s", e)
+                        weeutil.logger.log_traceback(log.error, "        ****  ")
+                        log.error("        ****  Generator ignored")
+                        traceback.print_exc()
+                        continue
+
+                    try:
+                        # Call its start() method
+                        obj.start()
+
+                    except Exception as e:
+                        # Caught unrecoverable error. Log it, continue on to the
+                        # next generator.
+                        log.error("Caught unrecoverable exception in generator '%s'",
+                                  generator)
+                        log.error("        ****  %s", e)
+                        weeutil.logger.log_traceback(log.error, "        ****  ")
+                        log.error("        ****  Generator terminated")
+                        traceback.print_exc()
+                        continue
+
+                    finally:
+                        obj.finalize()
+
+            else:
+                log.debug("No generators specified for report '%s'", report)
 
 weewx.reportengine.StdReportEngine.run = patched_run
-weewx.reportengine.ReportTiming = PeriodicReportTiming
 
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
