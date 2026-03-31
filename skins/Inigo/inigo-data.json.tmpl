@@ -3,7 +3,6 @@
 ##
 ##
 #import json
-#import weewx.units
 ##
 #from Cheetah import NameMapper
 ##
@@ -243,21 +242,6 @@
         #end if
     #except
         #set $inigoData["processingErrors"] += ["failed at block 6, var: " + $var]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #set $var = "group_unit_dict"
-        #set $inigoData[$var] = $sort_dict($converter.group_unit_dict)
-        #set $var = "obs_group_dict"
-        #set $inigoData[$var] = $sort_dict($weewx.units.obs_group_dict)
-        #set $var = "unit_format_dict"
-        #set $inigoData[$var] = $sort_dict($formatter.unit_format_dict)
-        #set $var = "unit_label_dict"
-        #set $inigoData[$var] = $sort_dict($formatter.unit_label_dict)
-    #except
-        #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
     ##
     ##

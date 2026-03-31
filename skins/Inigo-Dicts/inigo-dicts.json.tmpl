@@ -1,0 +1,47 @@
+#errorCatcher Echo
+#encoding UTF-8
+##
+##
+#import json
+#import weewx.units
+##
+#from Cheetah import NameMapper
+##
+##
+##
+#set $dict_data = {"version": 1000000, "processingErrors": []}
+##
+##
+#try
+    #set $dict_data["now"] = $current.dateTime.raw
+    ##
+    ##
+    ##
+    #try
+        #set $var = "group_unit_dict"
+        #set $dict_data[$var] = $sort_dict($converter.group_unit_dict)
+        #set $var = "obs_group_dict"
+        #set $dict_data[$var] = $sort_dict($weewx.units.obs_group_dict)
+        #set $var = "unit_format_dict"
+        #set $dict_data[$var] = $sort_dict($formatter.unit_format_dict)
+        #set $var = "unit_label_dict"
+        #set $dict_data[$var] = $sort_dict($formatter.unit_label_dict)
+    #except
+        #set $dict_data["processingErrors"] += ["failed at block 1, var: " + $var]
+    #end try
+    ##
+    ##
+    ##
+#except NameMapper.NotFound
+    #set $dict_data["processingErrors"] += ["failed at block 2"]
+#except
+    #set $dict_data["processingErrors"] += ["failed at block 3"]
+#end try
+##
+##
+##
+#try
+    #echo $json.dumps($sort_dict($dict_data))
+#except
+    #secho "failed at block 13"
+#end try
