@@ -546,7 +546,7 @@ def patched_run(self, reports=None):
             timing_line = skin_dict.get('report_timing')
             if timing_line:
                 # Get a ReportTiming object.
-                timing = PeriodicReportTiming(timing_line, report, self.config_dict, skin_dict)
+                timing = PeriodicReportTiming(timing_line, report, self.config_dict)
                 if timing.is_valid:
                     # Get timestamp and interval, so we can check if the
                     # report timing is triggered.
