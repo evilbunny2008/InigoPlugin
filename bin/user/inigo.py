@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from functools import reduce
 from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
-from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd
+from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
 
