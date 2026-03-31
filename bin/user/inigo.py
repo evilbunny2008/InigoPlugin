@@ -759,7 +759,7 @@ class InigoService(weewx.engine.StdService):
 
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, config_dict)
-            load_pickle_data(self.__class__.__name__, db_lookup)
+            load_pickle_data(self.__class__.__name__, self.db_lookup)
         else:
             log.debug(f"{self.__class__.__name__} Data already loaded")
 
