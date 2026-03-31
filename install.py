@@ -11,7 +11,7 @@ import weewx
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
-VERSION="2.0.5"
+VERSION="2.0.6"
 
 def loader():
 
@@ -58,7 +58,8 @@ class InigoInstaller(ExtensionInstaller):
                     },
                     "Inigo-Dicts": {
                         "skin": "Inigo-Dicts",
-                        "enable": "False",
+                        "enable": "True",
+                        "report_timing": "@monthly",
                     }
                 }
             },
