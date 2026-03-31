@@ -64,6 +64,9 @@ class InigoInstaller(ExtensionInstaller):
                 ("skins/Inigo",
                 ["skins/Inigo/inigo-data.json.tmpl",
                  "skins/Inigo/inigo-dicts.json.tmpl",
+                 "skins/Inigo/inigo-yesterday.json.tmpl",
+                 "skins/Inigo/inigo-last-month.json.tmpl",
+                 "skins/Inigo/inigo-last-year.json.tmpl",
                  "skins/Inigo/skin.conf"]),
             ]
         )
