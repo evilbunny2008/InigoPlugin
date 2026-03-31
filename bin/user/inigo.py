@@ -499,69 +499,7 @@ class PeriodicReportTiming(ReportTiming):
                 if not os.path.exists(filename):
                     return True
 
-        if self.is_valid and ts_hi is not None:
-            # setup ts range to iterate over
-            if ts_lo is None:
-                _range = [int(ts_hi)]
-            else:
-                # CRON like line has a 1-minute resolution so step backwards every
-                # 60 sec.
-                _range = list(range(int(ts_hi), int(ts_lo), -60))
-
-            # Iterate through each ts in our range. All we need is one ts that
-            # triggers the line.
-            for _ts in _range:
-                # convert ts to timetuple and extract required data
-                trigger_dt = datetime.datetime.fromtimestamp(_ts)
-                trigger_tt = trigger_dt.timetuple()
-                month, dow, day, hour, minute = (trigger_tt.tm_mon,
-                                                 (trigger_tt.tm_wday + 1) % 7,
-                                                 trigger_tt.tm_mday,
-                                                 trigger_tt.tm_hour,
-                                                 trigger_tt.tm_min)
-                # construct a tuple so we can iterate over and process each
-                # field
-                element_tuple = list(zip((minute, hour, day, month, dow),
-                                         self.line,
-                                         SPANS,
-                                         self.decode))
-                # Iterate over each field and check if it will prevent
-                # triggering. Remember, we only need a match on either DOM or
-                # DOW but all other fields must match.
-                dom_match = False
-                dom_restricted_match = False
-                for period, _field, field_span, decode in element_tuple:
-                    if period in decode:
-                        # we have a match
-                        if field_span == DOM:
-                            # we have a match on DOM, but we need to know if it
-                            # was a match on a restricted DOM field
-                            dom_match = True
-                            dom_restricted_match = self.dom_restrict
-                        elif field_span == DOW and not (
-                                dom_restricted_match or self.dow_restrict or dom_match):
-                            break
-                        continue
-                    elif field_span == DOW and dom_restricted_match or field_span == DOM:
-                        # No match but consider it a match if this field is DOW,
-                        # and we already have a DOM match. Also, if we didn't
-                        # match on DOM then continue as we might match on DOW.
-                        continue
-                    else:
-                        # The field will prevent the line from triggerring for
-                        # this ts so we break and move to the next ts.
-                        break
-                else:
-                    # If we arrived here then all fields match and the line
-                    # would be triggered on this ts so return True.
-                    return True
-            # If we are here it is because we broke out of all inner for loops
-            # and the line was not triggered so return False.
-            return False
-
-        # Our line is not valid, or we do not have a timestamp to use,
-        # return None
-        return None
+        return super().is_triggered(ts_hi, ts_lo)
 
 def patched_run(self, reports=None):
     """This is where the actual work gets done.
