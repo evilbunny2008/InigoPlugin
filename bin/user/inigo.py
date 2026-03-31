@@ -48,7 +48,6 @@ cache_dir = "/tmp/inigo"
 temp_unit = C
 rain_unit = mm
 pickle_filename = None
-db_lookup = None
 
 since_hour = 0
 
@@ -83,7 +82,7 @@ try:
 except (ImportError, Exception):
     fatal_error(f"InigoService requires the numpy python module to be installed.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
-def load_pickle_data(class_name):
+def load_pickle_data(class_name, db_lookup):
 
     global peak_detector, trend_history, last_ts, current_ts, current_signal, current_count
 
@@ -132,7 +131,7 @@ def load_pickle_data(class_name):
             pass
 
     log.debug(f"{class_name} {pickle_filename} doesn't exist, creating it")
-    reset_peak_detector(class_name)
+    reset_peak_detector(class_name, db_lookup)
 
 def save_pickle_data(class_name, report=False):
 
@@ -150,7 +149,7 @@ def save_pickle_data(class_name, report=False):
     except Exception as e:
         fatal_error(f" Error!, e: {str(e)}")
 
-def reset_peak_detector(class_name):
+def reset_peak_detector(class_name, db_lookup):
 
     global peak_detector
 
@@ -194,7 +193,7 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, since_hour, VERSION, JSONversion, temp_unit, rain_unit
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -263,9 +262,7 @@ def processConfigDict(class_name, config_dict):
 
     log.debug(f"{class_name} Pickle filename set to {pickle_filename}")
 
-    db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
-
-def get_modified_rain_reset_time(class_name, timestamp, time_period):
+def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period):
 
     if time_period in ("today", "yesterday"):
         context="day"
@@ -710,13 +707,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "today")
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "yesterday")
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "month_to_date")
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "last_month")
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "year_to_date")
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "last_year")
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "alltime")
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today")
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday")
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date")
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month")
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date")
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year")
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime")
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
@@ -758,9 +755,11 @@ class InigoService(weewx.engine.StdService):
 
         self.done_work = False
 
+        self.db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
+
         if peak_detector is None:
             processConfigDict(self.__class__.__name__, config_dict)
-            load_pickle_data(self.__class__.__name__)
+            load_pickle_data(self.__class__.__name__, db_lookup)
         else:
             log.debug(f"{self.__class__.__name__} Data already loaded")
 
@@ -775,7 +774,7 @@ class InigoService(weewx.engine.StdService):
         if peak_detector.start_time.date() != now.date():
             log.debug(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
 
-            reset_peak_detector(self.__class__.__name__)
+            reset_peak_detector(self.__class__.__name__, self.db_lookup)
 
         save_pickle_data(self.__class__.__name__, True)
 
