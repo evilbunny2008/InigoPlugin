@@ -67,10 +67,7 @@ REQUIRED_WEEWX = "5.3.0"
 
 def fatal_error(error_str):
 
-    print()
-    print(error_str)
-    print()
-    print()
+    log.error(error_str)
     raise weewx.UnsupportedFeature("Fatal Error")
 
 
@@ -117,7 +114,7 @@ def load_pickle_data(class_name):
 
                     else:
 
-                        log.info(f"{class_name} loading a StrorageClass object from {pickle_filename} pickle cache file")
+                        log.debug(f"{class_name} loading a StrorageClass object from {pickle_filename} pickle cache file")
 
                         peak_detector = ret.peak_detector
                         trend_history = ret.trend_history
@@ -126,15 +123,15 @@ def load_pickle_data(class_name):
                         current_signal = ret.current_signal
                         current_count = ret.current_count
 
-                        log.info(f"{class_name} loaded peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} from the pickle cache file")
-                        log.info(f"{class_name} loaded trend_history of length {len(trend_history)} from the pickle cache file")
+                        log.debug(f"{class_name} loaded peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} from the pickle cache file")
+                        log.debug(f"{class_name} loaded trend_history of length {len(trend_history)} from the pickle cache file")
 
                         return
 
         except Exception as e:
             pass
 
-    log.info(f"{class_name} {pickle_filename} doesn't exist, creating it")
+    log.debug(f"{class_name} {pickle_filename} doesn't exist, creating it")
     reset_peak_detector(class_name)
 
 def save_pickle_data(class_name, report=False):
@@ -147,8 +144,8 @@ def save_pickle_data(class_name, report=False):
             pickle.dump(storageClass, f)
 
             if report:
-                log.info(f"{class_name} saved peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} to the pickle cache file")
-                log.info(f"{class_name} saved trend_history of length {len(trend_history)} to the pickle cache file")
+                log.debug(f"{class_name} saved peak_detector of length {peak_detector.length} and lag of {peak_detector.lag} to the pickle cache file")
+                log.debug(f"{class_name} saved trend_history of length {len(trend_history)} to the pickle cache file")
 
     except Exception as e:
         fatal_error(f" Error!, e: {str(e)}")
@@ -163,7 +160,7 @@ def reset_peak_detector(class_name):
 
         initial_data = [0.0] * lag
 
-        log.info(f"{class_name} Overnight reset, generated {len(initial_data)} zero data points")
+        log.debug(f"{class_name} Overnight reset, generated {len(initial_data)} zero data points")
 
         peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=threshold, influence=influence)
 
@@ -181,18 +178,18 @@ def reset_peak_detector(class_name):
         for row in stats.records():
             outTemp = convert_temp_to_float(row.outTemp.raw)
             if outTemp is None:
-                log.info(f"outTemp '{row.outTemp.raw}' type '{type(row.outTemp.raw).__name__}' failed to convert to float, skipping...")
+                log.error(f"outTemp '{row.outTemp.raw}' type '{type(row.outTemp.raw).__name__}' failed to convert to float, skipping...")
                 continue
 
             initial_data += [outTemp]
 
         initial_data_expanded = [outTemp for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
 
-        log.info(f"{class_name} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
+        log.debug(f"{class_name} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
 
         peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
 
-    log.info(f"{class_name} {pickle_filename} saved to")
+    log.debug(f"{class_name} {pickle_filename} saved to")
     save_pickle_data(class_name, True)
 
 def processConfigDict(class_name, config_dict):
@@ -229,7 +226,7 @@ def processConfigDict(class_name, config_dict):
                 JSONversion = int(f"{major}{minor:03d}{patch:03d}")
 
     except Exception as e:
-        log.info(f"Error! Unable to get plugin version, e: {str(e)}")
+        log.error(f"Error! Unable to get plugin version, e: {str(e)}")
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
@@ -266,7 +263,7 @@ def processConfigDict(class_name, config_dict):
 
     pickle_filename = os.path.join(cache_dir, "cache.pkl")
 
-    log.info(f"{class_name} Pickle filename set to {pickle_filename}")
+    log.debug(f"{class_name} Pickle filename set to {pickle_filename}")
 
     db_lookup = weewx.manager.DBBinder(config_dict).bind_default()
 
@@ -281,7 +278,7 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
     elif time_period == "alltime":
         context="alltime"
     else:
-        log.info(f"'{time_period}' is invalid, skipping...")
+        log.error(f"'{time_period}' is invalid, skipping...")
         return
 
     stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
@@ -350,12 +347,12 @@ def convert_temp_to_float(temp):
             return None
 
         if not isinstance(temp_f, float):
-            log.info(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f).__name__}' but this is probably wrong, no error generated, skipping...")
+            log.error(f"Failed to convert '{temp}' to a float, temp became `{temp_f}` of type '{type(temp_f).__name__}' but this is probably wrong, no error generated, skipping...")
             return None
 
         return temp_f
     except (ValueError, TypeError, Exception) as e:
-        log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
+        log.error(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
 
 def dict_search(d, key_search):
 
@@ -470,7 +467,7 @@ class PeriodicReportTiming(ReportTiming):
                 ts_hi is checked.
         """
 
-        log.info(f"{self.__class__.__name__} Checking report timing for {self.report}")
+        log.debug(f"{self.__class__.__name__} Checking report timing for {self.report}")
 
         if self.report == "Inigo-Dicts":
 
@@ -490,11 +487,14 @@ class PeriodicReportTiming(ReportTiming):
 
                 filename = os.path.join(html_dest_dir, template[:-5])
 
-                log.info(f"{self.__class__.__name__} Checking for {filename}")
+                log.debug(f"{self.__class__.__name__} Checking for {filename}")
 
                 if not os.path.exists(filename):
+
+                    log.debug(f"{self.__class__.__name__} {filename} from {self.report} doesn't exist, triggering report generation")
                     return True
 
+        log.debug(f"{self.__class__.__name__} all files from {self.report} exist, allowing existing timing checks to happen")
         return super().is_triggered(ts_hi, ts_lo)
 
 def patched_run(self, reports=None):
@@ -635,7 +635,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         global last_report_ts, last_report
 
-        log.info(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
+        log.debug(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
 
         if peak_detector is None:
             fatal_error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, exitting...")
@@ -691,9 +691,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             search_list_signal += [current_signal]
             search_list_count += [current_count]
 
-            log.info(f"{self.__class__.__name__} InigoSearchList current_ts: {current_ts}")
-            log.info(f"{self.__class__.__name__} InigoSearchList current_signal: {current_signal}")
-            log.info(f"{self.__class__.__name__} InigoSearchList current_count: {current_count}")
+            log.debug(f"{self.__class__.__name__} InigoSearchList current_ts: {current_ts}")
+            log.debug(f"{self.__class__.__name__} InigoSearchList current_signal: {current_signal}")
+            log.debug(f"{self.__class__.__name__} InigoSearchList current_count: {current_count}")
 
         for ts, signal, count in reversed(trend_history):
 
@@ -707,9 +707,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             search_list_signal += [signal]
             search_list_count += [count]
 
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
-            #log.info(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
+            #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
+            #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
+            #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
         since_today = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "today")
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, timespan.stop, "yesterday")
@@ -733,21 +733,21 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             "since_alltime": since_alltime,
         }
 
-        #log.info(f"{self.__class__.__name__} since_hour: {since_hour}")
-        #log.info(f"since_today: {since_today}")
-        #log.info(f"since_yesterday: {since_yesterday}")
-        #log.info(f"since_month_to_date: {since_month_to_date}")
-        #log.info(f"since_last_month: {since_last_month}")
-        #log.info(f"since_year_to_date: {since_year_to_date}")
-        #log.info(f"since_last_year: {since_last_year}")
-        #log.info(f"since_alltime: {since_alltime}")
+        #log.debug(f"{self.__class__.__name__} since_hour: {since_hour}")
+        #log.debug(f"since_today: {since_today}")
+        #log.debug(f"since_yesterday: {since_yesterday}")
+        #log.debug(f"since_month_to_date: {since_month_to_date}")
+        #log.debug(f"since_last_month: {since_last_month}")
+        #log.debug(f"since_year_to_date: {since_year_to_date}")
+        #log.debug(f"since_last_year: {since_last_year}")
+        #log.debug(f"since_alltime: {since_alltime}")
 
         last_report_ts = timespan.stop
         last_report = search_list_extension
 
         t2 = time.time()
 
-        log.info(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
+        log.debug(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
         return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
 
@@ -763,18 +763,18 @@ class InigoService(weewx.engine.StdService):
             processConfigDict(self.__class__.__name__, config_dict)
             load_pickle_data(self.__class__.__name__)
         else:
-            log.info(f"{self.__class__.__name__} Data already loaded")
+            log.debug(f"{self.__class__.__name__} Data already loaded")
 
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
-        log.info(f"{self.__class__.__name__} v{VERSION} started")
+        log.debug(f"{self.__class__.__name__} v{VERSION} started")
 
     def handle_archive_record(self, event):
 
         now = datetime.now()
         if peak_detector.start_time.date() != now.date():
-            log.info(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
+            log.debug(f"{self.__class__.__name__} {peak_detector.start_time.date()} != {now.date()} calling reset_peak_detector()")
 
             reset_peak_detector(self.__class__.__name__)
 
@@ -810,12 +810,12 @@ class InigoService(weewx.engine.StdService):
 
         if signal == current_signal:
             current_count += 1
-            #log.info(f"{self.__class__.__name__} current_signal: {current_signal}")
-            #log.info(f"{self.__class__.__name__} current_count: {current_count}")
+            #log.debug(f"{self.__class__.__name__} current_signal: {current_signal}")
+            #log.debug(f"{self.__class__.__name__} current_count: {current_count}")
 
         else:
             # Signal changed — store the completed run
-            log.info(f"{self.__class__.__name__} signal switched from {current_signal} with count {current_count} to {signal}")
+            log.debug(f"{self.__class__.__name__} signal switched from {current_signal} with count {current_count} to {signal}")
 
             if current_count > 0:
                 trend_history.append((current_ts, current_signal, current_count))
@@ -841,4 +841,4 @@ class InigoService(weewx.engine.StdService):
         if self.done_work:
             save_pickle_data(self.__class__.__name__, True)
 
-        log.info(f"{self.__class__.__name__} v{VERSION} stopped")
+        log.debug(f"{self.__class__.__name__} v{VERSION} stopped")
