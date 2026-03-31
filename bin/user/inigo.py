@@ -479,8 +479,6 @@ class PeriodicReportTiming(ReportTiming):
                 ts_hi is checked.
         """
 
-        log.debug(f"{self.__class__.__name__} Checking report timing for {self.report}")
-
         if self.is_valid and self.create_if_missing:
 
             html_dest_dir = self.skin_dict["WEEWX_HTML"]
@@ -498,10 +496,10 @@ class PeriodicReportTiming(ReportTiming):
 
                 if not os.path.exists(filename):
 
-                    log.debug(f"{self.__class__.__name__} {filename} from {self.report} doesn't exist, triggering report generation")
+                    log.debug(f"{self.__class__.__name__} {filename} doesn't exist, triggering report generation")
                     return True
 
-        log.debug(f"{self.__class__.__name__} all files from {self.report} exist, allowing existing timing checks to happen")
+        log.debug(f"{self.__class__.__name__} all files exist, allowing existing timing checks to happen")
         return super().is_triggered(ts_hi, ts_lo)
 
 def patched_run(self, reports=None):
