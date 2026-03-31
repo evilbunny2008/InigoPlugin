@@ -447,13 +447,12 @@ class StrorageClass():
 
 class PeriodicReportTiming(ReportTiming):
 
-    def __init__(self, raw_line, report, config_dict, skin_dict):
+    def __init__(self, raw_line, report, config_dict):
 
         super().__init__(raw_line)
 
-        self.config_dict = config_dict
-        self.skin_dict = skin_dict
         self.report = report
+        self.config_dict = config_dict
 
     def is_triggered(self, ts_hi, ts_lo=None):
         """Determine if CRON like line is to be triggered.
@@ -469,11 +468,9 @@ class PeriodicReportTiming(ReportTiming):
                 ts_hi is checked.
         """
 
-        skin_name = self.skin_dict["SKIN_NAME"]
+        log.info(f"{self.__class__.__name__} Checking report timing for {report}")
 
-        log.info(f"{self.__class__.__name__} Checking report timing for {skin_name}")
-
-        if skin_name == "Inigo-Dicts":
+        if report == "Inigo-Dicts":
 
             html_dest_dir = self.config_dict["WEEWX_ROOT"]
 
