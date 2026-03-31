@@ -55,11 +55,6 @@ class InigoInstaller(ExtensionInstaller):
                     "Inigo": {
                         "skin": "Inigo",
                         "enable": "True",
-                    },
-                    "Inigo-Dicts": {
-                        "skin": "Inigo-Dicts",
-                        "enable": "True",
-                        "report_timing": "@monthly",
                     }
                 }
             },
@@ -68,10 +63,8 @@ class InigoInstaller(ExtensionInstaller):
                 ["bin/user/inigo.py"]),
                 ("skins/Inigo",
                 ["skins/Inigo/inigo-data.json.tmpl",
+                 "skins/Inigo/inigo-dicts.json.tmpl",
                  "skins/Inigo/skin.conf"]),
-                ("skins/Inigo-Dicts",
-                ["skins/Inigo-Dicts/inigo-dicts.json.tmpl",
-                 "skins/Inigo-Dicts/skin.conf"]),
             ]
         )
 

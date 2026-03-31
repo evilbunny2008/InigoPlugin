@@ -18,7 +18,7 @@
     ##
     ##
     #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
-    #set $time_periods = ["day", "yesterday", "month", "last_month", "year", "last_year", "alltime"]
+    #set $time_periods = ["day", "month", "year", "alltime"]
     ##
     ##
     ##
@@ -282,7 +282,7 @@
                 ##
                 ##
                 ##
-                #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
+                #set $time_periods = ["hour", "today", "month_to_date", "year_to_date", "alltime"]
                 #for $time_period in $time_periods
                     #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
                 #end for
