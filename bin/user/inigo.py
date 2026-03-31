@@ -466,7 +466,7 @@ class PeriodicReportTiming(ReportTiming):
 
         skin_name = _skin_dict["SKIN_NAME"]
 
-        log.info(f"Checking report timing for {skin_name}")
+        log.info(f"{self.__class__.__name__} Checking report timing for {skin_name}")
 
         if skin_name == "Inigo-Dicts":
 
