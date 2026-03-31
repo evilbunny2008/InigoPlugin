@@ -768,7 +768,7 @@ class InigoService(weewx.engine.StdService):
         self.bind(weewx.NEW_LOOP_PACKET, self.handle_loop_packet)
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.handle_archive_record)
 
-        log.debug(f"{self.__class__.__name__} v{VERSION} started")
+        log.info(f"{self.__class__.__name__} v{VERSION} started")
 
     def handle_archive_record(self, event):
 
@@ -841,4 +841,4 @@ class InigoService(weewx.engine.StdService):
         if self.done_work:
             save_pickle_data(self.__class__.__name__, True)
 
-        log.debug(f"{self.__class__.__name__} v{VERSION} stopped")
+        log.info(f"{self.__class__.__name__} v{VERSION} stopped")
