@@ -487,9 +487,9 @@ class PeriodicReportTiming(ReportTiming):
                 if not template.endswith(".tmpl"):
                     continue
 
-                filename = filename[:-5]
+                filename = os.path.join(html_dest_dir, template[:-5])
 
-                filename = os.path.join(html_dest_dir, filename)
+                log.info(f"{self.__class__.__name__} Checking for {filename}")
 
                 if not os.path.exists(filename):
                     return True
