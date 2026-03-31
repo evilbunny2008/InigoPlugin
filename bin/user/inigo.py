@@ -450,6 +450,14 @@ class StrorageClass():
 
 class PeriodicReportTiming(ReportTiming):
 
+    def __init__(self, raw_line, report, config_dict, skin_dict):
+
+        super().__init__(raw_line)
+
+        self.config_dict = config_dict
+        self.skin_dict = skin_dict
+        self.report = report
+
     def is_triggered(self, ts_hi, ts_lo=None):
         """Determine if CRON like line is to be triggered.
 
@@ -606,7 +614,7 @@ def patched_run(self, reports=None):
             timing_line = skin_dict.get('report_timing')
             if timing_line:
                 # Get a ReportTiming object.
-                timing = PeriodicReportTiming(timing_line)
+                timing = PeriodicReportTiming(timing_line, report, self.config_dict, skin_dict)
                 if timing.is_valid:
                     # Get timestamp and interval, so we can check if the
                     # report timing is triggered.
