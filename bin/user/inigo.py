@@ -442,13 +442,28 @@ class StrorageClass():
 
 class PeriodicReportTiming(ReportTiming):
 
-    def __init__(self, raw_line, report, config_dict, skin_dict):
+    def __init__(self, raw_line, skin_dict):
+
+        self.create_if_missing = False
+        self.skin_dict = skin_dict
+
+        try:
+            line_str = raw_line.strip()
+        except AttributeError:
+            line_str = ','.join(raw_line).strip()
+
+        for unsupported_char in ('%', '#', 'L', 'W'):
+            if unsupported_char in line_str:
+                self.is_valid = False
+                self.validation_error = "Unsupported character '%s' in '%s'." % (unsupported_char,
+                                                                                 self.raw_line)
+                return
+
+        if line_str.endswith("CreateIfMissing"):
+            self.create_if_missing = True
+            self.raw_line = line_str = line_str[:-15]
 
         super().__init__(raw_line)
-
-        self.report = report
-        self.config_dict = config_dict
-        self.skin_dict = skin_dict
 
     def is_triggered(self, ts_hi, ts_lo=None):
         """Determine if CRON like line is to be triggered.
@@ -466,14 +481,9 @@ class PeriodicReportTiming(ReportTiming):
 
         log.debug(f"{self.__class__.__name__} Checking report timing for {self.report}")
 
-        if self.report == "Inigo-Dicts":
+        if self.is_valid and self.create_if_missing:
 
-            html_dest_dir = self.config_dict["WEEWX_ROOT"]
-
-            copy_dict = self.config_dict.get("PeriodicReportGenerator", None)
-
-            if copy_dict is not None:
-                log_success = to_bool(weeutil.config.search_up(copy_dict, "log_success", True))
+            html_dest_dir = self.skin_dict["WEEWX_HTML"]
 
             templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
 
@@ -545,7 +555,7 @@ def patched_run(self, reports=None):
             timing_line = skin_dict.get('report_timing')
             if timing_line:
                 # Get a ReportTiming object.
-                timing = PeriodicReportTiming(timing_line, report, self.config_dict, skin_dict)
+                timing = PeriodicReportTiming(timing_line, skin_dict)
                 if timing.is_valid:
                     # Get timestamp and interval, so we can check if the
                     # report timing is triggered.
