@@ -194,9 +194,7 @@ def reset_peak_detector(class_name):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit, _config_dict
-
-    _config_dict = config_dict
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, db_lookup, since_hour, VERSION, JSONversion, temp_unit, rain_unit
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -273,10 +271,8 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
         context="day"
     elif time_period in ("month_to_date", "last_month"):
         context="month"
-    elif time_period in ("year_to_date", "last_year"):
+    elif time_period in ("year_to_date", "last_year", "alltime"):
         context="year"
-    elif time_period == "alltime":
-        context="alltime"
     else:
         log.error(f"'{time_period}' is invalid, skipping...")
         return
@@ -312,13 +308,17 @@ def get_modified_rain_reset_time(class_name, timestamp, time_period):
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    tspan = weeutil.weeutil.TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
+    tspan = TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
 
-    period = weewx.tags.TimespanBinder(tspan, db_lookup, context=context)
-
-    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
+    period = TimespanBinder(tspan, db_lookup, context=context)
 
     rain = period.rain.sum
+
+    if not rain.has_data():
+        log.info(f"{time_period}.rain.sum.has_data() is False")
+        return None
+
+    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
     if rain_unit == mm:
         rain = rain.convert("mm")
@@ -623,7 +623,6 @@ def patched_run(self, reports=None):
                 log.debug("No generators specified for report '%s'", report)
 
 weewx.reportengine.StdReportEngine.run = patched_run
-
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
