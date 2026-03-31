@@ -58,8 +58,7 @@ class InigoInstaller(ExtensionInstaller):
                     },
                     "Inigo-Dicts": {
                         "skin": "Inigo-Dicts",
-                        "enable": "True",
-                        "report_timing": "@yearly",
+                        "enable": "False",
                     }
                 }
             },
