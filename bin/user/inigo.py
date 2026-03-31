@@ -10,6 +10,7 @@ import weewx
 import weewx.cheetahgenerator
 import weewx.engine
 import weewx.manager
+import weewx.reportengine
 import weewx.units
 import weeutil.weeutil
 
@@ -17,6 +18,7 @@ from collections import deque
 from datetime import datetime, timedelta
 from functools import reduce
 from weeutil.weeutil import TimeSpan, to_float
+from weewx.reportengine import ReportTiming
 from weewx.units import FtoC
 from weewx.tags import TimespanBinder
 
@@ -52,13 +54,13 @@ since_hour = 0
 last_report_ts = 0
 last_report = None
 
-weewx.units.obs_group_dict['since_today'] = 'group_rain'
-weewx.units.obs_group_dict['since_yesterday'] = 'group_rain'
-weewx.units.obs_group_dict['since_month_to_date'] = 'group_rain'
-weewx.units.obs_group_dict['since_last_month'] = 'group_rain'
-weewx.units.obs_group_dict['since_year_to_date'] = 'group_rain'
-weewx.units.obs_group_dict['since_last_year'] = 'group_rain'
-weewx.units.obs_group_dict['since_alltime'] = 'group_rain'
+weewx.units.obs_group_dict["since_today"] = "group_rain"
+weewx.units.obs_group_dict["since_yesterday"] = "group_rain"
+weewx.units.obs_group_dict["since_month_to_date"] = "group_rain"
+weewx.units.obs_group_dict["since_last_month"] = "group_rain"
+weewx.units.obs_group_dict["since_year_to_date"] = "group_rain"
+weewx.units.obs_group_dict["since_last_year"] = "group_rain"
+weewx.units.obs_group_dict["since_alltime"] = "group_rain"
 
 REQUIRED_WEEWX = "5.3.0"
 
@@ -352,6 +354,23 @@ def convert_temp_to_float(temp):
     except (ValueError, TypeError, Exception) as e:
         log.info(f"Failed to convert '{temp}' of type '{type(temp).__name__}' to a float, e: {str(e)}, skipping...")
 
+def dict_search(d, key_search):
+
+    results = []
+
+    if d is None or key_search is None or key_search.strip() == "":
+        return results
+
+    for key, value in d.items():
+
+        if key == key_search:
+            results.append(value)
+
+        elif isinstance(value, dict):
+            results.extend(dict_search(value, key_search))
+
+    return results
+
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
 
@@ -423,6 +442,116 @@ class StrorageClass():
         self.current_ts = current_ts
         self.current_signal = current_signal
         self.current_count = current_count
+
+class PeriodicReportTiming(ReportTiming):
+
+    def is_triggered(self, ts_hi, ts_lo=None):
+        """Determine if CRON like line is to be triggered.
+
+        Return True if line is triggered between timestamps ts_lo and ts_hi
+        (exclusive on ts_lo inclusive on ts_hi), False if it is not
+        triggered or None if the line is invalid or ts_hi is not valid.
+        If ts_lo is not specified check for triggering on ts_hi only.
+
+        ts_hi:  Timestamp of latest time to be checked for triggering.
+        ts_lo:  Timestamp used for earliest time in range of times to be
+                checked for triggering. May be omitted in which case only
+                ts_hi is checked.
+        """
+
+        skin_name = self.skin_dict["SKIN_NAME"]
+
+        log.info(f"Checking report timing for {skin_name}")
+
+        if skin_name == "Inigo-Dicts":
+
+            html_dest_dir = self.config_dict["WEEWX_ROOT"]
+
+            copy_dict = self.skin_dict.get("PeriodicReportGenerator", None)
+
+            if copy_dict is not None:
+                log_success = to_bool(weeutil.config.search_up(copy_dict, "log_success", True))
+
+            templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
+
+            for template in templates:
+
+                if not template.endswith(".tmpl"):
+                    continue
+
+                filename = filename[:-5]
+
+                filename = os.path.join(html_dest_dir, filename)
+
+                if not os.path.exists(filename):
+                    return True
+
+        if self.is_valid and ts_hi is not None:
+            # setup ts range to iterate over
+            if ts_lo is None:
+                _range = [int(ts_hi)]
+            else:
+                # CRON like line has a 1-minute resolution so step backwards every
+                # 60 sec.
+                _range = list(range(int(ts_hi), int(ts_lo), -60))
+
+            # Iterate through each ts in our range. All we need is one ts that
+            # triggers the line.
+            for _ts in _range:
+                # convert ts to timetuple and extract required data
+                trigger_dt = datetime.datetime.fromtimestamp(_ts)
+                trigger_tt = trigger_dt.timetuple()
+                month, dow, day, hour, minute = (trigger_tt.tm_mon,
+                                                 (trigger_tt.tm_wday + 1) % 7,
+                                                 trigger_tt.tm_mday,
+                                                 trigger_tt.tm_hour,
+                                                 trigger_tt.tm_min)
+                # construct a tuple so we can iterate over and process each
+                # field
+                element_tuple = list(zip((minute, hour, day, month, dow),
+                                         self.line,
+                                         SPANS,
+                                         self.decode))
+                # Iterate over each field and check if it will prevent
+                # triggering. Remember, we only need a match on either DOM or
+                # DOW but all other fields must match.
+                dom_match = False
+                dom_restricted_match = False
+                for period, _field, field_span, decode in element_tuple:
+                    if period in decode:
+                        # we have a match
+                        if field_span == DOM:
+                            # we have a match on DOM, but we need to know if it
+                            # was a match on a restricted DOM field
+                            dom_match = True
+                            dom_restricted_match = self.dom_restrict
+                        elif field_span == DOW and not (
+                                dom_restricted_match or self.dow_restrict or dom_match):
+                            break
+                        continue
+                    elif field_span == DOW and dom_restricted_match or field_span == DOM:
+                        # No match but consider it a match if this field is DOW,
+                        # and we already have a DOM match. Also, if we didn't
+                        # match on DOM then continue as we might match on DOW.
+                        continue
+                    else:
+                        # The field will prevent the line from triggerring for
+                        # this ts so we break and move to the next ts.
+                        break
+                else:
+                    # If we arrived here then all fields match and the line
+                    # would be triggered on this ts so return True.
+                    return True
+            # If we are here it is because we broke out of all inner for loops
+            # and the line was not triggered so return False.
+            return False
+
+        # Our line is not valid, or we do not have a timestamp to use,
+        # return None
+        return None
+
+weewx.reportengine.ReportTiming = PeriodicReportTiming
+
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
 

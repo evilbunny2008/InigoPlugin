@@ -69,3 +69,8 @@ You need to restart weeWX to make the above changes work.
 ```
 sudo systemctl restart weewx
 ```
+
+## Manually generating the Inigo-Dicts report
+
+To reduce the amount of data downloaded by the app the data needed has been split into 2 files, with obseration groups, labels and formatting put in a second template because that data rarely changes and makes no sense generating and distributing it for every report cycle.
+
