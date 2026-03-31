@@ -2,7 +2,11 @@
 #data=https://example.com/weewx/inigo-data.txt
 
 # For the beta version of the app which will be the new stable version at some point
-jsondata=https://example.com/weewx/inigo-data.json
+json-data=https://example.com/weewx/inigo-data.json
+json-dicts=https://example.com/weewx/inigo-dicts.json
+json-yesterday=https://example.com/weewx/inigo-yesterday.json
+json-last-month=https://example.com/weewx/inigo-last-month.json
+json-last-year=https://example.com/weewx/inigo-last-year.json
 
 # Configuration of the radar screen in the app
 radtype=webpage
