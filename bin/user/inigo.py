@@ -447,12 +447,13 @@ class StrorageClass():
 
 class PeriodicReportTiming(ReportTiming):
 
-    def __init__(self, raw_line, report, config_dict):
+    def __init__(self, raw_line, report, config_dict, skin_dict):
 
         super().__init__(raw_line)
 
         self.report = report
         self.config_dict = config_dict
+        self.skin_dict = skin_dict
 
     def is_triggered(self, ts_hi, ts_lo=None):
         """Determine if CRON like line is to be triggered.
@@ -474,7 +475,7 @@ class PeriodicReportTiming(ReportTiming):
 
             html_dest_dir = self.config_dict["WEEWX_ROOT"]
 
-            copy_dict = self.skin_dict.get("PeriodicReportGenerator", None)
+            copy_dict = self.config_dict.get("PeriodicReportGenerator", None)
 
             if copy_dict is not None:
                 log_success = to_bool(weeutil.config.search_up(copy_dict, "log_success", True))
@@ -546,7 +547,7 @@ def patched_run(self, reports=None):
             timing_line = skin_dict.get('report_timing')
             if timing_line:
                 # Get a ReportTiming object.
-                timing = PeriodicReportTiming(timing_line, report, self.config_dict)
+                timing = PeriodicReportTiming(timing_line, report, self.config_dict, skin_dict)
                 if timing.is_valid:
                     # Get timestamp and interval, so we can check if the
                     # report timing is triggered.
