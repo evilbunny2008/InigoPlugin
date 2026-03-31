@@ -468,9 +468,9 @@ class PeriodicReportTiming(ReportTiming):
                 ts_hi is checked.
         """
 
-        log.info(f"{self.__class__.__name__} Checking report timing for {report}")
+        log.info(f"{self.__class__.__name__} Checking report timing for {self.report}")
 
-        if report == "Inigo-Dicts":
+        if self.report == "Inigo-Dicts":
 
             html_dest_dir = self.config_dict["WEEWX_ROOT"]
 
