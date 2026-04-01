@@ -455,9 +455,9 @@ class PeriodicReportTiming(ReportTiming):
 
         if line_str.endswith("CreateIfMissing"):
             self.create_if_missing = True
-            self.raw_line = line_str = line_str[:-15]
+            line_str = line_str[:-15]
 
-        super().__init__(raw_line)
+        super().__init__(line_str)
 
     def is_triggered(self, ts_hi, ts_lo=None):
         """Determine if CRON like line is to be triggered.
