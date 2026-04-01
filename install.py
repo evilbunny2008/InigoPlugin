@@ -181,7 +181,7 @@ class InigoInstaller(ExtensionInstaller):
 
         inigo_dict = stdreport_dict.get("Inigo-Data")
         if inigo_dict is None:
-            fatal_error("Inigo section of weewx.conf is None, can't continue...")
+            fatal_error("Inigo-Data section of weewx.conf is None, can't continue...")
 
         if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
             inigo_dict["cache_dir"] = cache_dir
