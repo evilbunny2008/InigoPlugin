@@ -740,9 +740,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if groups_dict is not None:
                      group_rain = groups_dict.get("group_rain", "mm")
 
-        log.info(f"group_rain: {group_rain}")
+        log.debug(f"group_rain: {group_rain}")
 
-        log.info(f"since_hour: {since_hour}")
+        log.debug(f"since_hour: {since_hour}")
+
+        log.debug(f"db_lookup: {db_lookup}")
 
         since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
