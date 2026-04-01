@@ -226,10 +226,10 @@ def processConfigDict(class_name, config_dict):
 
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
-        inigo = cfg.get("Inigo-Data", None)
-        if inigo is not None:
-             cache_dir = inigo.get("cache_dir", cache_dir)
-             since_hour = int(inigo.get("since_hour", 0))
+        inigo_data_dict = cfg.get("Inigo-Data", None)
+        if inigo_data_dict is not None:
+             cache_dir = inigo_data_dict.get("cache_dir", cache_dir)
+             since_hour = int(inigo_data_dict.get("since_hour", 0))
 
     uid = os.getuid()
     statinfo = os.stat(cache_dir)
