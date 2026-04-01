@@ -296,37 +296,23 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    log.info(f"start_time: {start_time}")
-    log.info(f"stop_time: {stop_time}")
-
-    log.info(f"start_time.timestamp(): {start_time.timestamp()}")
-    log.info(f"stop_time.timestamp(): {stop_time.timestamp()}")
-
     tspan = TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
-
-    log.info(f"tspan: {tspan}")
 
     period = TimespanBinder(tspan, db_lookup, context=context)
 
-    log.info(f"period: {period}")
-    log.info(f"db_lookup: {db_lookup}")
-    log.info(f"context: {context}")
-
     rain = period.rain.sum
-
-    log.info(f"rain: {rain}")
 
     if not rain.has_data():
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
 
-    log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
+    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
     rain = rain.convert(group_rain)
 
     rain_raw = rain.raw
 
-    log.info(f"{class_name} rain_raw: {rain_raw}")
+    #log.info(f"{class_name} rain_raw: {rain_raw}")
 
     return rain_raw
 
@@ -757,11 +743,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if groups_dict is not None:
                      group_rain = groups_dict.get("group_rain", "mm")
 
-        log.debug(f"group_rain: {group_rain}")
+        #log.debug(f"group_rain: {group_rain}")
 
-        log.debug(f"since_hour: {since_hour}")
+        #log.debug(f"since_hour: {since_hour}")
 
-        log.debug(f"db_lookup: {db_lookup}")
+        #log.debug(f"db_lookup: {db_lookup}")
 
         since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
