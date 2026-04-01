@@ -139,7 +139,7 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 3a, var: " + $var + ", time_period: " + $time_period]
+        #set $inigoData["processingErrors"] += ["failed at block 3, var: " + $var + ", time_period: " + $time_period]
     #end try
     ##
     ##
@@ -252,7 +252,7 @@
         #set $var = "station.location"
         #set $inigoData["station_location"] = $station.location.strip()
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 8, var: " + $var]
+        #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var]
     #end try
     ##
     ##
@@ -266,7 +266,7 @@
             #end if
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 9, var: rain_" + str($var)]
+        #set $inigoData["processingErrors"] += ["failed at block 8, var: rain_" + str($var)]
     #end try
     ##
     ##
@@ -282,7 +282,7 @@
                 ##
                 ##
                 ##
-                #set $time_periods = ["hour", "today", "month_to_date", "year_to_date", "alltime"]
+                #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
                 #for $time_period in $time_periods
                     #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
                 #end for
@@ -291,15 +291,15 @@
             #end if
         #end if
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 10, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
+        #set $inigoData["processingErrors"] += ["failed at block 9, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
     #end try
     ##
     ##
     ##
 #except NameMapper.NotFound
-    #set $inigoData["processingErrors"] += ["failed at block 11"]
+    #set $inigoData["processingErrors"] += ["failed at block 10"]
 #except
-    #set $inigoData["processingErrors"] += ["failed at block 12"]
+    #set $inigoData["processingErrors"] += ["failed at block 11"]
 #end try
 ##
 ##
@@ -307,5 +307,5 @@
 #try
     #echo $json.dumps($sort_dict($inigoData))
 #except
-    #secho "failed at block 13"
+    #secho "failed at block 12"
 #end try

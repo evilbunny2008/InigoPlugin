@@ -119,26 +119,10 @@
     ##
     ##
     ##
-    #try
-        #if $inigo is not None
-            #set $ts = $inigo.get("ts", 0)
-            #set $report = $inigo.get("report", {})
-            #if $ts is not None and $ts > 0 and $report is not None
-                #for $time_period in $time_periods
-                    #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
-                #end for
-            #end if
-        #end if
-    #except
-        #set $inigoData["processingErrors"] += ["failed at block 5, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str]
-    #end try
-    ##
-    ##
-    ##
 #except NameMapper.NotFound
-    #set $inigoData["processingErrors"] += ["failed at block 6"]
+    #set $inigoData["processingErrors"] += ["failed at block 5"]
 #except
-    #set $inigoData["processingErrors"] += ["failed at block 7"]
+    #set $inigoData["processingErrors"] += ["failed at block 6"]
 #end try
 ##
 ##
@@ -146,5 +130,5 @@
 #try
     #echo $json.dumps($sort_dict($inigoData))
 #except
-    #secho "failed at block 8"
+    #secho "failed at block 7"
 #end try
