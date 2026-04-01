@@ -303,15 +303,16 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
 
-    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
+    log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
-    #if rain_unit == mm:
-    #    rain = rain.convert("mm")
+    rain = rain.convert(group_rain)
 
-    #if rain_unit == cm:
-    #    rain = rain.convert("cm")
+    rain_raw = rain.raw
 
-    return rain.raw
+    log.info(f"{class_name} rain_raw: {rain_raw}")
+
+    return rain_raw
+
 
 def convert_to_int(str):
 
@@ -723,8 +724,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         #group_rain = skin_dict.get("group_rain", "")
 
-        since_hour = -1
-        group_rain = "cm"
+        since_hour = 0
+        group_rain = "mm"
         skin_dict = self.generator.skin_dict
         if skin_dict is not None:
 
@@ -737,7 +738,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if units_dict is not None:
                 groups_dict = units_dict.get("Groups", None)
                 if groups_dict is not None:
-                     group_rain = groups_dict.get("group_rain", None)
+                     group_rain = groups_dict.get("group_rain", "mm")
 
         log.info(f"group_rain: {group_rain}")
 
