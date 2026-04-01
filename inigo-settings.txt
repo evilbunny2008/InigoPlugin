@@ -4,9 +4,7 @@
 # For the beta version of the app which will be the new stable version at some point
 json-data=https://example.com/weewx/inigo-data.json
 json-dicts=https://example.com/weewx/inigo-dicts.json
-json-yesterday=https://example.com/weewx/inigo-yesterday.json
-json-last-month=https://example.com/weewx/inigo-last-month.json
-json-last-year=https://example.com/weewx/inigo-last-year.json
+json-last=https://example.com/weewx/inigo-last.json
 
 # Configuration of the radar screen in the app
 radtype=webpage
