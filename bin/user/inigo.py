@@ -46,8 +46,6 @@ current_ts = 0
 current_signal = 0
 current_count = 0
 cache_dir = "/tmp/inigo"
-temp_unit = C
-rain_unit = mm
 pickle_filename = None
 
 since_hour = 0
@@ -194,14 +192,14 @@ def reset_peak_detector(class_name, db_lookup):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, since_hour, VERSION, JSONversion, temp_unit, rain_unit
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, since_hour, VERSION, JSONversion
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
         if root_dict is not None:
             ext_dir = root_dict.get("EXT_DIR", None)
             if ext_dir is not None:
-                ext_cache_dir = os.path.join(ext_dir, "Inigo-Data")
+                ext_cache_dir = os.path.join(ext_dir, "Inigo")
                 _, installer = weecfg.get_extension_installer(ext_cache_dir)
                 VERSION = installer.get("version", "1.0.0")
 
@@ -226,30 +224,12 @@ def processConfigDict(class_name, config_dict):
     except Exception as e:
         log.error(f"Error! Unable to get plugin version, e: {str(e)}")
 
-    """
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
-        inigo = cfg.get("Inigo", None)
+        inigo = cfg.get("Inigo-Data", None)
         if inigo is not None:
-             cache_dir = inigo.get("cache_dir", "/tmp/inigo")
+             cache_dir = inigo.get("cache_dir", cache_dir)
              since_hour = int(inigo.get("since_hour", 0))
-             units = inigo.get("Units", None)
-             if units is not None:
-
-                 groups = units.get("Groups", None)
-                 if groups is not None:
-
-                     rain_group = groups.get("group_rain", None)
-                     if rain_group is not None and rain_group == "inch":
-                         rain_unit = inch
-
-                     if rain_group is not None and rain_group == "cm":
-                         rain_unit = cm
-
-                     temp_group = groups.get("group_temperature", None)
-                     if temp_group is not None and temp_group == "degree_F":
-                         temp_unit = imperial
-    """
 
     uid = os.getuid()
     statinfo = os.stat(cache_dir)
@@ -265,7 +245,7 @@ def processConfigDict(class_name, config_dict):
 
     log.debug(f"{class_name} Pickle filename set to {pickle_filename}")
 
-def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period):
+def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, skin_dict):
 
     if time_period in ("today", "yesterday"):
         context="day"
@@ -331,11 +311,11 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period):
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
-    if rain_unit == mm:
-        rain = rain.convert("mm")
+    #if rain_unit == mm:
+    #    rain = rain.convert("mm")
 
-    if rain_unit == cm:
-        rain = rain.convert("cm")
+    #if rain_unit == cm:
+    #    rain = rain.convert("cm")
 
     return rain.raw
 
@@ -731,13 +711,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today")
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday")
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date")
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month")
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date")
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year")
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime")
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", self.generator.skin_dict)
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", self.generator.skin_dict)
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", self.generator.skin_dict)
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month", self.generator.skin_dict)
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date", self.generator.skin_dict)
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", self.generator.skin_dict)
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", self.generator.skin_dict)
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
