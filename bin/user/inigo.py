@@ -251,12 +251,15 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         log.error(f"'{time_period}' is invalid, skipping...")
         return
 
-    stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
-    start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
-    if stop_time < start_time:
-        start_time = current_stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
-        stop_time = start_time - timedelta(microseconds=1)
-        start_time -= timedelta(days=1)
+    current_stop_time = datetime.fromtimestamp(timestamp)
+
+    if time_period == "today":
+        stop_time = current_stop_time
+        start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
+        if stop_time < start_time:
+            start_time = current_stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
+            stop_time = start_time - timedelta(microseconds=1)
+            start_time -= timedelta(days=1)
 
     elif time_period == "yesterday":
         stop_time = current_stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
