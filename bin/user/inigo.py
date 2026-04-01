@@ -310,7 +310,7 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
 
     group_rain = skin_dict.get("group_rain", "")
 
-    log.info(f"group_name: {group_name}")
+    log.info(f"group_rain: {group_rain}")
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
