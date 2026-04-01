@@ -738,6 +738,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", self.generator.skin_dict)
         since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", self.generator.skin_dict)
 
+        since_hour = self.generator.skin_dict.get("since_hour", 0)
+
         search_list_extension = {
             "search_list_ts": search_list_ts,
             "search_list_signal": search_list_signal,
