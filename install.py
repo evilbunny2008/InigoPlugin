@@ -13,6 +13,44 @@ from weeutil.config import conditional_merge
 
 VERSION="2.0.6"
 
+InigoDataConfig = {
+    "skin": "Inigo-Data",
+    "enable": "True",
+}
+
+InigoDictsConfig = {
+    "skin": "Inigo-Dicts",
+    "enable": "True",
+    "report_timing": "@yearlyCreateIfMissing",
+}
+
+InigoYesterdayConfig = {
+    "skin": "Inigo-yesterday",
+    "enable": "True",
+    "report_timing": "@dailyCreateIfMissing",
+}
+
+InigoLastMonthConfig = {
+    "skin": "Inigo-last-month",
+    "enable": "True",
+    "report_timing": "@monthlyCreateIfMissing",
+}
+
+InigoLastYearConfig = {
+    "skin": "Inigo-last-year",
+    "enable": "True",
+    "report_timing": "@yearlyCreateIfMissing",
+}
+
+InigoReportConfigs = {
+    "Inigo-Data": InigoDataConfig,
+    "Inigo-Dicts": InigoDictsConfig,
+    "Inigo-yesterday": InigoYesterdayConfig,
+    "Inigo-last-month": InigoLastMonthConfig,
+    "Inigo-last-year": InigoLastYearConfig,
+}
+
+
 def loader():
 
     return InigoInstaller()
@@ -51,32 +89,7 @@ class InigoInstaller(ExtensionInstaller):
             author="John Smith",
             author_email="deltafoxtrot256@gmail.com",
             config={
-                "StdReport": {
-                    "Inigo-Data": {
-                        "skin": "Inigo-Data",
-                        "enable": "True",
-                    },
-                    "Inigo-Dicts": {
-                        "skin": "Inigo-Dicts",
-                        "enable": "True",
-                        "report_timing": "@yearlyCreateIfMissing",
-                    },
-                    "Inigo-yesterday": {
-                        "skin": "Inigo-yesterday",
-                        "enable": "True",
-                        "report_timing": "@dailyCreateIfMissing",
-                    },
-                    "Inigo-last-month": {
-                        "skin": "Inigo-last-month",
-                        "enable": "True",
-                        "report_timing": "@monthlyCreateIfMissing",
-                    },
-                    "Inigo-last-year": {
-                        "skin": "Inigo-last-year",
-                        "enable": "True",
-                        "report_timing": "@yearlyCreateIfMissing",
-                    },
-                }
+                "StdReport": InigoReportConfigs
             },
             files=[
                 ("bin/user",
@@ -181,7 +194,8 @@ class InigoInstaller(ExtensionInstaller):
 
         inigo_dict = stdreport_dict.get("Inigo-Data")
         if inigo_dict is None:
-            fatal_error("Inigo-Data section of weewx.conf is None, can't continue...")
+            stdreport_dict["Inigo-Data"] = InigoDataConfig
+            inigo_dict = stdreport_dict.get("Inigo-Data")
 
         if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
             inigo_dict["cache_dir"] = cache_dir
