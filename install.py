@@ -24,30 +24,16 @@ InigoDictsConfig = {
     "report_timing": "@yearlyCreateIfMissing",
 }
 
-InigoYesterdayConfig = {
-    "skin": "Inigo-yesterday",
+InigoLastConfig = {
+    "skin": "Inigo-Last",
     "enable": "True",
     "report_timing": "@dailyCreateIfMissing",
-}
-
-InigoLastMonthConfig = {
-    "skin": "Inigo-last-month",
-    "enable": "True",
-    "report_timing": "@monthlyCreateIfMissing",
-}
-
-InigoLastYearConfig = {
-    "skin": "Inigo-last-year",
-    "enable": "True",
-    "report_timing": "@yearlyCreateIfMissing",
 }
 
 InigoReportConfigs = {
     "Inigo-Data": InigoDataConfig,
     "Inigo-Dicts": InigoDictsConfig,
-    "Inigo-yesterday": InigoYesterdayConfig,
-    "Inigo-last-month": InigoLastMonthConfig,
-    "Inigo-last-year": InigoLastYearConfig,
+    "Inigo-Last": InigoLastConfig,
 }
 
 
@@ -100,15 +86,9 @@ class InigoInstaller(ExtensionInstaller):
                 ("skins/Inigo-Dicts",
                 ["skins/Inigo-Dicts/inigo-dicts.json.tmpl",
                  "skins/Inigo-Dicts/skin.conf"]),
-                ("skins/Inigo-yesterday",
-                ["skins/Inigo-yesterday/inigo-yesterday.json.tmpl",
-                 "skins/Inigo-yesterday/skin.conf"]),
-                ("skins/Inigo-last-month",
-                ["skins/Inigo-last-month/inigo-last-month.json.tmpl",
-                 "skins/Inigo-last-month/skin.conf"]),
-                ("skins/Inigo-last-year",
-                ["skins/Inigo-last-year/inigo-last-year.json.tmpl",
-                 "skins/Inigo-last-year/skin.conf"]),
+                ("skins/Inigo-Last",
+                ["skins/Inigo-Last/inigo-last.json.tmpl",
+                 "skins/Inigo-Last/skin.conf"]),
             ]
         )
 
