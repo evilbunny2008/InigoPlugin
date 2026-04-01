@@ -239,7 +239,7 @@ def processConfigDict(class_name, config_dict):
 
     log.debug(f"{class_name} Pickle filename set to {pickle_filename}")
 
-def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, skin_dict):
+def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, group_rain, since_hour):
 
     if time_period in ("today", "yesterday"):
         context="day"
@@ -250,11 +250,6 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
     else:
         log.error(f"'{time_period}' is invalid, skipping...")
         return
-
-    since_hour = int(float(skin_dict.get("since_hour", 0)))
-
-    if not 0 <= since_hour <= 23:
-        since_hour = 0
 
     stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
     start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
@@ -307,12 +302,6 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
     if not rain.has_data():
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
-
-    log.info(f"skin_dict: {skin_dict}")
-
-    #group_rain = skin_dict.get("group_rain", "")
-
-    #log.info(f"group_rain: {group_rain}")
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
@@ -730,15 +719,34 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", self.generator.skin_dict)
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", self.generator.skin_dict)
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", self.generator.skin_dict)
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month", self.generator.skin_dict)
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date", self.generator.skin_dict)
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", self.generator.skin_dict)
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", self.generator.skin_dict)
+        #log.info(f"skin_dict: {skin_dict}")
 
-        since_hour = self.generator.skin_dict.get("since_hour", 0)
+        #group_rain = skin_dict.get("group_rain", "")
+
+        since_hour = int(float(skin_dict.get("since_hour", 0)))
+
+        if not 0 <= since_hour <= 23:
+            since_hour = 0
+
+        skin_dict = self.generator.skin_dict
+        if skin_dict is not None:
+            units_dict = skin_dict.get("Units", None)
+            if units_dict is not None:
+                groups_dict = units_dict.get("Groups", None)
+                if groups_dict is not None:
+                     group_rain = groups_dict.get("group_rain", None)
+
+        log.info(f"group_rain: {group_rain}")
+
+        log.info(f"since_hour: {since_hour}")
+
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", group_rain, since_hour)
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month", group_rain, since_hour)
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date", group_rain, since_hour)
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", group_rain, since_hour)
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", group_rain, since_hour)
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
