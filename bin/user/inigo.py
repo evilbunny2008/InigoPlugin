@@ -486,13 +486,20 @@ class PeriodicReportTiming(ReportTiming):
                 if not template.endswith(".tmpl"):
                     continue
 
-                filename = os.path.join(html_dest_dir, template[:-5])
+                template_filename = os.path.join(html_dest_dir, template)
+                output_filename = template_filename[:-5]
 
                 log.info(f"{self.__class__.__name__} Checking for {filename}")
 
-                if not os.path.exists(filename):
+                if not os.path.exists(output_filename):
+                    log.info(f"{self.__class__.__name__} {output_filename} doesn't exist, triggering report generation")
+                    return True
 
-                    log.info(f"{self.__class__.__name__} {filename} doesn't exist, triggering report generation")
+                template_mtime = os.path.getmtime(template_filename)
+                output_mtime = os.path.getmtime(output_filename)
+
+                if template_mtime > output_mtime:
+                    log.info(f"{self.__class__.__name__} {output_filename} exists but mtime is older than {template_filename}, triggering report generation")
                     return True
 
         log.debug(f"{self.__class__.__name__} all files exist, allowing existing timing checks to happen")
