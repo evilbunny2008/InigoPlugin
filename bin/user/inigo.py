@@ -723,11 +723,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         #group_rain = skin_dict.get("group_rain", "")
 
-        since_hour = int(float(skin_dict.get("since_hour", 0)))
-
-        if not 0 <= since_hour <= 23:
-            since_hour = 0
-
         skin_dict = self.generator.skin_dict
         if skin_dict is not None:
             units_dict = skin_dict.get("Units", None)
@@ -737,6 +732,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                      group_rain = groups_dict.get("group_rain", None)
 
         log.info(f"group_rain: {group_rain}")
+
+        since_hour = int(float(skin_dict.get("since_hour", 0)))
+
+        if not 0 <= since_hour <= 23:
+            since_hour = 0
 
         log.info(f"since_hour: {since_hour}")
 
