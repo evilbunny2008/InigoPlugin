@@ -475,6 +475,8 @@ class PeriodicReportTiming(ReportTiming):
 
         if self.is_valid and self.create_if_missing:
 
+            log.info(f"self.skin_dict: {self.skin_dict}")
+
             skin_dir = self.skin_dict["SKIN_ROOT"]
 
             skin_dir = os.path.join(skin_dir, self.skin_dict["skin"])
