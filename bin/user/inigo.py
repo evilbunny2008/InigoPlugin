@@ -48,8 +48,6 @@ current_count = 0
 cache_dir = "/tmp/inigo"
 pickle_filename = None
 
-since_hour = 0
-
 last_report_ts = 0
 last_report = None
 
@@ -192,7 +190,7 @@ def reset_peak_detector(class_name, db_lookup):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, since_hour, VERSION, JSONversion
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, VERSION, JSONversion
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -229,7 +227,6 @@ def processConfigDict(class_name, config_dict):
         inigo_data_dict = cfg.get("Inigo-Data", None)
         if inigo_data_dict is not None:
              cache_dir = inigo_data_dict.get("cache_dir", cache_dir)
-             since_hour = int(inigo_data_dict.get("since_hour", 0))
 
     uid = os.getuid()
     statinfo = os.stat(cache_dir)
@@ -237,9 +234,6 @@ def processConfigDict(class_name, config_dict):
 
     if uid != 0 and uid != cuid:
         fatal_error(f"{class_name} failed to start due to permissions on {cache_dir} directory uid: {uid}, cuid: {cuid}")
-
-    if not 0 <= since_hour <= 23:
-        since_hour = 0
 
     pickle_filename = os.path.join(cache_dir, "cache.pkl")
 
@@ -256,6 +250,11 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
     else:
         log.error(f"'{time_period}' is invalid, skipping...")
         return
+
+    since_hour = int(float(skin_dict.get("since_hour", 0)))
+
+    if not 0 <= since_hour <= 23:
+        since_hour = 0
 
     stop_time = current_stop_time = datetime.fromtimestamp(timestamp)
     start_time = stop_time.replace(hour=since_hour, minute=0, second=0, microsecond=0)
@@ -309,7 +308,9 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
 
-    log.info(f"skin_dict: {skin_dict}")
+    group_rain = skin_dict.get("group_rain", "")
+
+    log.info(f"group_name: {group_name}")
 
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
