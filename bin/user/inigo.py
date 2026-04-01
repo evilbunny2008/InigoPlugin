@@ -5,6 +5,7 @@ import pickle
 import stat
 import sys
 import time
+import traceback
 import weecfg
 import weewx
 import weewx.cheetahgenerator
