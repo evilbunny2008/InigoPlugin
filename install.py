@@ -82,19 +82,19 @@ class InigoInstaller(ExtensionInstaller):
                 ("bin/user",
                 ["bin/user/inigo.py"]),
                 ("skins/Inigo-Data",
-                ["skins/Inigo-Data/inigo-data.json.tmpl"
+                ["skins/Inigo-Data/inigo-data.json.tmpl",
                  "skins/Inigo-Data/skin.conf"]),
                 ("skins/Inigo-Dicts",
-                ["skins/Inigo-Dicts/inigo-dicts.json.tmpl"
+                ["skins/Inigo-Dicts/inigo-dicts.json.tmpl",
                  "skins/Inigo-Dicts/skin.conf"]),
                 ("skins/Inigo-yesterday",
-                ["skins/Inigo-yesterday/inigo-yesterday.json.tmpl"
+                ["skins/Inigo-yesterday/inigo-yesterday.json.tmpl",
                  "skins/Inigo-yesterday/skin.conf"]),
                 ("skins/Inigo-last-month",
-                ["skins/Inigo-last-month/inigo-last-month.json.tmpl"
+                ["skins/Inigo-last-month/inigo-last-month.json.tmpl",
                  "skins/Inigo-last-month/skin.conf"]),
                 ("skins/Inigo-last-year",
-                ["skins/Inigo-last-year/inigo-last-year.json.tmpl"
+                ["skins/Inigo-last-year/inigo-last-year.json.tmpl",
                  "skins/Inigo-last-year/skin.conf"]),
             ]
         )
