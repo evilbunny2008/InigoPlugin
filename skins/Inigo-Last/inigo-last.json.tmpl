@@ -12,7 +12,8 @@
 ##
 ##
 #try
-    #set $inigoData["now"] = $current.dateTime.raw
+    #set $inigoData["yesterday"] = $yesterday.dateTime
+    #set $inigoData["now"] = $yesterday.dateTime.raw
     ##
     ##
     ##
