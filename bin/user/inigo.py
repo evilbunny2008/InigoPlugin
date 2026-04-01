@@ -475,7 +475,7 @@ class PeriodicReportTiming(ReportTiming):
 
         if self.is_valid and self.create_if_missing:
 
-            html_dest_dir = self.skin_dict["WEEWX_HTML"]
+            html_dest_dir = self.skin_dict["HTML_ROOT"]
 
             log.info(f"{self.__class__.__name__} html_dest_dir: {html_dest_dir}")
 
