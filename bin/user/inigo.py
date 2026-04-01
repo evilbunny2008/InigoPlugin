@@ -293,11 +293,25 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         stop_time = current_stop_time
         start_time = stop_time.replace(year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
+    log.info(f"start_time: {start_time}")
+    log.info(f"stop_time: {stop_time}")
+
+    log.info(f"start_time.timestamp(): {start_time.timestamp()}")
+    log.info(f"stop_time.timestamp(): {stop_time.timestamp()}")
+
     tspan = TimeSpan(int(start_time.timestamp()), int(stop_time.timestamp()))
+
+    log.info(f"tspan: {tspan}")
 
     period = TimespanBinder(tspan, db_lookup, context=context)
 
+    log.info(f"period: {period}")
+    log.info(f"db_lookup: {db_lookup}")
+    log.info(f"context: {context}")
+
     rain = period.rain.sum
+
+    log.info(f"rain: {rain}")
 
     if not rain.has_data():
         log.info(f"{time_period}.rain.sum.has_data() is False")
