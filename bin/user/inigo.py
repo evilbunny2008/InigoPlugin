@@ -475,7 +475,7 @@ class PeriodicReportTiming(ReportTiming):
 
         if self.is_valid and self.create_if_missing:
 
-            log.debug(f"{self.__class__.__name__} skin_dict: {self.skin_dict}")
+            log.info(f"{self.__class__.__name__} skin_dict: {self.skin_dict}")
 
             html_dest_dir = self.skin_dict["HTML_ROOT"]
 
