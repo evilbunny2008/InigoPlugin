@@ -309,6 +309,8 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
 
+    log.info(f"skin_dict: {skin_dict}")
+
     #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
 
     #if rain_unit == mm:
@@ -475,7 +477,7 @@ class PeriodicReportTiming(ReportTiming):
 
         if self.is_valid and self.create_if_missing:
 
-            log.info(f"self.skin_dict: {self.skin_dict}")
+            #log.info(f"self.skin_dict: {self.skin_dict}")
 
             skin_dir = self.skin_dict["SKIN_ROOT"]
 
