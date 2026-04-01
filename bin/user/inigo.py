@@ -302,33 +302,11 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
 
     rain = period.rain.sum
 
-    if time_period == "alltime":
-        new_rain = rain.convert("mm")
-
-        log.info(f"new_rain mm: {new_rain.raw}")
-
-        new_rain = rain.convert("cm")
-
-        log.info(f"new_rain cm: {new_rain.raw}")
-
-        new_rain = rain.convert("inch")
-
-        log.info(f"new_rain inch: {new_rain.raw}")
-
     if not rain.has_data():
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
 
-    #log.info(f"{class_name} since_{time_period}.rain.sum.raw: {period.rain.sum.raw}")
-
-    rain = rain.convert(group_rain)
-
-    rain_raw = rain.raw
-
-    #log.info(f"{class_name} rain_raw: {rain_raw}")
-
-    return rain_raw
-
+    return rain.convert(group_rain).raw
 
 def convert_to_int(str):
 
@@ -736,10 +714,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        #log.info(f"skin_dict: {skin_dict}")
-
-        #group_rain = skin_dict.get("group_rain", "")
-
         since_hour = 0
         group_rain = "mm"
         skin_dict = self.generator.skin_dict
@@ -755,12 +729,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 groups_dict = units_dict.get("Groups", None)
                 if groups_dict is not None:
                      group_rain = groups_dict.get("group_rain", "mm")
-
-        #log.debug(f"group_rain: {group_rain}")
-
-        #log.debug(f"since_hour: {since_hour}")
-
-        #log.debug(f"db_lookup: {db_lookup}")
 
         since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
