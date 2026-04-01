@@ -302,6 +302,19 @@ def get_modified_rain_reset_time(class_name, db_lookup, timestamp, time_period, 
 
     rain = period.rain.sum
 
+    if time_period == "alltime":
+        new_rain = rain.convert("mm")
+
+        log.info(f"new_rain mm: {new_rain.raw}")
+
+        new_rain = rain.convert("cm")
+
+        log.info(f"new_rain cm: {new_rain.raw}")
+
+        new_rain = rain.convert("inch")
+
+        log.info(f"new_rain inch: {new_rain.raw}")
+
     if not rain.has_data():
         log.info(f"{time_period}.rain.sum.has_data() is False")
         return None
