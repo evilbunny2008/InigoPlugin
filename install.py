@@ -52,22 +52,50 @@ class InigoInstaller(ExtensionInstaller):
             author_email="deltafoxtrot256@gmail.com",
             config={
                 "StdReport": {
-                    "Inigo": {
-                        "skin": "Inigo",
+                    "Inigo-Data": {
+                        "skin": "Inigo-Data",
                         "enable": "True",
-                    }
+                    },
+                    "Inigo-Dicts": {
+                        "skin": "Inigo-Dicts",
+                        "enable": "True",
+                        "report_timing": "@yearlyCreateIfMissing",
+                    },
+                    "Inigo-yesterday": {
+                        "skin": "Inigo-yesterday",
+                        "enable": "True",
+                        "report_timing": "@dailyCreateIfMissing",
+                    },
+                    "Inigo-last-month": {
+                        "skin": "Inigo-last-month",
+                        "enable": "True",
+                        "report_timing": "@monthlyCreateIfMissing",
+                    },
+                    "Inigo-last-year": {
+                        "skin": "Inigo-last-year",
+                        "enable": "True",
+                        "report_timing": "@yearlyCreateIfMissing",
+                    },
                 }
             },
             files=[
                 ("bin/user",
                 ["bin/user/inigo.py"]),
-                ("skins/Inigo",
-                ["skins/Inigo/inigo-data.json.tmpl",
-                 "skins/Inigo/inigo-dicts.json.tmpl",
-                 "skins/Inigo/inigo-yesterday.json.tmpl",
-                 "skins/Inigo/inigo-last-month.json.tmpl",
-                 "skins/Inigo/inigo-last-year.json.tmpl",
-                 "skins/Inigo/skin.conf"]),
+                ("skins/Inigo-Data",
+                ["skins/Inigo-Data/inigo-data.json.tmpl"
+                 "skins/Inigo-Data/skin.conf"]),
+                ("skins/Inigo-Dicts",
+                ["skins/Inigo-Dicts/inigo-dicts.json.tmpl"
+                 "skins/Inigo-Dicts/skin.conf"]),
+                ("skins/Inigo-yesterday",
+                ["skins/Inigo-yesterday/inigo-yesterday.json.tmpl"
+                 "skins/Inigo-yesterday/skin.conf"]),
+                ("skins/Inigo-last-month",
+                ["skins/Inigo-last-month/inigo-last-month.json.tmpl"
+                 "skins/Inigo-last-month/skin.conf"]),
+                ("skins/Inigo-last-year",
+                ["skins/Inigo-last-year/inigo-last-year.json.tmpl"
+                 "skins/Inigo-last-year/skin.conf"]),
             ]
         )
 
