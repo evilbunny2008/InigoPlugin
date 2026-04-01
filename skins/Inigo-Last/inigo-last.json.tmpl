@@ -12,8 +12,8 @@
 ##
 ##
 #try
-    #set $inigoData["yesterday"] = $yesterday.dateTime
-    #set $inigoData["now"] = $yesterday.dateTime.raw
+    #set $inigoData["yesterday"] = $yesterday.end
+    #set $inigoData["now"] = $current.dateTime.raw
     ##
     ##
     ##
@@ -131,5 +131,5 @@
 #try
     #echo $json.dumps($sort_dict($inigoData))
 #except
-    #secho "failed at block 7"
+    #echo "failed at block 7"
 #end try
