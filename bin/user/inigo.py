@@ -201,7 +201,7 @@ def processConfigDict(class_name, config_dict):
         if root_dict is not None:
             ext_dir = root_dict.get("EXT_DIR", None)
             if ext_dir is not None:
-                ext_cache_dir = os.path.join(ext_dir, "Inigo")
+                ext_cache_dir = os.path.join(ext_dir, "Inigo-Data")
                 _, installer = weecfg.get_extension_installer(ext_cache_dir)
                 VERSION = installer.get("version", "1.0.0")
 
@@ -226,6 +226,7 @@ def processConfigDict(class_name, config_dict):
     except Exception as e:
         log.error(f"Error! Unable to get plugin version, e: {str(e)}")
 
+    """
     cfg = config_dict.get("StdReport", None)
     if cfg is not None:
         inigo = cfg.get("Inigo", None)
@@ -248,6 +249,7 @@ def processConfigDict(class_name, config_dict):
                      temp_group = groups.get("group_temperature", None)
                      if temp_group is not None and temp_group == "degree_F":
                          temp_unit = imperial
+    """
 
     uid = os.getuid()
     statinfo = os.stat(cache_dir)
