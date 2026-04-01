@@ -495,6 +495,8 @@ class PeriodicReportTiming(ReportTiming):
 
             html_dest_dir = self.skin_dict["WEEWX_HTML"]
 
+            log.info(f"{self.__class__.__name__} html_dest_dir: {html_dest_dir}")
+
             templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
 
             for template in templates:
@@ -504,11 +506,11 @@ class PeriodicReportTiming(ReportTiming):
 
                 filename = os.path.join(html_dest_dir, template[:-5])
 
-                log.debug(f"{self.__class__.__name__} Checking for {filename}")
+                log.info(f"{self.__class__.__name__} Checking for {filename}")
 
                 if not os.path.exists(filename):
 
-                    log.debug(f"{self.__class__.__name__} {filename} doesn't exist, triggering report generation")
+                    log.info(f"{self.__class__.__name__} {filename} doesn't exist, triggering report generation")
                     return True
 
         log.debug(f"{self.__class__.__name__} all files exist, allowing existing timing checks to happen")
