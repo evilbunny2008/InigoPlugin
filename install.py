@@ -55,31 +55,26 @@ class InigoInstaller(ExtensionInstaller):
                     "Inigo-Data": {
                         "skin": "Inigo-Data",
                         "enable": "True",
-                        "",
                     },
                     "Inigo-Dicts": {
                         "skin": "Inigo-Dicts",
                         "enable": "True",
                         "report_timing": "@yearlyCreateIfMissing",
-                        "",
                     },
                     "Inigo-yesterday": {
                         "skin": "Inigo-yesterday",
                         "enable": "True",
                         "report_timing": "@dailyCreateIfMissing",
-                        "",
                     },
                     "Inigo-last-month": {
                         "skin": "Inigo-last-month",
                         "enable": "True",
                         "report_timing": "@monthlyCreateIfMissing",
-                        "",
                     },
                     "Inigo-last-year": {
                         "skin": "Inigo-last-year",
                         "enable": "True",
                         "report_timing": "@yearlyCreateIfMissing",
-                        "",
                     },
                 }
             },
