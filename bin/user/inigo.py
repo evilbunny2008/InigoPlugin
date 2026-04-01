@@ -481,24 +481,26 @@ class PeriodicReportTiming(ReportTiming):
 
             templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
 
-            for template in templates:
+            if templates is not None:
 
-                if not template.endswith(".tmpl"):
-                    continue
+                for template in templates:
 
-                template_filename = os.path.join(html_dest_dir, template)
-                output_filename = template_filename[:-5]
+                    if not template.endswith(".tmpl"):
+                        continue
 
-                if not os.path.exists(output_filename):
-                    log.info(f"{self.__class__.__name__} {output_filename} doesn't exist, triggering report generation")
-                    return True
+                    template_filename = os.path.join(html_dest_dir, template)
+                    output_filename = template_filename[:-5]
 
-                template_mtime = os.path.getmtime(template_filename)
-                output_mtime = os.path.getmtime(output_filename)
+                    if not os.path.exists(output_filename):
+                        log.info(f"{self.__class__.__name__} {output_filename} doesn't exist, triggering report generation")
+                        return True
 
-                if template_mtime > output_mtime:
-                    log.info(f"{self.__class__.__name__} {output_filename} exists but mtime is older than {template_filename}, triggering report generation")
-                    return True
+                    template_mtime = os.path.getmtime(template_filename)
+                    output_mtime = os.path.getmtime(output_filename)
+
+                    if template_mtime > output_mtime:
+                        log.info(f"{self.__class__.__name__} {output_filename} exists but mtime is older than {template_filename}, triggering report generation")
+                        return True
 
         log.debug(f"{self.__class__.__name__} all files exist, allowing existing timing checks to happen")
         return super().is_triggered(ts_hi, ts_lo)
