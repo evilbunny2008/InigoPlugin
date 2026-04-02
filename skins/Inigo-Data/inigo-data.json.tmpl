@@ -217,10 +217,14 @@
                 #set $var = "almanac.moon.next_rise.raw"
                 #if $almanac.moon.next_rise is not None and $almanac.moon.next_rise.raw is not None
                     #set $inigoData["moon_next_rise"] = $almanac.moon.next_rise.raw
+                #else if $almanac.moon.next_rising is not None and $almanac.moon.next_rising.raw is not None
+                    #set $inigoData["moon_next_rise"] = $almanac.moon.next_rising.raw
                 #end if
                 #set $var = "almanac.moon.next_set.raw"
                 #if $almanac.moon.next_set is not None and $almanac.moon.next_set.raw is not None
                     #set $inigoData["moon_next_set"] = $almanac.moon.next_set.raw
+                #else if $almanac.moon.next_setting is not None and $almanac.moon.next_setting.raw is not None
+                    #set $inigoData["moon_next_set"] = $almanac.moon.next_setting.raw
                 #end if
             #end if
             #set $var = "almanac.next_full_moon.raw"
