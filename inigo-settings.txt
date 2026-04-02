@@ -8,6 +8,7 @@
 jsondata=https://example.com/weewx/inigo-data.json
 
 # or you cna specify all 3 URLs needed, but the above line will override the ones below
+# so comment the line above out if you need to manually specify individual URLs for some reason
 
 #json-data=https://example.com/weewx/inigo-data.json
 #json-dicts=https://example.com/weewx/inigo-dicts.json

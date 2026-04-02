@@ -13,7 +13,7 @@
 ##
 ##
 #try
-    #set $dict_data["now"] = $current.dateTime.raw
+    #set $dict_data["report_time"] = $current.dateTime.raw
     ##
     ##
     ##
@@ -43,5 +43,5 @@
 #try
     #echo $json.dumps($sort_dict($dict_data))
 #except
-    #secho "failed at block 13"
+    #secho "failed at block 4"
 #end try

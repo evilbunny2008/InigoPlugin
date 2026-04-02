@@ -172,35 +172,35 @@ class InigoInstaller(ExtensionInstaller):
         if stdreport_dict is None:
             fatal_error("StdReport is None, can't continue...")
 
-        inigo_dict = stdreport_dict.get("Inigo-Data")
-        if inigo_dict is None:
+        old_since_hour = -1
+        inigo_dict = stdreport_dict.get("Inigo", None)
+        if inigo_dict is not None:
+            old_since_hour = int(inigo_dict.get("since_hour", -1))
+            del stdreport_dict["Inigo"]
+
+        inigo_data_dict = stdreport_dict.get("Inigo-Data", None)
+        if inigo_data_dict is None:
             stdreport_dict["Inigo-Data"] = InigoDataConfig
-            inigo_dict = stdreport_dict.get("Inigo-Data")
+            inigo_data_dict = stdreport_dict.get("Inigo-Data")
 
-        if "cache_dir" not in inigo_dict or inigo_dict.get("cache_dir") != cache_dir:
-            inigo_dict["cache_dir"] = cache_dir
+        if "cache_dir" not in inigo_data_dict or inigo_data_dict.get("cache_dir") != cache_dir:
+            inigo_data_dict["cache_dir"] = cache_dir
 
-        if "since" in inigo_dict:
-            del inigo_dict["since"]
-
-        if "since_hour" not in inigo_dict:
+        if "since_hour" not in inigo_data_dict:
             if 0 <= self.since_hour <= 23:
-                inigo_dict["since_hour"] = self.since_hour
+                inigo_data_dict["since_hour"] = self.since_hour
             else:
-                inigo_dict["since_hour"] = 0
+                inigo_data_dict["since_hour"] = 0
 
         else:
-            tmpsince = int(inigo_dict.get("since_hour", -1))
+            tmpsince = int(inigo_data_dict.get("since_hour", old_since_hour))
 
             if 0 <= self.since_hour <= 23:
                 if self.since_hour != tmpsince:
-                    inigo_dict["since_hour"] = self.since_hour
+                    inigo_data_dict["since_hour"] = self.since_hour
 
             elif not 0 <= tmpsince <= 23:
-                inigo_dict["since_hour"] = 0
-
-        if "Units" in inigo_dict:
-            del inigo_dict["Units"]
+                inigo_data_dict["since_hour"] = 0
 
         engine_dict = engine.config_dict.get("Engine", None)
         if engine_dict is None:
