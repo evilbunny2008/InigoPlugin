@@ -2,9 +2,16 @@
 #data=https://example.com/weewx/inigo-data.txt
 
 # For the beta version of the app which will be the new stable version at some point
-json-data=https://example.com/weewx/inigo-data.json
-json-dicts=https://example.com/weewx/inigo-dicts.json
-json-last=https://example.com/weewx/inigo-last.json
+#
+# You can set a single URL and the app will base the other 2 on it
+
+jsondata=https://example.com/weewx/inigo-data.json
+
+# or you cna specify all 3 URLs needed, but the above line will override the ones below
+
+#json-data=https://example.com/weewx/inigo-data.json
+#json-dicts=https://example.com/weewx/inigo-dicts.json
+#json-last=https://example.com/weewx/inigo-last.json
 
 # Configuration of the radar screen in the app
 radtype=webpage
