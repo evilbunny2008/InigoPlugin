@@ -43,5 +43,5 @@
 #try
     #echo $json.dumps($sort_dict($dict_data))
 #except
-    #secho "failed at block 4"
+    #echo "{\"version\": 1000000, \"processingErrors\": [\"failed at block 4\"]}"
 #end try
