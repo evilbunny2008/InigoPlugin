@@ -472,31 +472,37 @@ class PeriodicReportTiming(ReportTiming):
 
             html_dest_dir = self.skin_dict["HTML_ROOT"]
 
-            if os.path.exists(skin_dir) and os.path.exists(html_dest_dir):
+            if os.path.exists(skin_dir):
 
-                templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
+                if os.path.exists(html_dest_dir):
 
-                for template in templates:
+                    templates = dict_search(self.skin_dict.get("CheetahGenerator", None), "template")
 
-                    if not template.endswith(".tmpl"):
-                        continue
+                    for template in templates:
 
-                    template_filename = os.path.join(skin_dir, template)
+                        if not template.endswith(".tmpl"):
+                            continue
 
-                    if os.path.exists(template_filename):
+                        template_filename = os.path.join(skin_dir, template)
 
-                        output_filename = os.path.join(html_dest_dir, template[:-5])
+                        if os.path.exists(template_filename):
 
-                        if not os.path.exists(output_filename):
-                            log.debug(f"{self.__class__.__name__} {output_filename} doesn't exist, triggering report generation")
-                            return True
+                            output_filename = os.path.join(html_dest_dir, template[:-5])
 
-                        template_mtime = os.path.getmtime(template_filename)
-                        output_mtime = os.path.getmtime(output_filename)
+                            if not os.path.exists(output_filename):
+                                log.debug(f"{self.__class__.__name__} {output_filename} doesn't exist, triggering report generation")
+                                return True
 
-                        if template_mtime > output_mtime:
-                            log.debug(f"{self.__class__.__name__} {output_filename} exists but mtime is older than {template_filename}, triggering report generation")
-                            return True
+                            template_mtime = os.path.getmtime(template_filename)
+                            output_mtime = os.path.getmtime(output_filename)
+
+                            if template_mtime > output_mtime:
+                                log.debug(f"{self.__class__.__name__} {output_filename} exists but mtime is older than {template_filename}, triggering report generation")
+                                return True
+
+                else:
+                    log.debug(f"{self.__class__.__name__} {html_dest_dir} doesn't exist, triggering report generation")
+                    return True
 
         #log.debug(f"{self.__class__.__name__} all files exist, allowing existing timing checks to happen")
         return super().is_triggered(ts_hi, ts_lo)
