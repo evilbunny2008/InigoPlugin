@@ -46,7 +46,7 @@
                 #end if
                 #set $hour_ago = getattr($hour(hours_ago=1), $var, None)
                 #if $hour_ago is not None
-                    #set #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
+                    #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
                 #end if
             #end if
             ##
