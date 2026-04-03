@@ -34,6 +34,7 @@
                     #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
                 #set $trend3600 = getattr($trend(time_delta=3600), $var, None)
+                #set $inigoData[$var_name_str + "_trend_raw"] = $trend3600
                 #if $trend3600 is not None and $trend3600.raw >= 0.2
                     #set $inigoData[$var_name_str + "_trend"] = "Rising"
                 #elif $trend3600 is not None and $trend3600.raw <= -0.2
