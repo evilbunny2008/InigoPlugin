@@ -44,7 +44,7 @@
                         #set $inigoData[$var_name_str + "_trend"] = "Steady"
                     #end if
                 #end if
-                #set $hour_ago = getattr($hour(hours_ago=1), $var, None)
+                #set $hour_ago = getattr($current(timestamp=$now-3600, max_delta=300), $var, None)
                 #if $hour_ago is not None
                     #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
                 #end if
@@ -327,8 +327,6 @@
 ##
 #try
     #echo $json.dumps($sort_dict($inigoData))
-#except TypeError
-    #echo "{\"version\": 1000000, \"processingErrors\": [\"failed at block 12"  + ", sys.exc_info(): " + $sys.exc_info() + "\"]}"
 #except
     #echo "{\"version\": 1000000, \"processingErrors\": [\"failed at block 12"  + ", sys.exc_info(): " + $sys.exc_info() + "\"]}"
 #end try
