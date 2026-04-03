@@ -33,15 +33,13 @@
                 #else
                     #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
-                #set $minus3600 = getattr($current($timestamp=$now-3600, $max_delta=180), $var, None)
-                #if $minus3600 is not None
-                    #if $var_name.raw > $minus3600.raw
-                        #set $inigoData[$var_name_str + "_trend"] = "Rising"
-                    #elif $var_name.raw < $minus3600.raw
-                        #set $inigoData[$var_name_str + "_trend"] = "Falling"
-                    #else
-                        #set $inigoData[$var_name_str + "_trend"] = "Steady"
-                    #end if
+                #set $trend3600 = getattr($trend(time_delta=3600), $var, None)
+                #if $trend3600 is not None and $trend3600.raw >= 0.2
+                    #set $inigoData[$var_name_str + "_trend"] = "Rising"
+                #elif $trend3600 is not None and $trend3600.raw <= -0.2
+                    #set $inigoData[$var_name_str + "_trend"] = "Falling"
+                #else
+                    #set $inigoData[$var_name_str + "_trend"] = "Steady"
                 #end if
             #end if
             ##
