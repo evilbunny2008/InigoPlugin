@@ -23,6 +23,11 @@
     ##
     ##
     #try
+        #set $hour_ago = $current(timestamp=$now-3600, max_delta=300)
+        #set $inigoData["hour_ago_time"] = $hour_ago.dateTime.raw
+        ##
+        ##
+        ##
         #for $var in $vars
             #set $time_period = "current"
             #set $var_name = getattr($current, $var, None)
@@ -44,14 +49,14 @@
                         #set $inigoData[$var_name_str + "_trend"] = "Steady"
                     #end if
                 #end if
-                #set $hour_ago = getattr($current(timestamp=$now-3600, max_delta=300), $var, None)
-                #if $hour_ago is not None
+                #set $hour_ago_var = getattr($hour_ago, $var, None)
+                #if $hour_ago_var is not None
                     #if $var in ["outTemp", "inTemp", "dewpoint"]
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.convert($unit.unit_type_dict.group_temperature).raw
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.convert($unit.unit_type_dict.group_temperature).raw
                     #elif $var == "barometer"
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.convert($unit.unit_type_dict.group_pressure).raw
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.convert($unit.unit_type_dict.group_pressure).raw
                     #else
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.raw
                     #end if
                 #end if
             #end if
