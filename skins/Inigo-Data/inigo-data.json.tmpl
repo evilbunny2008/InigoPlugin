@@ -231,7 +231,7 @@
                 #if $almanac.moon.next_setting is not None and $almanac.moon.next_setting.raw is not None
                     #set $moon_next_set_is_set = True
                     #set $inigoData["moon_next_set"] = $almanac.moon.next_setting.raw
-                #nd if
+                #end if
                 #if not $moon_next_set_is_set
                     #set $var = "almanac.moon.next_set.raw"
                     #if $almanac.moon.next_set is not None and $almanac.moon.next_set.raw is not None
