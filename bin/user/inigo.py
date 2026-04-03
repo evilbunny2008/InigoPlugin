@@ -1,4 +1,5 @@
 
+import inspect
 import logging
 import os
 import pickle
@@ -626,7 +627,9 @@ def patched_run(self, reports=None):
             else:
                 log.debug("No generators specified for report '%s'", report)
 
-weewx.reportengine.StdReportEngine.run = patched_run
+sig = inspect.signature(ReportTiming)
+if len(sig) != 2:
+    weewx.reportengine.StdReportEngine.run = patched_run
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
