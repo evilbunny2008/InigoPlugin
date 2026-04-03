@@ -46,7 +46,13 @@
                 #end if
                 #set $hour_ago = getattr($current(timestamp=$now-3600, max_delta=300), $var, None)
                 #if $hour_ago is not None
-                    #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
+                    #if $var in ["outTemp", "inTemp", "dewpoint"]
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.convert($unit.unit_type_dict.group_temperature).raw
+                    #elif $var == "barometer"
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.convert($unit.unit_type_dict.group_pressure).raw
+                    #else
+                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago.raw
+                    #end if
                 #end if
             #end if
             ##
