@@ -125,6 +125,8 @@ class InigoInstaller(ExtensionInstaller):
         except (ImportError, Exception):
             fatal_error(f"The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
+        print(f"engine.config_dict: {engine.config_dict}")
+
         data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
         if data_dir is None:
             fatal_error("SQLITE_ROOT is None, can't continue...")
