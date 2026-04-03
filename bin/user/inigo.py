@@ -626,7 +626,7 @@ def patched_run(self, reports=None):
             else:
                 log.debug("No generators specified for report '%s'", report)
 
-ReportTimingSig = inspect.signature(MyClass)
+ReportTimingSig = inspect.signature(ReportTiming)
 if len(ReportTimingSig.parameters) != 2:
     weewx.reportengine.StdReportEngine.run = patched_run
 
