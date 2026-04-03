@@ -628,7 +628,7 @@ def patched_run(self, reports=None):
                 log.debug("No generators specified for report '%s'", report)
 
 sig = inspect.signature(ReportTiming)
-if len(sig) != 2:
+if len(sig.parameters) != 2:
     weewx.reportengine.StdReportEngine.run = patched_run
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
