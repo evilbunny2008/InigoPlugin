@@ -125,8 +125,6 @@ class InigoInstaller(ExtensionInstaller):
         except (ImportError, Exception):
             fatal_error(f"The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
-        print(f"engine.config_dict: {engine.config_dict}")
-
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
             fatal_error("StdReport is None, can't continue...")
@@ -146,7 +144,7 @@ class InigoInstaller(ExtensionInstaller):
 
                 data_dir = engine.config_dict.get("WEEWX_ROOT", None)
                 if data_dir is None or not os.path.isdir(data_dir):
-                    fatal_error("Failed to determine where to store Inigo cache files, you may need to set SQLITE_ROOT in weewx.conf")
+                    fatal_error("Failed to determine where to store Inigo cache files, you may need to set SQLITE_ROOT, SKIN_ROOT or WEEWX_ROOT in weewx.conf")
 
         uid = os.getuid()
         statinfo = os.stat(data_dir)
