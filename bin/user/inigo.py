@@ -67,7 +67,6 @@ def fatal_error(error_str):
     log.error(error_str)
     raise weewx.UnsupportedFeature("Fatal Error")
 
-
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 7):
     fatal_error(f"InigoService requires Python 3.7 or later, found {sys.version_info[0]}.{sys.version_info[1]}")
 
@@ -443,9 +442,9 @@ class PeriodicReportTiming(ReportTiming):
                                                                                  self.raw_line)
                 return
 
-        if line_str.endswith("CreateIfMissing"):
+        if "@createIfMissing" in line_str:
             self.create_if_missing = True
-            line_str = line_str[:-15]
+            line_str = line_str.replace(",@createIfMissing", "")
 
         super().__init__(line_str)
 
@@ -627,8 +626,8 @@ def patched_run(self, reports=None):
             else:
                 log.debug("No generators specified for report '%s'", report)
 
-sig = inspect.signature(ReportTiming)
-if len(sig.parameters) != 2:
+ReportTimingSig = inspect.signature(MyClass)
+if len(ReportTimingSig.parameters) != 2:
     weewx.reportengine.StdReportEngine.run = patched_run
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):

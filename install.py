@@ -21,13 +21,13 @@ InigoDataConfig = {
 InigoDictsConfig = {
     "skin": "Inigo-Dicts",
     "enable": "True",
-    "report_timing": "@yearlyCreateIfMissing",
+    "report_timing": "@yearly, @createIfMissing",
 }
 
 InigoLastConfig = {
     "skin": "Inigo-Last",
     "enable": "True",
-    "report_timing": "@dailyCreateIfMissing",
+    "report_timing": "@daily, @createIfMissing",
 }
 
 InigoReportConfigs = {
