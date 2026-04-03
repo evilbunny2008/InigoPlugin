@@ -127,9 +127,26 @@ class InigoInstaller(ExtensionInstaller):
 
         print(f"engine.config_dict: {engine.config_dict}")
 
-        data_dir = engine.config_dict.get('DatabaseTypes', dict()).get('SQLite',dict()).get('SQLITE_ROOT', None)
-        if data_dir is None:
-            fatal_error("SQLITE_ROOT is None, can't continue...")
+        stdreport_dict = engine.config_dict.get("StdReport", None)
+        if stdreport_dict is None:
+            fatal_error("StdReport is None, can't continue...")
+
+        data_dir = None
+        database_dict = engine.config_dict.get("DatabaseTypes", None)
+        if database_dict is not None:
+
+            sqlite_dict = database_dict.get("SQLite", None)
+            if sqlite_dict is not None:
+                data_dir = sqlite_dict.get("SQLITE_ROOT", None)
+
+        if data_dir is None or not os.path.isdir(data_dir):
+
+            data_dir = engine.config_dict.get("SKIN_ROOT", None)
+            if data_dir is None or not os.path.isdir(data_dir):
+
+                data_dir = engine.config_dict.get("WEEWX_ROOT", None)
+                if data_dir is None or not os.path.isdir(data_dir):
+                    fatal_error("Failed to determine where to store Inigo cache files, you may need to set SQLITE_ROOT in weewx.conf")
 
         uid = os.getuid()
         statinfo = os.stat(data_dir)
@@ -169,10 +186,6 @@ class InigoInstaller(ExtensionInstaller):
 
         if current_mode != desired_mode | stat.S_IFDIR or cache_uid != data_uid or cache_gid != data_gid:
             fatal_error("Failed to set the correct permissions for the InigoService cache directory, can't continue...")
-
-        stdreport_dict = engine.config_dict.get("StdReport", None)
-        if stdreport_dict is None:
-            fatal_error("StdReport is None, can't continue...")
 
         old_since_hour = -1
         inigo_dict = stdreport_dict.get("Inigo", None)
