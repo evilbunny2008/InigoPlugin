@@ -3,6 +3,7 @@ import inspect
 import logging
 import os
 import pickle
+import pprint
 import stat
 import sys
 import time
@@ -678,8 +679,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if var is None or not var.has_data():
                 return -999.9
 
-            log.info(f"var: {var}")
-            log.info(f"db_lookup: {db_lookup}")
+            log.info(f"var: {pprint.pformat(var)}")
+            log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
 
             #try:
             #    return var.convert(group).raw
