@@ -35,8 +35,7 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $var_name = $raw_value($var_name)
-                    #set $inigoData[$var_name_str] = $var_name.raw
+                    #set $inigoData[$var_name_str] = $raw_value($var_name)
                 #end if
             #end for
             ##
