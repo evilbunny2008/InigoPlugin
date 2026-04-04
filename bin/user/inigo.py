@@ -689,7 +689,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if var is None:
                 return -999.9
 
-            log.info(f"var: {pprint.pformat(var)}")
+            #log.info(f"var: {pprint.pformat(var)}")
 
             oldvar = var
 
@@ -703,7 +703,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type is None:
                     obs_type = var.obs_type
 
-                log.info(f"obs_type: {obs_type}")
+                #log.info(f"obs_type: {obs_type}")
 
                 group_name = getUnitGroup(var.obs_type)
                 #log.info(f"group_name: {group_name}")
@@ -713,18 +713,18 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 group = group_lookup(skin_dict, group_name)
 
                 if group is not None and group != "":
-                    log.info(f"Converting var to {group}")
+                    #log.info(f"Converting var to {group}")
                     try:
                         var = var.convert(group)
                     except:
                         log.info(f"oldvar: {pprint.pformat(oldvar)}")
 
                 #log.info(f"group: {group}")
-                log.info(f"After var.raw: {var.raw}")
+                #log.info(f"After var.raw: {var.raw}")
 
             elif isinstance(var, ValueHelper):
-                log.info(f"Before var.raw: {var.raw}")
-                log.info(f"var.value_t: {var.value_t}")
+                #log.info(f"Before var.raw: {var.raw}")
+                #log.info(f"var.value_t: {var.value_t}")
 
                 group_name = var.value_t[2]
                 #log.info(f"group_name: {group_name}")
@@ -732,28 +732,15 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 group = group_lookup(skin_dict, group_name)
 
                 if group is not None and not group:
-                    log.info(f"Converting var to {group}")
+                    #log.info(f"Converting var to {group}")
                     var = var.convert(group)
 
                 #log.info(f"group: {group}")
-                log.info(f"After var.raw: {var.raw}")
+                #log.info(f"After var.raw: {var.raw}")
 
             else:
 
                 log.info(f"var: {pprint.pformat(var)}")
-
-            """
-
-            log.info(f"var.raw: {var.raw}")
-            """
-
-
-            #log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
-
-            #try:
-            #    return var.convert(group).raw
-            #except:
-            #    return -999
 
             return var.raw
 
