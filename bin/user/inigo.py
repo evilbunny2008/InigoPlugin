@@ -24,7 +24,7 @@ from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
 from weewx.units import FtoC, getUnitGroup, ValueHelper
-from weewx.tags import AggTypeBinder, ObservationBinder, TimeBinder, TimespanBinder
+from weewx.tags import AggTypeBinder, CurrentObj, TimespanBinder
 
 log = logging.getLogger(__name__)
 
@@ -679,8 +679,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if not 0 <= since_hour <= 23:
                 since_hour = 0
 
-        hour_ago_time = timespan.stop - 3600
-        hour_ago = TimeBinder(db_lookup, hour_ago_time)
+        hour_ago_time = round((timespan.stop - 3600) / 300) * 300
+
+        hour_ago = RecordBinder(db_lookup, hour_ago_time).current()
 
         #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
