@@ -696,7 +696,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             if isinstance(var, AggTypeBinder):
 
-                if obs_type is None:
+                if obs_type is None or obs_type.strip() == "":
                     obs_type = var.obs_type
 
                 if obs_type == "appTemp":
@@ -712,7 +712,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type == "appTemp":
                     log.info(f"group: {group}")
 
-                if group is not None and group != "":
+                if group is not None and group.strip() != "":
                     if obs_type == "appTemp":
                         log.info(f"Converting var to {group}")
 
@@ -723,7 +723,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             elif isinstance(var, ValueHelper):
 
-                if obs_type is None:
+                if obs_type is None or obs_type.strip() == "":
                     obs_type = var.value_t[1]
 
                 if obs_type == "appTemp":
@@ -739,7 +739,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type == "appTemp":
                     log.info(f"group: {group}")
 
-                if group is not None and not group:
+                if group is not None and group != "":
                     if obs_type == "appTemp":
                         log.info(f"Converting var to {group}")
 

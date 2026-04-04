@@ -179,7 +179,7 @@
             #set $inigoData["hour_ago_time"] = $inigo.get("hour_ago_time", 0)
             #set $ts = $inigo.get("ts", None)
             #set $report = $inigo.get("report", {})
-            #if $ts is not None and $ts > 0 and $report is not None and not $report
+            #if $ts is not None and $ts > 0 and $report is not None and $report != {}
                 #set $inigoData["outTemp_trend_ts"] = $report.get("search_list_ts", [])
                 #set $inigoData["outTemp_trend_signal"] = $report.get("search_list_signal", [])
                 #set $inigoData["outTemp_trend_count"] = $report.get("search_list_count", [])
