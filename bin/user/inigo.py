@@ -690,10 +690,10 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #log.info(f"units_dict: {pprint.pformat(units_dict)}")
                 if units_dict is not None and units_dict != {}:
                     groups_dict = units_dict.get("Groups", None)
-                    #log.info(f"groups_dict: {pprint.pformat(groups_dict)}")
+                    log.info(f"groups_dict: {groups_dict}")
                     if groups_dict is not None and groups_dict != {}:
                         group = groups_dict.get(var.obs_type, None)
-                        log.info(f"group: {pprint.pformat(group)}")
+                        log.info(f"group: {group}")
 
                 if group is not None and not group:
                     var = var.convert(group)
