@@ -288,9 +288,17 @@
     ##
     #try
         #set $var = "current.appTemp"
-        #set $inigoData["appTemp"] = $current.appTemp.raw
+        #if $current.appTemp.has_data
+            #set $inigoData["current_appTemp"] = $current.appTemp.raw
+        #end if
+        #set $var = "current.THSW"
+        #if $current.THSW.has_data
+            #set $inigoData["current_THSW"] = $current.THSW.raw
+        #end if
         #set $var = "station.location"
-        #set $inigoData["station_location"] = $station.location.strip()
+        #if $station is not None and $station.has_data and $station.location is not None and $station.location.has_data
+            #set $inigoData["station_location"] = $station.location.strip()
+        #end if
     #except
         #set $inigoData["processingErrors"] += ["failed at block 7, var: " + $var + ", sys.exc_info(): " + $sys.exc_info()]
     #end try
