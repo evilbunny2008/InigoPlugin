@@ -85,7 +85,6 @@
                     #set $inigoData[$time_period + "_" + $var + "_sum"] = $raw_value($var_name.sum)
                 #end if
             #end for
-        #end if
         #end for
     #except
         #set $inigoData["processingErrors"] += ["failed at block 3, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
@@ -215,7 +214,7 @@
     ##
     ##
     #try
-        #if $inigo is not None
+        #if $varExists("inigo")
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None
