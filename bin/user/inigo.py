@@ -23,7 +23,7 @@ from functools import reduce
 from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
-from weewx.units import FtoC, getUnitGroup
+from weewx.units import FtoC, getUnitGroup, ValueHelper
 from weewx.tags import AggTypeBinder, TimeBinder, TimespanBinder
 
 log = logging.getLogger(__name__)
@@ -701,6 +701,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
 
+            elif isinstance(var, ValueHelper):
+                log.info(f"var.raw: {var.raw}")
+                log.info(f"var.value_t: {var.value_t}")
             else:
 
                 log.info(f"var: {pprint.pformat(var)}")
