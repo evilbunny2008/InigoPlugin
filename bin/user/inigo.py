@@ -670,7 +670,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if not 0 <= since_hour <= 23:
                 since_hour = 0
 
-        def output_value(var):
+        def raw_value(var):
 
             if var is None or not var.has_data() or group is None or not group:
                 return -999.9
@@ -719,7 +719,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             return {**output_dict, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
-            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "convert_value": convert_value}]
+            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value}]
 
         #log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
         #log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
@@ -794,7 +794,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.debug(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "convert_value": convert_value}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value}]
 
 class InigoService(weewx.engine.StdService):
 
