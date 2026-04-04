@@ -678,7 +678,10 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.info(f"getUnitGroup(var.obs_type): {getUnitGroup(var.obs_type)}")
 
             if isinstance(var, AggTypeBinder):
-                log.info(f"var.obs_type: {pprint.pformat(var.obs_type)}")
+                log.info(f"var.obs_type: {var.obs_type}")
+                group = getUnitGroup(var.obs_type)
+                log.info(f"group: {group}")
+
 
             """
             group = None
