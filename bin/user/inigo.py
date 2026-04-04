@@ -685,6 +685,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if group is not None and not group:
                 var = var.convert(group)
 
+            log.info(f"var.obs_type: {var.obs_type}")
             log.info(f"var.raw: {var.raw}")
 
 
