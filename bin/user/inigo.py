@@ -683,7 +683,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 group = getUnitGroup(var.obs_type)
                 #log.info(f"group: {group}")
 
-                log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
+                #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
                 group = None
                 units_dict = skin_dict.get("Units", None)
