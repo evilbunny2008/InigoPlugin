@@ -680,8 +680,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if isinstance(var, AggTypeBinder):
                 log.info(f"Before var.raw: {var.raw}")
                 log.info(f"var.obs_type: {var.obs_type}")
-                group = getUnitGroup(var.obs_type)
-                #log.info(f"group: {group}")
+                group_name = getUnitGroup(var.obs_type)
+                log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
@@ -690,9 +690,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #log.info(f"units_dict: {pprint.pformat(units_dict)}")
                 if units_dict is not None and units_dict != {}:
                     groups_dict = units_dict.get("Groups", None)
-                    log.info(f"groups_dict: {groups_dict}")
+                    #log.info(f"groups_dict: {groups_dict}")
                     if groups_dict is not None and groups_dict != {}:
-                        group = groups_dict.get(var.obs_type, None)
+                        group = groups_dict.get(group_name, None)
                         log.info(f"group: {group}")
 
                 if group is not None and not group:
