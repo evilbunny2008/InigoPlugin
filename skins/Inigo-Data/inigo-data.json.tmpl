@@ -27,16 +27,15 @@
     ##
     ##
     #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
-    #set $time_periods = ["current", "hour_ago"]
-    #set $time_periods2 = ["day", "month", "year", "alltime"]
+    #set $time_periods = ["day", "month", "year", "alltime"]
     ##
     ##
     ##
     #try
         #for $var in $vars
-            #for $time_period in $time_periods
+            #for $time_period in ["current", "hour_ago"]
                 #set $var_name_str = $time_period + "_" + $var
-                #set $var_name = getattr($getVar($time_period), $var, None)
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name)
                 #end if
@@ -44,9 +43,9 @@
             ##
             ##
             ##
-            #for $time_period in $time_periods2
+            #for $time_period in $time_periods
                 #set $var_name_str = $time_period + "_" + $var
-                #set $var_name = getattr($getVar($time_period), $var, None)
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
                     #set $inigoData[$var_name_str + "_min"] = $raw_value($var_name.min)
@@ -64,8 +63,8 @@
     #try
         #set $vars = ["ET", "rain"]
         #for $var in $vars
-            #for $time_period in $time_periods2
-                #set $var_name = getattr($getVar($time_period), $var, None)
+            #for $time_period in $time_periods
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$time_period + "_" + $var + "_sum"] = $raw_value($var_name.sum)
                 #end if
@@ -80,18 +79,19 @@
     #try
         #set $vars = ["radiation", "UV"]
         #for $var in $vars
-            #for $time_period in $time_periods
-                #set $var_name = getattr($getVar($time_period), $var, None)
+            #for $time_period in ["current", "hour_ago"]
+                #set $var_name_str = $time_period + "_" + $var
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$time_period + "_" + $var] = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $raw_value($var_name)
                 #end if
             #end for
             ##
             ##
             ##
-            #for $time_period in $time_periods2
+            #for $time_period in $time_periods
                 #set $var_name_str = $time_period + "_" + $var
-                #set $var_name = getattr($getVar($time_period), $var, None)
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
                     #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime)
@@ -109,28 +109,24 @@
         #for $var in $vars
             #for $time_period in ("current", "hour_ago")
                 #set $var_name_str = $time_period + $var
-                #set $var_name = getattr($getVar($time_period), "wind", None)
+                #set $var_name = $getattr($getVar($time_period), "wind", None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str + "_avg"] = $raw_value($var_name.avg)
-                    #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime)
-                    #set $inigoData[$var_name_str + "_maxdir"] = $raw_value($var_name.gustdir)
+                    #set $inigoData[$var_name_str] = $raw_value($var_name)
                 #end if
             #end for
         #end for
         ##
         ##
         ##
-        #for $time_period in $time_periods2
-            #if $time_period not in ("current", "hour_ago")
-                #set $var_name_str = $time_period + "_wind"
-                #set $var_name = getattr($getVar($time_period), "wind", None)
-                #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str + "_avg"] = $raw_value($var_name.avg)
-                    #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime)
-                    #set $inigoData[$var_name_str + "_maxdir"] = $raw_value($var_name.gustdir)
-                #end if
+        #set $var = "wind"
+        #for $time_period in $time_periods
+            #set $var_name_str = $time_period + "_" + $var
+            #set $var_name = $getattr($getVar($time_period), $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #set $inigoData[$var_name_str + "_avg"] = $raw_value($var_name.avg)
+                #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
+                #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime)
+                #set $inigoData[$var_name_str + "_maxdir"] = $raw_value($var_name.gustdir)
             #end if
         #end for
     #except
@@ -141,12 +137,12 @@
     ##
     #try
         #set $vars = ["appTemp", "THSW"]
-        #set $time_periods = ["current", "hour_ago"]
         #for $var in $vars
-            #for $time_period in $time_periods2
-                #set $var_name = getattr($getVar($time_period), $var, None)
+            #for $time_period in ["current", "hour_ago"]
+                #set $var_name_str = $time_period + "_" + $var
+                #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$time_period + "_" + $var] = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $raw_value($var_name)
                 #end if
             #end for
         #end for
@@ -159,9 +155,9 @@
     #try
         #set $vars = [600, 1800, 3600, 21600, 86400]
         #for $var in $vars
-            #set $var_name = getattr($span(time_delta=$var), "rain", None)
+            #set $var_name = $getattr($span(time_delta=$var), "rain", None)
             #if $var is not None and $var_name.has_data
-                #set $inigoData["rain_" + str($var)] = $raw_value($var_name)
+                #set $inigoData["rain_" + str($var)] = $raw_value($var_name.sum)
             #end if
         #end for
     #except
@@ -182,7 +178,7 @@
                 ##
                 ##
                 #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
-                #for $time_period in $time_periods2
+                #for $time_period in $time_periods
                     #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
                 #end for
                 ##
