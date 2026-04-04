@@ -61,6 +61,16 @@
     #try
         #set $vars = ["ET", "rain"]
         #for $var in $vars
+            #for $time_period in ["current", "hour_ago"]
+                #set $var_name_str = $time_period + "_" + $var
+                #set $var_name = $getattr($getVar($time_period), $var, None)
+                #if $var_name is not None and $var_name.has_data
+                    #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
+                #end if
+            #end for
+            ##
+            ##
+            ##
             #for $time_period in $time_periods
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
@@ -199,7 +209,7 @@
         ##
         ##
         #set $var = "current.cloudbase"
-        #if $varExists("almanac") and $current.cloudbase.has_data
+        #if $varExists($var) and $current.cloudbase.has_data
             #set $inigoData["current_cloudbase"] = $raw_value($current.cloudbase, "cloudbase")
         #end if
         ##
@@ -221,15 +231,15 @@
             #if $varExists($var)
                 #set $var = "almanac.sun.rise"
                 #if $varExists($var)
-                    #set $inigoData["sun_rise"] = $raw_value($almanac.sun.rise, "unix_epoch")
+                    #set $inigoData["day_sun_rise"] = $raw_value($almanac.sun.rise, "unix_epoch")
                 #end if
                 #set $var = "almanac.sun.set"
                 #if $varExists($var)
-                    #set $inigoData["sun_set"] = $raw_value($almanac.sun.set, "unix_epoch")
+                    #set $inigoData["day_sun_set"] = $raw_value($almanac.sun.set, "unix_epoch")
                 #end if
                 #set $var = "almanac.sun.transit"
                 #if $varExists($var)
-                    #set $inigoData["sun_transit"] = $raw_value($almanac.sun.transit, "unix_epoch")
+                    #set $inigoData["day_sun_transit"] = $raw_value($almanac.sun.transit, "unix_epoch")
                 #end if
             #end if
             ##
@@ -239,52 +249,52 @@
             #if $varExists($var)
                 #set $var = "almanac.moon.rise"
                 #if $varExists($var)
-                    #set $inigoData["moon_rise"] = $raw_value($almanac.moon.rise, "unix_epoch")
+                    #set $inigoData["day_moon_rise"] = $raw_value($almanac.moon.rise, "unix_epoch")
                 #end if
                 #set $var = "almanac.moon.set"
                 #if $varExists($var)
-                    #set $inigoData["moon_set"] = $raw_value($almanac.moon.set, "unix_epoch")
+                    #set $inigoData["day_moon_set"] = $raw_value($almanac.moon.set, "unix_epoch")
                 #end if
                 #set $moon_next_rise_is_set = False
                 #set $var = "almanac.moon.next_rising"
                 #if $varExists($var)
                     #set $moon_next_rise_is_set = True
-                    #set $inigoData["moon_next_rise"] = $raw_value($almanac.moon.next_rising, "unix_epoch")
+                    #set $inigoData["day_moon_next_rise"] = $raw_value($almanac.moon.next_rising, "unix_epoch")
                 #end if
                 #if not $moon_next_rise_is_set
                     #set $var = "almanac.moon.next_rise"
                     #if $varExists($var)
-                        #set $inigoData["moon_next_rise"] = $raw_value($almanac.moon.next_rise, "unix_epoch")
+                        #set $inigoData["day_moon_next_rise"] = $raw_value($almanac.moon.next_rise, "unix_epoch")
                     #end if
                 #end if
                 #set $moon_next_set_is_set = False
                 #set $var = "almanac.moon.next_setting"
                 #if $varExists($var)
                     #set $moon_next_set_is_set = True
-                    #set $inigoData["moon_next_set"] = $raw_value($almanac.moon.next_setting, "unix_epoch")
+                    #set $inigoData["day_moon_next_set"] = $raw_value($almanac.moon.next_setting, "unix_epoch")
                 #end if
                 #if not $moon_next_set_is_set
                     #set $var = "almanac.moon.next_set"
                     #if $varExists($var)
-                        #set $inigoData["moon_next_set"] = $raw_value($almanac.moon.next_set, "unix_epoch")
+                        #set $inigoData["day_moon_next_set"] = $raw_value($almanac.moon.next_set, "unix_epoch")
                     #end if
                 #end if
             #end if
             #set $var = "almanac.next_full_moon"
             #if $varExists($var)
-                #set $inigoData["next_full_moon"] = $raw_value($almanac.next_full_moon, "unix_epoch")
+                #set $inigoData["month_next_full_moon"] = $raw_value($almanac.next_full_moon, "unix_epoch")
             #end if
             #set $var = "almanac.next_new_moon"
             #if $varExists($var)
-                #set $inigoData["next_new_moon"] = $raw_value($almanac.next_new_moon, "unix_epoch")
+                #set $inigoData["month_next_new_moon"] = $raw_value($almanac.next_new_moon, "unix_epoch")
             #end if
             #set $var = "almanac.moon_phase"
             #if $varExists($var)
-                #set $inigoData["moon_phase"] = $almanac.moon_phase.strip()
+                #set $inigoData["month_moon_phase"] = $almanac.moon_phase.strip()
             #end if
             #set $var = "almanac.moon_fullness"
             #if $varExists($var)
-                #set $inigoData["moon_fullness"] = $almanac.moon_fullness
+                #set $inigoData["month_moon_fullness"] = $almanac.moon_fullness
             #end if
         #end if
     #except
