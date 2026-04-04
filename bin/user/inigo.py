@@ -672,7 +672,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         def raw_value(var):
 
-            if var is None or not var.has_data() or group is None or not group:
+            if var is None or not var.has_data():
                 return -999.9
 
             log.info(f"var: {var}")
