@@ -24,7 +24,7 @@ from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
 from weewx.units import FtoC
-from weewx.tags import TimeBinder, TimespanBinder
+from weewx.tags import AggTypeBinder, TimeBinder, TimespanBinder
 
 log = logging.getLogger(__name__)
 
@@ -676,11 +676,15 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         def raw_value(var):
 
-            if var is None or not var.has_data():
+            if var is None:
                 return -999.9
 
-            log.info(f"var: {pprint.pformat(var)}")
-            log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
+            if instance(var, AggTypeBinder):
+                log.info(f"var.obs_type: {pprint.pformat(var.obs_type)}")
+
+            else:
+                log.info(f"var: {pprint.pformat(var)}")
+                #log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
 
             #try:
             #    return var.convert(group).raw
