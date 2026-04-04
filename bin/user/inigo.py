@@ -24,7 +24,7 @@ from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
 from weewx.units import FtoC, getUnitGroup, ValueHelper
-from weewx.tags import AggTypeBinder, TimeBinder, TimespanBinder
+from weewx.tags import AggTypeBinder, ObservationBinder, TimeBinder, TimespanBinder
 
 log = logging.getLogger(__name__)
 
