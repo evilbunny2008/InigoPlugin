@@ -710,25 +710,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
 
-            elif isinstance(var, ObservationBinder):
-                log.info(f"var: {pprint.pformat(var)}")
-
-                log.info(f"var.obs_type: {var.obs_type}")
-
-                group_name = getUnitGroup(var.obs_type)
-                #log.info(f"group_name: {group_name}")
-
-                #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
-
-                group = group_lookup(skin_dict, group_name)
-
-                if group is not None and group != "":
-                    log.info(f"Converting var to {group}")
-                    var = var.convert(group)
-
-                #log.info(f"group: {group}")
-                #log.info(f"After var.raw: {var.raw}")
-
             elif isinstance(var, ValueHelper):
                 log.info(f"Before var.raw: {var.raw}")
                 log.info(f"var.value_t: {var.value_t}")
@@ -762,7 +743,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #except:
             #    return -999
 
-            return var
+            return var.raw
 
         def sort_dict(dict_name):
 
