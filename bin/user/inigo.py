@@ -704,17 +704,18 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type is None:
                     obs_type = var.obs_type
 
-                #log.info(f"obs_type: {obs_type}")
+                log.info(f"obs_type: {obs_type}")
 
                 group_name = getUnitGroup(obs_type)
-                #log.info(f"group_name: {group_name}")
+                log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
                 group = group_lookup(skin_dict, group_name)
+                log.info(f"group: {group}")
 
                 if group is not None and group != "":
-                    #log.info(f"Converting var to {group}")
+                    log.info(f"Converting var to {group}")
                     try:
                         var = var.convert(group)
                     except:
@@ -727,14 +728,23 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #log.info(f"Before var.raw: {var.raw}")
                 #log.info(f"var.value_t: {var.value_t}")
 
-                group_name = var.value_t[2]
-                #log.info(f"group_name: {group_name}")
+                if obs_type is None:
+                    obs_type = var.value_t[1]
+
+                log.info(f"obs_type: {obs_type}")
+
+                group_name = getUnitGroup(obs_type)
+                log.info(f"group_name: {group_name}")
 
                 group = group_lookup(skin_dict, group_name)
+                log.info(f"group: {group}")
 
                 if group is not None and not group:
-                    #log.info(f"Converting var to {group}")
-                    var = var.convert(group)
+                    log.info(f"Converting var to {group}")
+                    try:
+                        var = var.convert(group)
+                    except:
+                        log.info(f"Failed to convert var to {group} from {var.obs_type}")
 
                 #log.info(f"group: {group}")
                 #log.info(f"After var.raw: {var.raw}")
@@ -814,15 +824,16 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
-        group_rain = "mm"
+        group_name = getUnitGroup("rain")
+        group = group_lookup(skin_dict, group_name)
 
-        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
-        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
-        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", group_rain, since_hour)
-        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month", group_rain, since_hour)
-        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date", group_rain, since_hour)
-        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", group_rain, since_hour)
-        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", group_rain, since_hour)
+        since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group, since_hour)
+        since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group, since_hour)
+        since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", group, since_hour)
+        since_last_month = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_month", group, since_hour)
+        since_year_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "year_to_date", group, since_hour)
+        since_last_year = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "last_year", group, since_hour)
+        since_alltime = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "alltime", group, since_hour)
 
         search_list_extension = {
             "search_list_ts": search_list_ts,
