@@ -683,6 +683,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 log.info(f"var.obs_type: {var.obs_type}")
                 group = getUnitGroup(var.obs_type)
                 log.info(f"group: {group}")
+                ret = weewx.units.obs_group_dict.get(var.obs_type)
+                log.info(f"ret: {ret}")
 
             else:
                 log.info(f"var: {pprint.pformat(var)}")
