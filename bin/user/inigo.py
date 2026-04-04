@@ -746,7 +746,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #except:
             #    return -999
 
-            return var.raw
+            return var
 
         def sort_dict(dict_name):
 
