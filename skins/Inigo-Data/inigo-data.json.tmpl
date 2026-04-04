@@ -109,7 +109,11 @@
                 #set $var_name_str = $time_period + $var
                 #set $var_name = $getattr($getVar($time_period), "wind", None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #if $var in ["windSpeed", "windGust"]
+                        #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #else
+                        #set $inigoData[$var_name_str] = $raw_value($var_name, "degree_compass")
+                    #end if
                 #end if
             #end for
         #end for
