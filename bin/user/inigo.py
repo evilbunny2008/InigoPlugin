@@ -691,6 +691,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             log.info(f"var: {pprint.pformat(var)}")
 
+            oldvar = var
+
             if isinstance(var, AggTypeBinder):
                 #log.info(f"var[0]: {pprint.pformat(var[0])}")
                 #log.info(f"var[1]: {pprint.pformat(var[1])}")
@@ -709,7 +711,10 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
                 if group is not None and group != "":
                     log.info(f"Converting var to {group}")
-                    var = var.convert(group)
+                    try:
+                        var = var.convert(group)
+                    except:
+                        log.info(f"oldvar: {pprint.pformat(oldvar)}")
 
                 #log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
