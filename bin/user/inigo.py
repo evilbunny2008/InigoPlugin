@@ -689,10 +689,14 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if var is None:
                 return -999.9
 
-            #log.info(f"getUnitGroup(var.obs_type): {getUnitGroup(var.obs_type)}")
+            log.info(f"var: {pprint.pformat(var)}")
 
             if isinstance(var, AggTypeBinder):
-                log.info(f"Before var.raw: {var.raw}")
+                log.info(f"var[0]: {pprint.pformat(var[0])}")
+                log.info(f"var[1]: {pprint.pformat(var[1])}")
+                log.info(f"var[2]: {pprint.pformat(var[2])}")
+
+                #log.info(f"Before var.raw: {var.raw}")
 
                 log.info(f"var.obs_type: {var.obs_type}")
 
