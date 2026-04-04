@@ -119,7 +119,7 @@
         ##
         ##
         #set $var = "current.cloudbase"
-        #if $varExists("almanac") and 
+        #if $varExists("almanac") and $current.cloudbase.has_data
             #set $inigoData["current_cloudbase"] = $raw_value($current.cloudbase)
         #end if
         ##
@@ -217,7 +217,7 @@
         #if $varExists("inigo")
             #set $ts = $inigo.get("ts", 0)
             #set $report = $inigo.get("report", {})
-            #if $ts is not None and $ts > 0 and $report is not None
+            #if $ts is not None and $ts > 0 and $report is not None and not $report
                 #set $inigoData["outTemp_trend_ts"] = $report.get("search_list_ts", [])
                 #set $inigoData["outTemp_trend_signal"] = $report.get("search_list_signal", [])
                 #set $inigoData["outTemp_trend_count"] = $report.get("search_list_count", [])
