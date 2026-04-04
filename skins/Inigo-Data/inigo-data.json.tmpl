@@ -176,7 +176,9 @@
     ##
     #try
         #if $varExists("inigo")
-            #set $inigoData["hour_ago_time"] = $inigo.get("hour_ago_time", 0)
+            #if $varExists("hour_ago_time")
+                #set $inigoData["hour_ago_time"] = $hour_ago_time
+            #end if
             #set $ts = $inigo.get("ts", None)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None and $report != {}
