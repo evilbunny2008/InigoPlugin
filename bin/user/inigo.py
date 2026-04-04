@@ -684,7 +684,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
-        def raw_value(var):
+        def raw_value(var, obs_type=None):
 
             if var is None:
                 return -999.9
@@ -693,9 +693,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             if isinstance(var, AggTypeBinder):
                 log.info(f"Before var.raw: {var.raw}")
-                log.info(f"var.obs_type: {var.obs_type}")
 
-                group_name = getUnitGroup(var.obs_type)
+                if obs_type is None:
+                    obs_type = var.obs_type
+
+                log.info(f"obs_type: {obs_type}")
+
+                group_name = getUnitGroup(obs_type)
                 #log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
