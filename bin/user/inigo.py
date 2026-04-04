@@ -703,7 +703,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type is None:
                     obs_type = var.obs_type
 
-                log.info(f"obs_type: {obs_type}")
+                #log.info(f"obs_type: {obs_type}")
 
                 group_name = getUnitGroup(obs_type)
                 #log.info(f"group_name: {group_name}")
