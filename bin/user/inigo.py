@@ -676,7 +676,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 return -999.9
 
             log.info(f"var: {var}")
-            log.info(f"db_lookup.std_unit_system: {db_lookup.std_unit_system}")
+            log.info(f"db_lookup: {db_lookup}")
 
             #try:
             #    return var.convert(group).raw
