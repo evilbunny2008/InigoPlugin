@@ -47,7 +47,7 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
                     #set $inigoData[$var_name_str + "_min"] = $raw_value($var_name.min)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime)
+                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime, "unix_epoch")
                     #set $inigoData[$var_name_str + "_mintime"] = $raw_value($var_name.mintime)
                 #end if
             #end for
