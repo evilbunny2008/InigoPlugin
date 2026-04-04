@@ -754,6 +754,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
 
+        group_rain = "mm"
+
         since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
         since_month_to_date = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "month_to_date", group_rain, since_hour)
