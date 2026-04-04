@@ -675,11 +675,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if var is None:
                 return -999.9
 
-            log.info(f"getUnitGroup(var.obs_type): {getUnitGroup(var.obs_type)}")
+            #log.info(f"getUnitGroup(var.obs_type): {getUnitGroup(var.obs_type)}")
+
+            log.info(f"var: {pprint.pformat(var)}")
 
             """
-            log.info(f"var.obs_type: {var.obs_type}")
-
             group = None
             units_dict = skin_dict.get("Units", None)
             if units_dict is not None and not units_dict:
