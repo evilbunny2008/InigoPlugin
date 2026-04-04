@@ -717,7 +717,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     try:
                         var = var.convert(group)
                     except:
-                        log.info(f"oldvar: {pprint.pformat(oldvar)}")
+                        log.info(f"Failed to convert var to {group} from {var.obs_type}")
 
                 #log.info(f"group: {group}")
                 #log.info(f"After var.raw: {var.raw}")
