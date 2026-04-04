@@ -115,7 +115,7 @@
     #try
         #set $vars = ["windSpeed", "windGust", "windDir", "windGustDir"]
         #for $var in $vars
-            #for $time_period in ("current", "hour_ago")
+            #for $time_period in ["current", "hour_ago"]
                 #set $var_name_str = $time_period + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
