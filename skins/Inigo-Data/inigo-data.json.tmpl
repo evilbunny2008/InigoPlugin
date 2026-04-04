@@ -35,7 +35,8 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
             #end for
             ##
@@ -45,10 +46,11 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
-                    #set $inigoData[$var_name_str + "_min"] = $raw_value($var_name.min)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime, "unix_epoch")
-                    #set $inigoData[$var_name_str + "_mintime"] = $raw_value($var_name.mintime, "unix_epoch")
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                    #set $inigoData[$var_name_str + "_min"] = $var_name.min.raw
+                    #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
+                    #set $inigoData[$var_name_str + "_mintime"] = $var_name.mintime.raw
                 #end if
             #end for
         #end for
@@ -64,7 +66,8 @@
             #for $time_period in $time_periods
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$time_period + "_" + $var + "_sum"] = $raw_value($var_name.sum)
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$time_period + "_" + $var + "_sum"] = $var_name.sum.raw
                 #end if
             #end for
         #end for
@@ -81,7 +84,8 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
             #end for
             ##
@@ -91,8 +95,9 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime, "unix_epoch")
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                    #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
                 #end if
             #end for
         #end for
@@ -109,7 +114,8 @@
                 #set $var_name_str = $time_period + $var
                 #set $var_name = $getattr($getVar($time_period), "wind", None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
             #end for
         #end for
@@ -121,10 +127,11 @@
             #set $var_name_str = $time_period + "_" + $var
             #set $var_name = $getattr($getVar($time_period), $var, None)
             #if $var_name is not None and $var_name.has_data
-                #set $inigoData[$var_name_str + "_avg"] = $raw_value($var_name.avg)
-                #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max)
-                #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime, "unix_epoch")
-                #set $inigoData[$var_name_str + "_maxdir"] = $raw_value($var_name.gustdir, "degree_compass")
+                #set $var_name = $raw_value($var_name)
+                #set $inigoData[$var_name_str + "_avg"] = $var_name.avg.raw
+                #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
+                #set $inigoData[$var_name_str + "_maxdir"] = $var_name.gustdir.raw
             #end if
         #end for
     #except
@@ -140,7 +147,8 @@
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name)
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
             #end for
         #end for
@@ -155,7 +163,8 @@
         #for $var in $vars
             #set $var_name = $getattr($span(time_delta=$var), "rain", None)
             #if $var is not None and $var_name.has_data
-                #set $inigoData["rain_" + str($var)] = $raw_value($var_name.sum)
+                #set $var_name = $raw_value($var_name)
+                #set $inigoData["rain_" + str($var)] = $var_name.sum.raw
             #end if
         #end for
     #except
@@ -192,22 +201,22 @@
     ##
     #try
         #set $var = "current.rainRate"
-        #if $varExists($var)
-            #set $inigoData["current_rainRate"] = $raw_value($current.rainRate)
+        #if $varExists($var) and $current.rainRate.has_data
+            #set $inigoData["current_rainRate"] = $current.rainRate.raw
         #end if
         ##
         ##
         ##
         #set $var = "current.cloudbase"
         #if $varExists("almanac") and $current.cloudbase.has_data
-            #set $inigoData["current_cloudbase"] = $raw_value($current.cloudbase)
+            #set $inigoData["current_cloudbase"] = $current.cloudbase.raw
         #end if
         ##
         ##
         ##
         #set $var = "hour_ago.cloudbase"
         #if $varExists($var) and $hour_ago.cloudbase.has_data
-            #set $inigoData["hour_ago_cloudbase"] = $raw_value($hour_ago.cloudbase)
+            #set $inigoData["hour_ago_cloudbase"] = $hour_ago.cloudbase.raw
         #end if
     #except
         #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var + ", sys.exc_info(): " + $sys.exc_info()]
@@ -218,18 +227,18 @@
     #try
         #if $varExists("almanac")
             #set $var = "almanac.sun"
-            #if $varExists("almanac.sun")
-                #set $var = "almanac.sun.rise.raw"
-                #if $almanac.sun.rise is not None
-                    #set $inigoData["sun_rise"] = $raw_value($almanac.sun.rise)
+            #if $varExists($var)
+                #set $var = "almanac.sun.rise"
+                #if $varExists($var)
+                    #set $inigoData["sun_rise"] = $almanac.sun.rise.raw
                 #end if
-                #set $var = "almanac.sun.set.raw"
-                #if $almanac.sun.set is not None
-                    #set $inigoData["sun_set"] = $raw_value($almanac.sun.set)
+                #set $var = "almanac.sun.set"
+                #if $varExists($var)
+                    #set $inigoData["sun_set"] = $almanac.sun.set.raw
                 #end if
-                #set $var = "almanac.sun.transit.raw"
-                #if $almanac.sun.transit is not None
-                    #set $inigoData["sun_transit"] = $raw_value($almanac.sun.transit)
+                #set $var = "almanac.sun.transit"
+                #if $varExists($var)
+                    #set $inigoData["sun_transit"] = $almanac.sun.transit.raw
                 #end if
             #end if
             ##
@@ -239,44 +248,44 @@
             #if $varExists($var)
                 #set $var = "almanac.moon.rise"
                 #if $varExists($var)
-                    #set $inigoData["moon_rise"] = $raw_value($almanac.moon.rise)
+                    #set $inigoData["moon_rise"] = $almanac.moon.rise.raw
                 #end if
                 #set $var = "almanac.moon.set"
                 #if $varExists($var)
-                    #set $inigoData["moon_set"] = $raw_value($almanac.moon.set)
+                    #set $inigoData["moon_set"] = $almanac.moon.set.raw
                 #end if
                 #set $moon_next_rise_is_set = False
                 #set $var = "almanac.moon.next_rising"
                 #if $varExists($var)
                     #set $moon_next_rise_is_set = True
-                    #set $inigoData["moon_next_rise"] = $raw_value($almanac.moon.next_rising)
+                    #set $inigoData["moon_next_rise"] = $almanac.moon.next_rising.raw
                 #end if
                 #if not $moon_next_rise_is_set
                     #set $var = "almanac.moon.next_rise"
                     #if $varExists($var)
-                        #set $inigoData["moon_next_rise"] = $raw_value($almanac.moon.next_rise)
+                        #set $inigoData["moon_next_rise"] = $almanac.moon.next_rise.raw
                     #end if
                 #end if
                 #set $moon_next_set_is_set = False
                 #set $var = "almanac.moon.next_setting"
                 #if $varExists($var)
                     #set $moon_next_set_is_set = True
-                    #set $inigoData["moon_next_set"] = $raw_value($almanac.moon.next_setting)
+                    #set $inigoData["moon_next_set"] = $almanac.moon.next_setting.raw
                 #end if
                 #if not $moon_next_set_is_set
                     #set $var = "almanac.moon.next_set"
                     #if $varExists($var)
-                        #set $inigoData["moon_next_set"] = $raw_value($almanac.moon.next_set)
+                        #set $inigoData["moon_next_set"] = $almanac.moon.next_set.raw
                     #end if
                 #end if
             #end if
             #set $var = "almanac.next_full_moon"
             #if $varExists($var)
-                #set $inigoData["next_full_moon"] = $raw_value($almanac.next_full_moon)
+                #set $inigoData["next_full_moon"] = $almanac.next_full_moon.raw
             #end if
             #set $var = "almanac.next_new_moon"
             #if $varExists($var)
-                #set $inigoData["next_new_moon"] = $raw_value($almanac.next_new_moon)
+                #set $inigoData["next_new_moon"] = $almanac.next_new_moon.raw
             #end if
             #set $var = "almanac.moon_phase"
             #if $varExists($var)

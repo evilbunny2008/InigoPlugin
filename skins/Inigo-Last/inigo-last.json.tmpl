@@ -24,33 +24,14 @@
     #try
         #for $var in $vars
             #for $time_period in $time_periods
+                #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $var_name_str = $time_period + "_" + $var
-                    #set $var_name_min = $var_name_str + "_min"
-                    #set $var_name_mintime = $var_name_str + "_mintime"
-                    #set $var_name_max = $var_name_str + "_max"
-                    #set $var_name_maxtime = $var_name_str + "_maxtime"
-                    #if $var_name.min is not None and $var_name.min.has_data
-                        #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                            #set $inigoData[$var_name_min] = $var_name.min.raw
-                        #else
-                            #set $inigoData[$var_name_min] = $var_name.min.raw
-                        #end if
-                    #end if
-                    #if $var_name.mintime is not None and $var_name.mintime.has_data
-                        #set $inigoData[$var_name_mintime] = $var_name.mintime.raw
-                    #end if
-                    #if $var_name.max is not None and $var_name.max.has_data
-                        #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                            #set $inigoData[$var_name_max] = $var_name.max.raw
-                        #else
-                            #set $inigoData[$var_name_max] = $var_name.max.raw
-                        #end if
-                    #end if
-                    #if $var_name.maxtime is not None and $var_name.maxtime.has_data
-                        #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
-                    #end if
+                    #set $var_name = $raw_value($var_name)
+                    #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                    #set $inigoData[$var_name_str + "_min"] = $var_name.min.raw
+                    #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
+                    #set $inigoData[$var_name_str + "_mintime"] = $var_name.mintime
                 #end if
             #end for
         #end for
@@ -62,19 +43,14 @@
     ##
     #try
         #for $time_period in $time_periods
+            #set $var_name_str = $time_period + "_wind"
             #set $var_name = getattr($getVar($time_period), "wind", None)
             #if $var_name is not None and $var_name.has_data
-                #set $var_name_str = $time_period + "_wind"
-                #set $var_name_avg = $var_name_str + "_avg"
-                #set $var_name_max = $var_name_str + "_max"
-                #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #set $var_name_gustdir = $var_name_str + "_gustdir"
-                #set $var_name_gustdir_compass = $var_name_str + "_gustdir_compass"
-                #set $inigoData[$var_name_avg] = $var_name.avg.raw
-                #set $inigoData[$var_name_max] = $var_name.max.raw
-                #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
-                #set $inigoData[$var_name_gustdir] = $var_name.gustdir.raw
-                #set $inigoData[$var_name_gustdir_compass] = $var_name.gustdir.ordinal_compass.strip()
+                #set $var_name = $raw_value($var_name)
+                #set $inigoData[$var_name_str + "_avg"] = $var_name.avg.raw
+                #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
+                #set $inigoData[$var_name_str + "_gustdir"] = $var_name.gustdir.raw
             #end if
         #end for
     #except
@@ -89,6 +65,7 @@
             #for $time_period in $time_periods
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
+                    #set $var_name = $raw_value($var_name)
                     #set $inigoData[$time_period + "_" + $var + "_sum"] = $var_name.sum.raw
                 #end if
             #end for
@@ -105,11 +82,10 @@
             #for $time_period in $time_periods
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
+                    #set $var_name = $raw_value($var_name)
                     #set $var_name_str = $time_period + "_" + $var
-                    #set $var_name_max = $var_name_str + "_max"
-                    #set $var_name_maxtime = $var_name_str + "_maxtime"
-                    #set $inigoData[$var_name_max] = $var_name.max.raw
-                    #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
+                    #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                    #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
                 #end if
             #end for
         #end for
