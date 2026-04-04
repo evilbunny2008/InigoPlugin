@@ -352,6 +352,20 @@ def dict_search(d, key_search):
 
     return results
 
+def group_lookup(skin_dict, group_name):
+
+    units_dict = skin_dict.get("Units", None)
+    #log.info(f"units_dict: {pprint.pformat(units_dict)}")
+    if units_dict is not None and units_dict != {}:
+        groups_dict = units_dict.get("Groups", None)
+        #log.info(f"groups_dict: {groups_dict}")
+        if groups_dict is not None and groups_dict != {}:
+            group = groups_dict.get(group_name, None)
+            #log.info(f"group: {group}")
+            return group
+
+    return None
+
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
 
@@ -679,31 +693,35 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             if isinstance(var, AggTypeBinder):
                 log.info(f"Before var.raw: {var.raw}")
-                log.info(f"var.obs_type: {var.obs_type}")
+                #log.info(f"var.obs_type: {var.obs_type}")
                 group_name = getUnitGroup(var.obs_type)
-                log.info(f"group_name: {group_name}")
+                #log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
-                group = None
-                units_dict = skin_dict.get("Units", None)
-                #log.info(f"units_dict: {pprint.pformat(units_dict)}")
-                if units_dict is not None and units_dict != {}:
-                    groups_dict = units_dict.get("Groups", None)
-                    #log.info(f"groups_dict: {groups_dict}")
-                    if groups_dict is not None and groups_dict != {}:
-                        group = groups_dict.get(group_name, None)
-                        log.info(f"group: {group}")
+                group = group_lookup(skin_dict, group_name)
 
                 if group is not None and not group:
                     var = var.convert(group)
 
-                log.info(f"group: {group}")
+                #log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
 
             elif isinstance(var, ValueHelper):
                 log.info(f"var.raw: {var.raw}")
-                log.info(f"var.value_t: {var.value_t}")
+                #log.info(f"var.value_t: {var.value_t}")
+
+                group_name = var.value_t[2]
+                #log.info(f"group_name: {group_name}")
+
+                group = group_lookup(skin_dict, group_name)
+
+                if group is not None and not group:
+                    var = var.convert(group)
+
+                #log.info(f"group: {group}")
+                log.info(f"After var.raw: {var.raw}")
+
             else:
 
                 log.info(f"var: {pprint.pformat(var)}")
