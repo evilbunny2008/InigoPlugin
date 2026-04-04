@@ -711,7 +711,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 log.info(f"After var.raw: {var.raw}")
 
             elif isinstance(var, ObservationBinder):
-                log.info(f"Before var.raw: {var.raw}")
+                log.info(f"var: {pprint.pformat(var)}")
 
                 log.info(f"var.obs_type: {var.obs_type}")
 
@@ -727,7 +727,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     var = var.convert(group)
 
                 #log.info(f"group: {group}")
-                log.info(f"After var.raw: {var.raw}")
+                #log.info(f"After var.raw: {var.raw}")
 
             elif isinstance(var, ValueHelper):
                 log.info(f"Before var.raw: {var.raw}")
