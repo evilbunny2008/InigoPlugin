@@ -701,14 +701,15 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
                 group = group_lookup(skin_dict, group_name)
 
-                if group is not None and not group:
+                if group is not None and group != "":
+                    log.info(f"Converting var to {group}")
                     var = var.convert(group)
 
                 #log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
 
             elif isinstance(var, ValueHelper):
-                log.info(f"var.raw: {var.raw}")
+                log.info(f"Before var.raw: {var.raw}")
                 #log.info(f"var.value_t: {var.value_t}")
 
                 group_name = var.value_t[2]
@@ -717,6 +718,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 group = group_lookup(skin_dict, group_name)
 
                 if group is not None and not group:
+                    log.info(f"Converting var to {group}")
                     var = var.convert(group)
 
                 #log.info(f"group: {group}")
