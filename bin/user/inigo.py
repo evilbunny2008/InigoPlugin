@@ -693,6 +693,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if group is not None and not group:
                     var = var.convert(group)
 
+                log.info(f"group: {group}")
                 log.info(f"After var.raw: {var.raw}")
 
             else:
