@@ -705,7 +705,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
                 log.info(f"obs_type: {obs_type}")
 
-                group_name = getUnitGroup(var.obs_type)
+                group_name = getUnitGroup(obs_type)
                 #log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
