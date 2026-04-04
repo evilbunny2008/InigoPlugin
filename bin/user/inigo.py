@@ -679,7 +679,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if not 0 <= since_hour <= 23:
                 since_hour = 0
 
-        hour_ago_time = round((timespan.stop - 3600) / 300) * 300
+        hour_ago_time = timespan.stop - 3600
+
+        log.info(f"hour_ago_time: {hour_ago_time}")
+
+        hour_ago_time = round(hour_ago_time / 300) * 300
+
+        log.info(f"hour_ago_time: {hour_ago_time}")
 
         hour_ago = RecordBinder(db_lookup, hour_ago_time).current()
 
