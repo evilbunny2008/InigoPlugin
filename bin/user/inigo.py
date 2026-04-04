@@ -657,12 +657,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         since_hour = 0
 
-        groups = {}
-        groups["pressure"] = "hPa"
-        groups["rain"] = "mm"
-        groups["speed"] = "km"
-        groups["temperature"] = "degree_C"
-
         skin_dict = self.generator.skin_dict
         if skin_dict is not None:
 
@@ -674,28 +668,35 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         hour_ago_time = timespan.stop - 3600
         hour_ago = TimeBinder(db_lookup, hour_ago_time)
 
-        log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
+        #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
         def raw_value(var):
 
             if var is None:
                 return -999.9
 
-            if isinstance(var, AggTypeBinder):
-                log.info(f"var.obs_type: {var.obs_type}")
-                group = getUnitGroup(var.obs_type)
-                log.info(f"group: {group}")
+            group = None
+            units_dict = skin_dict.get("Units", None)
+            if units_dict is not None and not units_dict:
+                groups_dict = units_dict.get("Groups", None)
+                if groups_dict is not None and not groups_dict:
+                    group = groups_dict.get(var.obs_type, None)
 
-            else:
-                log.info(f"var: {pprint.pformat(var)}")
-                #log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
+            if group is not None and not group:
+                var = var.convert(group)
+
+            log.info(f"var.raw: {var.raw}")
+
+
+
+            #log.info(f"db_lookup: {pprint.pformat(db_lookup)}")
 
             #try:
             #    return var.convert(group).raw
             #except:
             #    return -999
 
-            return 0
+            return var.raw
 
         def sort_dict(dict_name):
 
