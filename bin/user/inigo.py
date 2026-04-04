@@ -693,14 +693,13 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             if isinstance(var, AggTypeBinder):
                 log.info(f"Before var.raw: {var.raw}")
-                #log.info(f"var.obs_type: {var.obs_type}")
-                group_name = None
+                log.info(f"var.obs_type: {var.obs_type}")
+
                 group_name = getUnitGroup(var.obs_type)
                 #log.info(f"group_name: {group_name}")
 
                 #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
-                group = None
                 group = group_lookup(skin_dict, group_name)
 
                 if group is not None and group != "":
@@ -712,13 +711,11 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
             elif isinstance(var, ValueHelper):
                 log.info(f"Before var.raw: {var.raw}")
-                #log.info(f"var.value_t: {var.value_t}")
+                log.info(f"var.value_t: {var.value_t}")
 
-                group_name = None
                 group_name = var.value_t[2]
                 #log.info(f"group_name: {group_name}")
 
-                group = None
                 group = group_lookup(skin_dict, group_name)
 
                 if group is not None and not group:
