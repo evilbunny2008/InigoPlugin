@@ -129,22 +129,9 @@ class InigoInstaller(ExtensionInstaller):
         if stdreport_dict is None:
             fatal_error("StdReport is None, can't continue...")
 
-        data_dir = None
-        database_dict = engine.config_dict.get("DatabaseTypes", None)
-        if database_dict is not None:
-
-            sqlite_dict = database_dict.get("SQLite", None)
-            if sqlite_dict is not None:
-                data_dir = sqlite_dict.get("SQLITE_ROOT", None)
-
+        data_dir = engine.config_dict.get("WEEWX_ROOT", None)
         if data_dir is None or not os.path.isdir(data_dir):
-
-            data_dir = engine.config_dict.get("SKIN_ROOT", None)
-            if data_dir is None or not os.path.isdir(data_dir):
-
-                data_dir = engine.config_dict.get("WEEWX_ROOT", None)
-                if data_dir is None or not os.path.isdir(data_dir):
-                    fatal_error("Failed to determine where to store Inigo cache files, you may need to set SQLITE_ROOT, SKIN_ROOT or WEEWX_ROOT in weewx.conf")
+            fatal_error("Failed to determine where to store Inigo cache files, you may need to set WEEWX_ROOT in weewx.conf")
 
         uid = os.getuid()
         statinfo = os.stat(data_dir)
