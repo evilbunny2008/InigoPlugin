@@ -699,16 +699,23 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type is None:
                     obs_type = var.obs_type
 
-                #log.info(f"obs_type: {obs_type}")
+                if obs_type == "appTemp":
+                    log.info(f"obs_type: {obs_type}")
 
                 group_name = getUnitGroup(obs_type)
-                #log.info(f"group_name: {group_name}")
+
+                if obs_type == "appTemp":
+                    log.info(f"group_name: {group_name}")
 
                 group = group_lookup(skin_dict, group_name)
-                #log.info(f"group: {group}")
+
+                if obs_type == "appTemp":
+                    log.info(f"group: {group}")
 
                 if group is not None and group != "":
-                    #log.info(f"Converting var to {group}")
+                    if obs_type == "appTemp":
+                        log.info(f"Converting var to {group}")
+
                     try:
                         var = var.convert(group)
                     except:
@@ -719,16 +726,23 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 if obs_type is None:
                     obs_type = var.value_t[1]
 
-                #log.info(f"obs_type: {obs_type}")
+                if obs_type == "appTemp":
+                    log.info(f"obs_type: {obs_type}")
 
                 group_name = getUnitGroup(obs_type)
-                #log.info(f"group_name: {group_name}")
+
+                if obs_type == "appTemp":
+                    log.info(f"group_name: {group_name}")
 
                 group = group_lookup(skin_dict, group_name)
-                #log.info(f"group: {group}")
+
+                if obs_type == "appTemp":
+                    log.info(f"group: {group}")
 
                 if group is not None and not group:
-                    #log.info(f"Converting var to {group}")
+                    if obs_type == "appTemp":
+                        log.info(f"Converting var to {group}")
+
                     try:
                         var = var.convert(group)
                     except:
