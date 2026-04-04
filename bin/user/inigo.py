@@ -679,7 +679,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if var is None:
                 return -999.9
 
-            if instance(var, AggTypeBinder):
+            if isinstance(var, AggTypeBinder):
                 log.info(f"var.obs_type: {pprint.pformat(var.obs_type)}")
 
             else:
