@@ -17,6 +17,13 @@
     ##
     ##
     ##
+    #set $group_pressure = $unit.unit_type_dict.group_pressure
+    #set $group_rain = $unit.unit_type_dict.group_rain
+    #set $group_speed = $unit.unit_type_dict.group_speed
+    #set $group_temperature = $unit.unit_type_dict.group_temperature
+    ##
+    ##
+    ##
     #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
     #set $time_periods = ["day", "month", "year", "alltime"]
     ##
@@ -30,67 +37,64 @@
         ##
         #for $var in $vars
             #set $time_period = "current"
-            #set $var_name = getattr($current, $var, None)
+            #set $var_name = getattr($getVar($time_period), $var, None)
             #if $var_name is not None and $var_name.has_data
                 #set $var_name_str = "current_" + $var
-                #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                    #set $inigoData[$var_name_str] = $var_name.raw
+                #if $var in ["outTemp", "inTemp", "dewpoint"]
+                    #set $inigoData[$var_name_str] = $convert_value($var_name, $group_temperature)
+                #elif $var == "barometer"
+                    #set $inigoData[$var_name_str] = $convert_value($var_name, $group_pressure)
                 #else
                     #set $inigoData[$var_name_str] = $var_name.raw
                 #end if
-                #set $trend3600 = getattr($trend(time_delta=3600), $var, None)
-                #if $trend3600 is not None
-                    #set $inigoData[$var_name_str + "_trend_raw"] = $trend3600.raw
-                    #if $trend3600.raw >= 0.2
-                        #set $inigoData[$var_name_str + "_trend"] = "Rising"
-                    #elif $trend3600.raw <= -0.2
-                        #set $inigoData[$var_name_str + "_trend"] = "Falling"
-                    #else
-                        #set $inigoData[$var_name_str + "_trend"] = "Steady"
-                    #end if
-                #end if
-                #set $hour_ago_var = getattr($hour_ago, $var, None)
-                #if $hour_ago_var is not None
-                    #if $var in ["outTemp", "inTemp", "dewpoint"]
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.convert($unit.unit_type_dict.group_temperature).raw
-                    #elif $var == "barometer"
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.convert($unit.unit_type_dict.group_pressure).raw
-                    #else
-                        #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.raw
-                    #end if
+            #end if
+            ##
+            ##
+            ##
+            #set $time_period = "hour_ago"
+            #set $var_name = getattr($getVar($time_period), $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #if $var in ["outTemp", "inTemp", "dewpoint"]
+                    #set $inigoData["hour_ago_" + $var] = $convert_value($var_name, $group_temperature)
+                #elif $var == "barometer"
+                    #set $inigoData["hour_ago_" + $var] = $convert_value($var_name, $group_pressure)
+                #else
+                    #set $inigoData["hour_ago_" + $var] = $var_name.raw
                 #end if
             #end if
             ##
             ##
             ##
             #for $time_period in $time_periods
+                #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $var_name_str = $time_period + "_" + $var
-                    #set $var_name_min = $var_name_str + "_min"
-                    #set $var_name_mintime = $var_name_str + "_mintime"
-                    #set $var_name_max = $var_name_str + "_max"
-                    #set $var_name_maxtime = $var_name_str + "_maxtime"
-                    #if $var_name.min is not None and $var_name.min.has_data
+                    #if $var_name.min.has_data
                         #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                            #set $inigoData[$var_name_min] = $var_name.min.raw
+                            #set $inigoData[$var_name_str + "_min"] = $convert_value($var_name.min, $group_temperature)
+                        #elif $var == "barometer"
+                            #set $inigoData[$var_name_str + "_min"] = $convert_value($var_name.min, $group_pressure)
                         #else
-                            #set $inigoData[$var_name_min] = $var_name.min.raw
+                            #set $inigoData[$var_name_str + "_min"] = $var_name.min.raw
                         #end if
                     #end if
-                    #if $var_name.mintime is not None and $var_name.mintime.has_data
-                        #set $inigoData[$var_name_mintime] = $var_name.mintime.raw
-                    #end if
-                    #if $var_name.max is not None and $var_name.max.has_data
+                    ##
+                    ##
+                    ##
+                    #if $var_name.max.has_data
                         #if $var in ["outTemp", "inTemp", "barometer", "dewpoint"]
-                            #set $inigoData[$var_name_max] = $var_name.max.raw
+                            #set $inigoData[$var_name_str + "_max"] = $convert_value($var_name.max, $group_temperature)
+                        #elif $var == "barometer"
+                            #set $inigoData[$var_name_str + "_max"] = $convert_value($var_name.max, $group_pressure)
                         #else
-                            #set $inigoData[$var_name_max] = $var_name.max.raw
+                            #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
                         #end if
                     #end if
-                    #if $var_name.maxtime is not None and $var_name.maxtime.has_data
-                        #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
-                    #end if
+                    ##
+                    ##
+                    ##
+                    #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
+                    #set $inigoData[$var_name_mintime] = $var_name.mintime.raw
                 #end if
             #end for
         #end for
@@ -101,24 +105,30 @@
     ##
     ##
     #try
-        #set $var = "windSpeed"
-        #if $current.windSpeed is not None and $current.windSpeed.has_data
-            #set $inigoData["current_windSpeed"] = $current.windSpeed.raw
-        #end if
-        #set $var = "windDir"
-        #if $current.windDir is not None and $current.windDir.has_data
-            #set $inigoData["current_windDir"] = $current.windDir.raw
-            #set $inigoData["current_windDir_compass"] = $current.windDir.ordinal_compass.strip()
-        #end if
-        #set $var = "windGust"
-        #if $current.windGust is not None and $current.windGust.has_data
-            #set $inigoData["current_windGust"] = $current.windGust.raw
-        #end if
-        #set $var = "windGustdir"
-        #if $current.windGustdir is not None and $current.windGustDir.has_data
-            #set $inigoData["current_windGustDir"] = $current.windGustDir.raw
-            #set $inigoData["current_windGustDir_compass"] = $current.windGustDir.ordinal_compass.strip()
-        #end if
+        #set $vars = ["windSpeed", "windGust", "windDir", "windGustDir"]
+        #for $var in $vars
+            #set $time_period = "current"
+            #set $var_name = getattr($getVar($time_period), $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #if $var in ["windSpeed", "windGust"]
+                    #set $inigoData[$time_period + "_" + $var] = $convert_value($var_name, $group_speed)
+                #else
+                    #set $inigoData[$time_period + "_" + $var] = $var_name.raw
+                #end if
+            #end if
+            ##
+            ##
+            ##
+            #set $time_period = "hour_ago"
+            #set $var_name = getattr($getVar($time_period), $var, None)
+            #if $var_name is not None and $var_name.has_data
+                #if $var in ["windSpeed", "windGust"]
+                    #set $inigoData[$time_period + "_" + $var] = $convert_value($var_name, $group_speed)
+                #else
+                    #set $inigoData[$time_period + "_" + $var] = $var_name.raw
+                #end if
+            #end if
+        #end for
         ##
         ##
         ##
@@ -126,16 +136,10 @@
             #set $var_name = getattr($getVar($time_period), "wind", None)
             #if $var_name is not None and $var_name.has_data
                 #set $var_name_str = $time_period + "_wind"
-                #set $var_name_avg = $var_name_str + "_avg"
-                #set $var_name_max = $var_name_str + "_max"
-                #set $var_name_maxtime = $var_name_str + "_maxtime"
-                #set $var_name_gustdir = $var_name_str + "_gustdir"
-                #set $var_name_gustdir_compass = $var_name_str + "_gustdir_compass"
-                #set $inigoData[$var_name_avg] = $var_name.avg.raw
-                #set $inigoData[$var_name_max] = $var_name.max.raw
-                #set $inigoData[$var_name_maxtime] = $var_name.maxtime.raw
-                #set $inigoData[$var_name_gustdir] = $var_name.gustdir.raw
-                #set $inigoData[$var_name_gustdir_compass] = $var_name.gustdir.ordinal_compass.strip()
+                #set $inigoData[$var_name_str + "_avg"] = $var_name.avg.raw
+                #set $inigoData[$var_name_str + "_max"] = $var_name.max.raw
+                #set $inigoData[$var_name_str + "_maxtime"] = $var_name.maxtime.raw
+                #set $inigoData[$var_name_str + "_maxdir"] = $var_name.gustdir.raw
             #end if
         #end for
     #except
@@ -147,17 +151,21 @@
     #try
         #set $vars = ["ET", "rain"]
         #for $var in $vars
+            #set $var_name = getattr($hour_ago, $var, None)
+            #if $varExists($time_period + "." + $var) and $var_name.has_data
+                #set $inigoData["hour_ago_" + $var + "_sum"] = $var_name.sum.raw
+            #end if
+            ##
+            ##
+            ##
             #for $time_period in $time_periods
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$time_period + "_" + $var + "_sum"] = $var_name.sum.raw
                 #end if
             #end for
-        #end for
-        #set $hour_ago_var = $hour_ago.ET
-        #if $hour_ago_var is not None
-            #set $inigoData["hour_ago_ET_raw"] = $hour_ago_var.raw
         #end if
+        #end for
     #except
         #set $inigoData["processingErrors"] += ["failed at block 3, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
     #end try
@@ -172,10 +180,16 @@
             #if $var_name is not None and $var_name.has_data
                 #set $inigoData["current_" + $var] = $var_name.raw
             #end if
-            #set $hour_ago_var = getattr($hour_ago, $var, None)
-            #if $hour_ago_var is not None
-                #set $inigoData["hour_ago_" + $var  + "_raw"] = $hour_ago_var.raw
+            ##
+            ##
+            ##
+            #set $var_name = getattr($hour_ago, $var, None)
+            #if $var_name is not None
+                #set $inigoData["hour_ago_" + $var  + "_raw"] = $var_name.raw
             #end if
+            ##
+            ##
+            ##
             #for $time_period in $time_periods
                 #set $var_name = getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
@@ -194,13 +208,23 @@
     ##
     ##
     #try
-        #set $var = "rainRate"
-        #if $current.rainRate is not None and $current.rainRate.has_data
-            #set $inigoData["rainRate"] = $current.rainRate.raw
+        #set $var = "current.rainRate"
+        #if $varExists($var)
+            #set $inigoData["current_rainRate"] = $current.rainRate.raw
         #end if
-        #set $var = "cloudbase"
-        #if $current.cloudbase is not None and $current.cloudbase.has_data
-            #set $inigoData["cloudbase"] = $current.cloudbase.raw
+        ##
+        ##
+        ##
+        #set $var = "current.cloudbase"
+        #if $varExists("almanac") and 
+            #set $inigoData["current_cloudbase"] = $current.cloudbase.raw
+        #end if
+        ##
+        ##
+        ##
+        #set $var = "hour_ago.cloudbase"
+        #if $varExists($var) and $hour_ago.cloudbase.has_data
+            #set $inigoData["hour_ago_cloudbase"] = $hour_ago.cloudbase.raw
         #end if
     #except
         #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var + ", sys.exc_info(): " + $sys.exc_info()]
@@ -209,9 +233,9 @@
     ##
     ##
     #try
-        #if $almanac is not None and $almanac.hasExtras
+        #if $varExists("almanac")
             #set $var = "almanac.sun"
-            #if $almanac.sun is not None
+            #if $varExists("almanac.sun")
                 #set $var = "almanac.sun.rise.raw"
                 #if $almanac.sun.rise is not None
                     #set $inigoData["sun_rise"] = $almanac.sun.rise.raw
@@ -229,9 +253,9 @@
             ##
             ##
             #set $var = "almanac.moon"
-            #if $almanac.moon is not None
+            #if $varExists($var)
                 #set $var = "almanac.moon.rise.raw"
-                #if $almanac.moon.rise is not None and $almanac.moon.rise.raw is not None
+                #if $varExists($var)
                     #set $inigoData["moon_rise"] = $almanac.moon.rise.raw
                 #end if
                 #set $var = "almanac.moon.set.raw"

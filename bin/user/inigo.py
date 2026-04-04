@@ -654,6 +654,37 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         t1 = time.time()
 
+        since_hour = 0
+
+        groups = {}
+        groups["pressure"] = "hPa"
+        groups["rain"] = "mm"
+        groups["speed"] = "km"
+        groups["temperature"] = "degree_C"
+
+        skin_dict = self.generator.skin_dict
+        if skin_dict is not None:
+
+            since_hour = int(float(skin_dict.get("since_hour", 0)))
+
+            if not 0 <= since_hour <= 23:
+                since_hour = 0
+
+        def output_value(var):
+
+            if var is None or not var.has_data() or group is None or not group:
+                return -999.9
+
+            log.info(f"var: {var}")
+            log.info(f"db_lookup.std_unit_system: {db_lookup.std_unit_system}")
+
+            #try:
+            #    return var.convert(group).raw
+            #except:
+            #    return -999
+
+            return 0
+
         def sort_dict(dict_name):
 
             if dict_name is None or len(dict_name) == 0:
@@ -688,7 +719,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             return {**output_dict, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
-            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "convert_value": convert_value}]
 
         #log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
         #log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
@@ -722,22 +753,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_ts: {ts}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_signal: {signal}")
             #log.debug(f"{self.__class__.__name__} outTemp_trend_{trendCount}_count: {count}")
-
-        since_hour = 0
-        group_rain = "mm"
-        skin_dict = self.generator.skin_dict
-        if skin_dict is not None:
-
-            since_hour = int(float(skin_dict.get("since_hour", 0)))
-
-            if not 0 <= since_hour <= 23:
-                since_hour = 0
-
-            units_dict = skin_dict.get("Units", None)
-            if units_dict is not None:
-                groups_dict = units_dict.get("Groups", None)
-                if groups_dict is not None:
-                     group_rain = groups_dict.get("group_rain", "mm")
 
         since_today = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "today", group_rain, since_hour)
         since_yesterday = get_modified_rain_reset_time(self.__class__.__name__, db_lookup, timespan.stop, "yesterday", group_rain, since_hour)
@@ -777,7 +792,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.debug(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "convert_value": convert_value}]
 
 class InigoService(weewx.engine.StdService):
 
