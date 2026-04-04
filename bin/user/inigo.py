@@ -695,11 +695,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             oldvar = var
 
             if isinstance(var, AggTypeBinder):
-                #log.info(f"var[0]: {pprint.pformat(var[0])}")
-                #log.info(f"var[1]: {pprint.pformat(var[1])}")
-                #log.info(f"var[2]: {pprint.pformat(var[2])}")
-
-                #log.info(f"Before var.raw: {var.raw}")
 
                 if obs_type is None:
                     obs_type = var.obs_type
@@ -708,8 +703,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
                 group_name = getUnitGroup(obs_type)
                 log.info(f"group_name: {group_name}")
-
-                #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
                 group = group_lookup(skin_dict, group_name)
                 log.info(f"group: {group}")
@@ -721,12 +714,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     except:
                         log.info(f"Failed to convert var to {group} from {var.obs_type}")
 
-                #log.info(f"group: {group}")
-                #log.info(f"After var.raw: {var.raw}")
-
             elif isinstance(var, ValueHelper):
-                #log.info(f"Before var.raw: {var.raw}")
-                #log.info(f"var.value_t: {var.value_t}")
 
                 if obs_type is None:
                     obs_type = var.value_t[1]
@@ -745,9 +733,6 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                         var = var.convert(group)
                     except:
                         log.info(f"Failed to convert var to {group} from {var.obs_type}")
-
-                #log.info(f"group: {group}")
-                #log.info(f"After var.raw: {var.raw}")
 
             else:
 
