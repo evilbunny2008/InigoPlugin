@@ -23,7 +23,7 @@ from functools import reduce
 from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
-from weewx.units import FtoC
+from weewx.units import FtoC, getUnitGroup
 from weewx.tags import AggTypeBinder, TimeBinder, TimespanBinder
 
 log = logging.getLogger(__name__)
@@ -680,7 +680,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 return -999.9
 
             if isinstance(var, AggTypeBinder):
-                log.info(f"var.obs_type: {pprint.pformat(var.obs_type)}")
+                log.info(f"var.obs_type: {var.obs_type}")
+                group = getUnitGroup(var.obs_type)
+                log.info(f"group: {group}")
 
             else:
                 log.info(f"var: {pprint.pformat(var)}")
