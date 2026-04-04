@@ -14,8 +14,6 @@
 #try
     #set $now=$current.dateTime.raw
     #set $inigoData["report_time"] = $now
-    #set $hour_ago = $current(timestamp=$now-3600, max_delta=300)
-    #set $inigoData["hour_ago_time"] = $hour_ago.dateTime.raw
     ##
     ##
     ##
@@ -168,6 +166,7 @@
     ##
     #try
         #if $varExists("inigo")
+            #set $inigoData["hour_ago_time"] = $inigo.get("hour_ago_time", 0)
             #set $ts = $inigo.get("ts", None)
             #set $report = $inigo.get("report", {})
             #if $ts is not None and $ts > 0 and $report is not None and not $report

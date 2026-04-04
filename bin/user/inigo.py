@@ -23,7 +23,7 @@ from pathlib import Path
 from weeutil.weeutil import TimeSpan, to_bool, to_float
 from weewx.reportengine import build_skin_dict, ReportTiming, set_cwd, set_locale
 from weewx.units import FtoC
-from weewx.tags import TimespanBinder
+from weewx.tags import TimeBinder, TimespanBinder
 
 log = logging.getLogger(__name__)
 
@@ -670,6 +670,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if not 0 <= since_hour <= 23:
                 since_hour = 0
 
+        hour_ago_time = timespan.stop - 3600
+        hour_ago = TimeBinder(db_lookup, hour_ago_time)
+
         def raw_value(var):
 
             if var is None or not var.has_data():
@@ -719,7 +722,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             return {**output_dict, **new_dict}
 
         if last_report_ts == timespan.stop and last_report is not None:
-            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value}]
+            return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value, "hour_ago": hour_ago, "hour_ago_time": hour_ago_time}]
 
         #log.info(f"{self.__class__.__name__} timespan.start: {timespan.start}")
         #log.info(f"{self.__class__.__name__} timespan.stop: {timespan.stop}")
@@ -794,7 +797,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         log.debug(f"{self.__class__.__name__} executed in {(t2-t1):.3f} seconds")
 
-        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value}]
+        return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value, "hour_ago": hour_ago, "hour_ago_time": hour_ago_time}]
 
 class InigoService(weewx.engine.StdService):
 
