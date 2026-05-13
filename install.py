@@ -212,13 +212,18 @@ class InigoInstaller(ExtensionInstaller):
             engine_dict["Services"] = {}
             services_dict = engine_dict.get("Services", None)
 
-        prep_service = "user.peak_detector.PeakDetectorService"
-        prep_services = services_dict.get("prep_services", None)
-        if prep_services is not None:
-            if isinstance(prep_services, str) and prep_services == prep_service:
-                del services_dict["prep_services"]
-            elif prep_service in prep_services:
-                prep_services.remove(prep_service)
+        things_to_remove = ["user.since", "user.peak_detector.PeakDetectorService", "user.inigo.InigoService"]
+
+        for service in services_dict:
+            for thing in things_to_remove:
+                if thing in service:
+
+                    services = services_dict.get(service, None)
+                    if services is not None:
+                        if isinstance(services, str) and services == thing:
+                            del services_dict[service]
+                        elif thing in services:
+                            services.remove(thing)
 
         data_service = "user.inigo.InigoService"
         data_services = services_dict.get("data_services", None)
