@@ -217,7 +217,7 @@ class InigoInstaller(ExtensionInstaller):
         for service in list(services_dict):
             for thing in things_to_remove:
                 services = services_dict.get(service, None)
-                if services not None:
+                if services is None:
                     continue
 
                 if isinstance(services, str) and services == thing:
