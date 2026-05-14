@@ -227,6 +227,7 @@ class InigoInstaller(ExtensionInstaller):
                     if len(services) == 1:
                         services_dict[service] = services[0]
 
+        services_dict = engine_dict.get("Services", None)
         data_service = "user.inigo.InigoService"
         data_services = services_dict.get("data_services", None)
         if data_services is None:
