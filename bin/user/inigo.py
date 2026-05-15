@@ -592,6 +592,10 @@ def patched_run(self, reports=None):
                               "running report anyway", report)
                     log.debug("       ****  %s", timing.validation_error)
 
+
+        if skin_dict.get("skin") is None:
+            return
+
         skin_dir = Path(self.config_dict['WEEWX_ROOT'],
                         skin_dict['SKIN_ROOT'],
                         skin_dict['skin'])
