@@ -61,7 +61,7 @@ weewx.units.obs_group_dict["since_year_to_date"] = "group_rain"
 weewx.units.obs_group_dict["since_last_year"] = "group_rain"
 weewx.units.obs_group_dict["since_alltime"] = "group_rain"
 
-REQUIRED_WEEWX = "5.3.0"
+REQUIRED_WEEWX = "5.0.0"
 
 def fatal_error(error_str):
 
@@ -594,7 +594,7 @@ def patched_run(self, reports=None):
 
 
         if skin_dict.get("skin") is None:
-            return
+            skin_dict['skin'] = ""
 
         skin_dir = Path(self.config_dict['WEEWX_ROOT'],
                         skin_dict['SKIN_ROOT'],
@@ -646,7 +646,16 @@ def patched_run(self, reports=None):
                         continue
 
                     finally:
-                        obj.finalize()
+                        try:
+                            obj.finalize()
+                        except Exception as e:
+                            log.error("Caught unrecoverable exception in generator '%s'",
+                                      generator)
+                            log.error("        ****  %s", e)
+                            weeutil.logger.log_traceback(log.error, "        ****  ")
+                            log.error("        ****  Generator terminated")
+                            traceback.print_exc()
+                            continue
 
             else:
                 log.debug("No generators specified for report '%s'", report)
