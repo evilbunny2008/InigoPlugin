@@ -73,7 +73,7 @@ class InigoInstaller(ExtensionInstaller):
             name="Inigo",
             description="A skin to feed data to weeWx app",
             author="John Smith",
-            author_email="deltafoxtrot256@gmail.com",
+            author_email="deltafoxtrot256+InigoPlugin@gmail.com",
             config={
                 "StdReport": InigoReportConfigs
             },
