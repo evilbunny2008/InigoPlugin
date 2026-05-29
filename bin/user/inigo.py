@@ -152,39 +152,40 @@ def reset_peak_detector(class_name, db_lookup):
     global peak_detector
 
     now = datetime.now()
+    initial_data = []
 
-    if now.hour < 6:
+    if now.hour >= 6:
+        try:
+            min5_ago = int(time.time() / 300) * 300
+            mins = lag * 2 / 60
+            start = min5_ago - (lag * 2) - 60
+            stats = TimespanBinder(TimeSpan(start, min5_ago), db_lookup)
 
-        initial_data = [0.0] * lag
+            for row in stats.records():
+                outTemp = convert_temp_to_float(row.outTemp.raw)
+                if outTemp is None:
+                    log.error(f"outTemp '{row.outTemp.raw}' type '{type(row.outTemp.raw).__name__}' failed to convert to float, skipping...")
+                    continue
+                initial_data.append(outTemp)
 
-        log.debug(f"{class_name} Overnight reset, generated {len(initial_data)} zero data points")
+        except Exception as e:
+            log.error(f"Failed to query DB for peak temperature seeding: {e}")
 
-        peak_detector = real_time_peak_detection(initial_data, lag=lag, threshold=threshold, influence=influence)
-
-    else:
-
-        min5_ago = int(time.time() / 300) * 300
-
-        mins = lag * 2 / 60
-
-        start = min5_ago - (lag * 2) - 60
-
-        stats = TimespanBinder(TimeSpan(start, min5_ago), db_lookup)
-
-        initial_data = []
-        for row in stats.records():
-            outTemp = convert_temp_to_float(row.outTemp.raw)
-            if outTemp is None:
-                log.error(f"outTemp '{row.outTemp.raw}' type '{type(row.outTemp.raw).__name__}' failed to convert to float, skipping...")
-                continue
-
-            initial_data += [outTemp]
-
-        initial_data_expanded = [outTemp for outTemp in np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()]
-
+    # Expand however many records we got (even 1) via interpolation,
+    # or fall back to zeros if we got nothing at all.
+    if len(initial_data) >= 2:
+        initial_data_expanded = np.interp(np.linspace(0, len(initial_data) - 1, lag), np.arange(len(initial_data)), initial_data).tolist()
         log.debug(f"{class_name} Generated {len(initial_data_expanded)} data points using numpy based on past {mins} minutes of archive records")
+    elif len(initial_data) == 1:
+        # Only one reading — just repeat it so z-score has a flat baseline
+        initial_data_expanded = initial_data * lag
+        log.debug(f"{class_name} Only 1 archive record found, repeating as flat baseline")
+    else:
+        # No data at all (before 6am, DB empty, or query failed)
+        initial_data_expanded = [0.0] * lag
+        log.debug(f"{class_name} No archive data available, seeding with zeros")
 
-        peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
+    peak_detector = real_time_peak_detection(initial_data_expanded, lag=lag, threshold=threshold, influence=influence)
 
     log.debug(f"{class_name} {pickle_filename} saved to")
     save_pickle_data(class_name, True)
