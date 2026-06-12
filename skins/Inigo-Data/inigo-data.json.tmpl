@@ -59,19 +59,6 @@
     ##
     ##
     #try
-        #set $vars = ["rain"]
-        #for $var in $vars
-            #for $time_period in ["current", "hour_ago"]
-                #set $var_name_str = $time_period + "_" + $var
-                #set $var_name = $getattr($getVar($time_period), $var, None)
-                #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
-                #end if
-            #end for
-        #end for
-        ##
-        ##
-        ##
         #set $vars = ["ET", "rain"]
         #for $var in $vars
             #for $time_period in $time_periods
