@@ -679,7 +679,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         log.debug(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
 
         if peak_detector is None:
-            fatal_error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, exitting...")
+            log.error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, this will only impact peak temperature detection...")
 
         t1 = time.time()
 
