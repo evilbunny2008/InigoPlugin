@@ -11,7 +11,7 @@ import weewx
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
-VERSION="2.0.28"
+VERSION="2.0.29"
 
 InigoDataConfig = {
     "skin": "Inigo-Data",
@@ -223,6 +223,7 @@ class InigoInstaller(ExtensionInstaller):
 
                 if isinstance(services, str) and services == thing:
                     del services_dict[service]
+
                 elif thing in services:
                     services.remove(thing)
                     if len(services) == 1:
@@ -231,8 +232,10 @@ class InigoInstaller(ExtensionInstaller):
         services_dict = engine_dict.get("Services", None)
         data_service = "user.inigo.InigoService"
         data_services = services_dict.get("data_services", None)
+
         if data_services is None:
             services_dict["data_services"] = data_service
+
         elif data_service not in data_services:
             if isinstance(data_services, str):
                 data_services = [data_services, data_service]

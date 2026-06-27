@@ -1,6 +1,8 @@
 
 import inspect
+import json
 import logging
+import numpy as np
 import os
 import pickle
 import pprint
@@ -367,6 +369,23 @@ def group_lookup(skin_dict, group_name):
 
     return None
 
+class jsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+
+        if isinstance(obj, np.floating):
+            return float(obj)
+
+        if isinstance(obj, np.integer):
+            return int(obj)
+
+        if callable(obj):
+            try:
+                return obj()
+            except Exception:
+                return str(obj)
+
+        return super().default(obj)
+
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
 
@@ -679,7 +698,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
         log.debug(f"{self.__class__.__name__} InigoSearchList v{VERSION} called!")
 
         if peak_detector is None:
-            log.error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, this will only impact peak temperature detection...")
+            fatal_error(f"{self.__class__.__name__} InigoSearchList failed to detect InigoService running, exitting...")
 
         t1 = time.time()
 
@@ -705,7 +724,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
         #log.info(f"skin_dict: {pprint.pformat(skin_dict)}")
 
-        def raw_value(var, obs_type=None):
+        def raw_value(var, obs_type=None, defVal=None):
 
             if var is None:
                 return -999.9
@@ -772,7 +791,16 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
                 log.info(f"var: {pprint.pformat(var)}")
 
-            return var.raw
+            if isinstance(var, tuple):
+                var = var.value.raw
+
+            elif not isinstance(var, str):
+                var = var.raw
+
+            if var is None and defVal is not None:
+                return defVal
+
+            return var
 
         def sort_dict(dict_name):
 
@@ -805,7 +833,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if processingErrors is not None:
                 output_dict["processingErrors"] = processingErrors
 
-            return {**output_dict, **new_dict}
+            return json.dumps({**output_dict, **new_dict}, cls=jsonEncoder)
 
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value, "hour_ago": hour_ago, "hour_ago_time": hour_ago_time}]
