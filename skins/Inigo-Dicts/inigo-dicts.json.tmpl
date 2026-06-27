@@ -2,7 +2,6 @@
 #encoding UTF-8
 ##
 ##
-#import json
 #import weewx.units
 ##
 #from Cheetah import NameMapper
@@ -40,8 +39,4 @@
 ##
 ##
 ##
-#try
-    #echo $json.dumps($sort_dict($dict_data))
-#except
-    #echo "{\"version\": 1000000, \"processingErrors\": [\"failed at block 4\"]}"
-#end try
+#echo $sort_dict($dict_data)

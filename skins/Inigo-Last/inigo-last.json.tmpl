@@ -2,8 +2,6 @@
 #encoding UTF-8
 ##
 ##
-#import json
-##
 #from Cheetah import NameMapper
 ##
 ##
@@ -35,7 +33,9 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
     #end try
     ##
     ##
@@ -56,7 +56,9 @@
             #end if
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 2, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
     #end try
     ##
     ##
@@ -72,7 +74,9 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 3, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
     #end try
     ##
     ##
@@ -90,21 +94,23 @@
             #end for
         #end for
     #except
-        #set $inigoData["processingErrors"] += ["failed at block 4, var: " + $var + ", time_period: " + $time_period + ", sys.exc_info(): " + $sys.exc_info()]
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
     #end try
     ##
     ##
     ##
 #except NameMapper.NotFound
-    #set $inigoData["processingErrors"] += ["failed at block 5, sys.exc_info(): " + $sys.exc_info()]
+    #set $exc_info = $sys.exc_info()
+    #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+    #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
 #except
-    #set $inigoData["processingErrors"] += ["failed at block 6, sys.exc_info(): " + $sys.exc_info()]
+    #set $exc_info = $sys.exc_info()
+    #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+    #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
 #end try
 ##
 ##
 ##
-#try
-    #echo $json.dumps($sort_dict($inigoData))
-#except
-    #echo "{\"version\": 1000000, \"processingErrors\": [\"failed at block 7, sys.exc_info(): " + $sys.exc_info() + "\"]}"
-#end try
+#echo $sort_dict($inigoData)
