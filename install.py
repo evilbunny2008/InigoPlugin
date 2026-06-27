@@ -11,7 +11,7 @@ import weewx
 from weecfg.extension import ExtensionInstaller
 from weeutil.config import conditional_merge
 
-VERSION="2.0.29"
+VERSION="2.0.30"
 
 InigoDataConfig = {
     "skin": "Inigo-Data",
@@ -74,6 +74,7 @@ class InigoInstaller(ExtensionInstaller):
             description="A skin to feed data to weeWx app",
             author="John Smith",
             author_email="deltafoxtrot256+InigoPlugin@gmail.com",
+            data_services="user.inigo.InigoService",
             config={
                 "StdReport": InigoReportConfigs
             },
@@ -124,7 +125,8 @@ class InigoInstaller(ExtensionInstaller):
             np.array([1.0, 2.0, 3.0])
             del np
         except (ImportError, Exception):
-            fatal_error(f"The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\nPlease view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
+            fatal_error("The numpy python module wasn't detected, this is required to detect peak daily temperature in real time.\n\n"\
+                        "Please view this wiki page for installation details: https://github.com/evilbunny2008/InigoPlugin/blob/main/README.md")
 
         stdreport_dict = engine.config_dict.get("StdReport", None)
         if stdreport_dict is None:
@@ -202,45 +204,6 @@ class InigoInstaller(ExtensionInstaller):
 
             elif not 0 <= tmpsince <= 23:
                 inigo_data_dict["since_hour"] = 0
-
-        engine_dict = engine.config_dict.get("Engine", None)
-        if engine_dict is None:
-            engine.config_dict["Engine"] = {}
-            engine_dict = engine.config_dict.get("Engine", None)
-
-        services_dict = engine_dict.get("Services", None)
-        if services_dict is None:
-            engine_dict["Services"] = {}
-            services_dict = engine_dict.get("Services", None)
-
-        things_to_remove = ["user.since", "user.peak_detector.PeakDetectorService", "user.inigo.InigoService"]
-
-        for service in list(services_dict):
-            for thing in things_to_remove:
-                services = services_dict.get(service, None)
-                if services is None:
-                    continue
-
-                if isinstance(services, str) and services == thing:
-                    del services_dict[service]
-
-                elif thing in services:
-                    services.remove(thing)
-                    if len(services) == 1:
-                        services_dict[service] = services[0]
-
-        services_dict = engine_dict.get("Services", None)
-        data_service = "user.inigo.InigoService"
-        data_services = services_dict.get("data_services", None)
-
-        if data_services is None:
-            services_dict["data_services"] = data_service
-
-        elif data_service not in data_services:
-            if isinstance(data_services, str):
-                data_services = [data_services, data_service]
-            else:
-                data_services.append(data_service)
 
         if engine.dry_run:
             engine.printer.out(engine.config_dict)
