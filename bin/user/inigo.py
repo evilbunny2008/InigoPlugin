@@ -369,23 +369,6 @@ def group_lookup(skin_dict, group_name):
 
     return None
 
-class jsonEncoder(json.JSONEncoder):
-    def default(self, obj):
-
-        if isinstance(obj, np.floating):
-            return float(obj)
-
-        if isinstance(obj, np.integer):
-            return int(obj)
-
-        if callable(obj):
-            try:
-                return obj()
-            except Exception:
-                return str(obj)
-
-        return super().default(obj)
-
 # https://stackoverflow.com/questions/22583391/peak-signal-detection-in-realtime-timeseries-data/56451135#56451135
 class real_time_peak_detection():
 
@@ -833,7 +816,38 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if processingErrors is not None:
                 output_dict["processingErrors"] = processingErrors
 
-            return json.dumps({**output_dict, **new_dict}, cls=jsonEncoder)
+            output_dict = {**output_dict, **new_dict}
+            new_dict = {}
+
+            for k, v in output_dict.items():
+
+                if isinstance(v, np.floating):
+                    v = float(v)
+
+                elif isinstance(v, np.integer):
+                    v = int(v)
+
+                elif isinstance(v, ValueHelper):
+                    v = v.raw
+
+                elif isinstance(v, str):
+                    try:
+                        v = json.loads(v)
+                    except (json.JSONDecodeError, ValueError):
+                        pass
+
+                elif isinstance(v, tuple):
+                    v = list(v)
+
+                elif callable(v):
+                    try:
+                        v = v()
+                    except Exception:
+                        v = str(v)
+
+                new_dict[k] = v
+
+            return json.dumps({**output_dict, **new_dict}, default=lambda x: f"<UNSERIALIZABLE: {type(x).__name__}: {x}>")
 
         if last_report_ts == timespan.stop and last_report is not None:
             return [{"inigo": {"ts": last_report_ts, "report": last_report}, "sort_dict": sort_dict, "raw_value": raw_value, "hour_ago": hour_ago, "hour_ago_time": hour_ago_time}]
