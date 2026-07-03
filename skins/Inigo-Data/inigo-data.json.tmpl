@@ -28,34 +28,53 @@
     ##
     ##
     ##
-    #try
-        #for $var in $vars
-            #for $time_period in ["current", "hour_ago"]
+    #for $var in $vars
+        #for $time_period in ["current", "hour_ago"]
+            #try
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
+                #else
+                    #set $inigoData["processingErrors"] += ["failed at block 1a, var: " + $var + ", time_period: " + $time_period + ", No value found"]
                 #end if
-            #end for
-            ##
-            ##
-            ##
-            #for $time_period in $time_periods
-                #set $var_name_str = $time_period + "_" + $var
-                #set $var_name = $getattr($getVar($time_period), $var, None)
-                #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str + "_max"] = $raw_value($var_name.max, $var)
-                    #set $inigoData[$var_name_str + "_min"] = $raw_value($var_name.min, $var)
-                    #set $inigoData[$var_name_str + "_maxtime"] = $raw_value($var_name.maxtime, "maxtime")
-                    #set $inigoData[$var_name_str + "_mintime"] = $raw_value($var_name.mintime, "mintime")
-                #end if
-            #end for
+            #except
+                #set $exc_info = $sys.exc_info()
+                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                #set $inigoData["processingErrors"] += ["failed at block 1a, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
+            #end try
         #end for
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 1, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
-    #end try
+        ##
+        ##
+        ##
+        #for $time_period in $time_periods
+            #try
+                #set $var_name_str = $time_period + "_" + $var
+                #for $which in ["max", "maxtime", "min", "mintime"]
+                    #set $var_name_new_str = $var_name_str + "_" + $which
+                    #set $var_name = $getattr($current, $var_name_new_str, None)
+                    #set $tmp = None
+                    #if $var_name is not None and $var_name.has_data
+                        #set $tmp = $raw_value($var_name)
+                    #else
+                        #set $var_name = $getattr($getVar($time_period), $var, None)
+                        #if $var_name is not None and $var_name.has_data
+                             #set $tmp = $raw_value($getattr($var_name, $which, None))
+                        #end if
+                    #end if
+                    #if $tmp is not None
+                        #set $inigoData[$var_name_new_str] = $tmp
+                    #else
+                        #set $inigoData["processingErrors"] += ["failed at block 1b, var: " + $var + ", time_period: " + $time_period + ", No value found"]
+                    #end if
+                #end for
+            #except
+                #set $exc_info = $sys.exc_info()
+                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                #set $inigoData["processingErrors"] += ["failed at block 1b, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
+            #end try
+        #end for
+    #end for
     ##
     ##
     ##

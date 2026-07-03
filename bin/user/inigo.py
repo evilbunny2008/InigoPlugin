@@ -741,7 +741,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     try:
                         var = var.convert(group)
                     except:
-                        log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
+                        #log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
+                        # Usually when this fails now it's because the value has already been converted
+                        pass
 
             elif isinstance(var, ValueHelper):
 
@@ -768,7 +770,9 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     try:
                         var = var.convert(group)
                     except:
-                        log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
+                        #log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
+                        # Usually when this fails now it's because the value has already been converted
+                        pass
 
             else:
 
