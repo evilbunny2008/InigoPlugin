@@ -735,6 +735,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #    log.info(f"group: {group}")
 
                 if group is not None and group.strip() != "":
+
                     #if obs_type == "appTemp":
                     #    log.info(f"Converting var to {group}")
 
@@ -742,7 +743,8 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                         var = var.convert(group)
                     except:
                         #log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
-                        # Usually when this fails now it's because the value has already been converted
+
+                        # This may be hit if the value doesn't need to be converted
                         pass
 
             elif isinstance(var, ValueHelper):
@@ -764,6 +766,7 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                 #    log.info(f"group: {group}")
 
                 if group is not None and group != "":
+
                     #if obs_type == "appTemp":
                     #    log.info(f"Converting var to {group}")
 
@@ -771,12 +774,14 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                         var = var.convert(group)
                     except:
                         #log.info(f"Failed to convert var to {group} from {obs_type}, group_name {group_name}, group {group}")
-                        # Usually when this fails now it's because the value has already been converted
+
+                        # This may be hit if the value doesn't need to be converted
                         pass
 
             else:
 
                 log.info(f"var: {pprint.pformat(var)}")
+
 
             if isinstance(var, tuple):
                 var = var.value.raw
@@ -832,7 +837,10 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
                     v = int(v)
 
                 elif isinstance(v, ValueHelper):
-                    v = v.raw
+                    try:
+                        v = v.raw
+                    except Exception:
+                        pass
 
                 elif isinstance(v, str):
                     try:
