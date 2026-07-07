@@ -36,34 +36,34 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
                 #else
-                    #set $inigoData["processingErrors"] += ["failed at block 1a, var_name_str: " + $var_name_str + ", No value found"]
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 1, var_name_str: " + $var_name_str + ", No value found"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 1b, var_name_str: " + $var_name_str + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 2, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
         ##
         ##
         ##
         #for $time_period in $time_periods
-            #try
-                #set $var_name_str = $time_period + "_" + $var
-                #for $which in ["max", "maxtime", "min", "mintime"]
+            #set $var_name_str = $time_period + "_" + $var
+            #for $which in ["max", "maxtime", "min", "mintime"]
+                #try
                     #set $var_name_new_str = $var_name_str + "_" + $which
                     #set $var_name = $getattr($current, $var_name_new_str, None)
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else
-                        #set $inigoData["processingErrors"] += ["failed at block 2a, var_name_new_str: " + $var_name_new_str + ", no value"]
+                        #set $inigoData["processingErrors"] += [{"warning": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
                     #end if
-                #end for
-            #except
-                #set $exc_info = $sys.exc_info()
-                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 2b, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
-            #end try
+                #except
+                    #set $exc_info = $sys.exc_info()
+                    #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                    #set $inigoData["processingErrors"] += [{"error": "failed at block 4, var_name_new_str: " + $var_name_new_str + ", " + $exc_type_str}]
+                #end try
+            #end for
         #end for
     #end for
     ##
@@ -78,12 +78,12 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $var_name
                 #else
-                    #set $inigoData["processingErrors"] += ["failed at block 3a, var_name_str: " + $var_name_str + ", no value, switching to db lookups"]
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 5, var_name_str: " + $var_name_str + ", no value"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 3b, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 6, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
     #end for
@@ -99,34 +99,34 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
                 #else
-                    #set $inigoData["processingErrors"] += ["failed at block 1a, var_name_str: " + $var_name_str + ", No value found"]
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 7, var_name_str: " + $var_name_str + ", No value found"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 1b, var_name_str: " + $var_name_str + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 8, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
         ##
         ##
         ##
         #for $time_period in $time_periods
-            #try
-                #set $var_name_str = $time_period + "_" + $var
-                #for $which in ["max", "maxtime"]
+            #set $var_name_str = $time_period + "_" + $var
+            #for $which in ["max", "maxtime"]
+                #try
                     #set $var_name_new_str = $var_name_str + "_" + $which
                     #set $var_name = $getattr($current, $var_name_new_str, None)
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else            
-                        #set $inigoData["processingErrors"] += ["failed at block 4d, var_name_new_str: " + $var_name_new_str + ", no value"]
+                        #set $inigoData["processingErrors"] += [{"warning": "failed at block 9, var_name_new_str: " + $var_name_new_str + ", no value"}]
                     #end if
-                #end for
-            #except
-                #set $exc_info = $sys.exc_info()
-                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 4e, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
-            #end try
+                #except
+                    #set $exc_info = $sys.exc_info()
+                    #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                    #set $inigoData["processingErrors"] += [{"error": "failed at block 10, var_name_new_str: " + $var_name_new_str + ", " + $exc_type_str}]
+                #end try
+            #end for
         #end for
     #end for
     ##
@@ -141,12 +141,12 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
                 #else
-                    #set $inigoData["processingErrors"] += ["failed at block 5a, var_name_str: " + $var_name_str + ", No value"]
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 11, var_name_str: " + $var_name_str + ", No value"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 5b, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 12, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
     #end for
@@ -159,12 +159,16 @@
             #try
                 #set $var_name_str = $time_period + "_" + $var
                 #set $var_name = $getattr($getVar($time_period), $var, None)
-                #set $inigoData[$var_name_str] = $raw_value($var_name, "degree_compass", 0)
-                #set $inigoData[$var_name_str + "_str"] = $getattr($var_name, "ordinal_compass", "N/A")
+                #if $var_name is not None and $var_name.has_data
+                    #set $inigoData[$var_name_str] = $raw_value($var_name, "degree_compass", 0)
+                    #set $inigoData[$var_name_str + "_str"] = $getattr($var_name, "ordinal_compass", "N/A")
+                #else
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 13, var_name_str: " + $var_name_str + ", no value"}]
+                #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 5d, var: " + $var + ", time_period: " + $time_period + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 14, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
     #end for
@@ -181,12 +185,12 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_new_str] = $var_name
                 #else
-                    #set $inigoData["processingErrors"] += ["failed at block 6a, var_name_new_str: " + $var_name_new_str + ", No value found"]
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 15, var_name_new_str: " + $var_name_new_str + ", No value found"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 6b, var_name_new_str: " + $var_name_new_str + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 16, var_name_new_str: " + $var_name_new_str + ", " + $exc_type_str}]
             #end try
         #end for
     #end for
@@ -201,11 +205,13 @@
                 #set $var_name = $getattr($getVar($time_period), $var, None)
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
+                #else
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 17, var_name_str: " + $var_name_str + ", No value found"}]
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += ["failed at block 8, var: " + $var + ", " + $exc_type_str]
+                #set $inigoData["processingErrors"] += [{"warning": "failed at block 18, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
             #end try
         #end for
     #end for
@@ -215,173 +221,168 @@
     #set $vars = [600, 1800, 3600, 21600, 86400]
     #for $var in $vars
         #try
+            #set $var_name_str = "rain_" + str($var)
             #set $var_name = $getattr($span(time_delta=$var), "rain", None)
-            #if $var is not None and $var_name.has_data
+            #if $var_name is not None and $var_name.has_data
                 #set $inigoData["rain_" + str($var)] = $raw_value($var_name.sum, "rain")
+            #else
+                #set $inigoData["processingErrors"] += [{"warning": "failed at block 19, var_name_str: " + $var_name_str + ", no value"}]
             #end if
         #except
             #set $exc_info = $sys.exc_info()
             #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-            #set $inigoData["processingErrors"] += ["failed at block 9, var: rain_" + str($var) + ", " + $exc_type_str]
+            #set $inigoData["processingErrors"] += [{"error": "failed at block 20, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
         #end try
     #end for
     ##
     ##
     ##
-    #try
-        #if $varExists("inigo")
-            #if $varExists("hour_ago_time")
-                #set $inigoData["hour_ago_time"] = $hour_ago_time
+    #if $varExists("inigo")
+        #try
+            #set $var_name_str = "hour_ago_time"
+            #if $varExists($var_name_str) and $hour_ago_time.has_data
+                #set $inigoData[$var_name_str] = $hour_ago_time
+            #else
+                #set $inigoData["processingErrors"] += [{"warning": "failed at block 21, variable \$hour_ago_time doesn't exist or is None"}]
             #end if
-            #set $ts = $inigo.get("ts", None)
-            #set $report = $inigo.get("report", {})
-            #if $ts is not None and $ts > 0 and $report is not None and $report != {}
+        #except
+            #set $exc_info = $sys.exc_info()
+            #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+            #set $inigoData["processingErrors"] += [{"error": "failed at block 22, var: hour_ago_time, " + $exc_type_str}]
+        #end try
+        ##
+        ##
+        ##
+        #set $ts = $inigo.get("ts", None)
+        #set $report = $inigo.get("report", {})
+        #if $ts is not None and $ts > 0 and $report is not None and $report != {}
+            #try
                 #set $inigoData["outTemp_trend_ts"] = $report.get("search_list_ts", [])
                 #set $inigoData["outTemp_trend_signal"] = $report.get("search_list_signal", [])
                 #set $inigoData["outTemp_trend_count"] = $report.get("search_list_count", [])
-                ##
-                ##
-                ##
-                #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
-                #for $time_period in $time_periods
-                    #set $inigoData["since_" + $time_period] = $report.get("since_" + $time_period, 0)
+            #except
+                #set $exc_info = $sys.exc_info()
+                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 23, var \inigo.get(\"report\", {}) errored, " + $exc_type_str}]
+            #end try
+            ##
+            ##
+            ##
+            #set $time_periods = ["hour", "today", "yesterday", "month_to_date", "last_month", "year_to_date", "last_year", "alltime"]
+            #for $time_period in $time_periods
+                #set $var_name_str = "since_" + $time_period
+                #try
+                    #set $inigoData[$var_name_str] = $report.get("since_" + $time_period, 0)
+                #except
+                    #set $exc_info = $sys.exc_info()
+                    #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                    #set $inigoData["processingErrors"] += [{"error": "failed at block 24, var_name_str: " + $var_name_str + " failed to lookup or return data, " + $exc_type_str}]
+                #end try
+            #end for
+        #end if
+    #end if
+    ##
+    ##
+    ##
+    #try
+        #set $var_name_str = "current.rainRate"
+        #if $current.rainRate is not None and $current.rainRate.has_data
+            #set $inigoData[$var_name_str.replace(".", "_")] = $raw_value($current.rainRate, "rainRate")
+        #else
+            #set $inigoData["processingErrors"] += [{"warning": "failed at block 25, var_name_str: " + $var_name_str + ", no value"}]
+        #end if
+    #except
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += [{"error": "failed at block 26, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var_name_str = "current.cloudbase"
+        #if $current.cloudbase is not None and $current.cloudbase.has_data
+            #set $inigoData[$var_name_str.replace(".", "_")] = $raw_value($current.cloudbase, "cloudbase")
+        #else
+            #set $inigoData["processingErrors"] += [{"warning": "failed at block 27, var_name_str: " + $var_name_str + ", no value"}]
+        #end if
+    #except
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += [{"error": "failed at block 28, var: " + $var + ", " + $exc_type_str}]
+    #end try
+    ##
+    ##
+    ##
+    #try
+        #set $var_name_str = "hour_ago.cloudbase"
+        #if $hour_ago.cloudbase is not None and $hour_ago.cloudbase.has_data
+            #set $inigoData[$var_name_str.replace(".", "_")] = $raw_value($hour_ago.cloudbase, "cloudbase")
+        #else
+            #set $inigoData["processingErrors"] += [{"warning": "failed at block 29, var_name_str: " + $var_name_str + ", no value"}]
+        #end if
+    #except
+        #set $exc_info = $sys.exc_info()
+        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+        #set $inigoData["processingErrors"] += [{"error": "failed at block 30, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
+    #end try
+    ##
+    ##
+    ##
+    #set $var_name_str = "almanac"
+    #set $var_name = $getVar($var_name_str)
+    #if $var_name is not None and $var_name.has_data
+        #for $var_name_new_str in [$var_name_str + ".sun", $var_name_str + ".moon"]
+            #set $var_name = $getVar($var_name_new_str)
+            #if $var_name is not None and $var_name.has_data
+                #set $tmp_vars = [$var_name_new_str + ".rise", $var_name_new_str + ".set"]
+                #if $var_name_new_str.endswith(".moon")
+                    #set $tmp_vars += [$var_name_new_str + ".next_rise", $var_name_new_str + ".next_set"]
+                #else
+                    #set $tmp_vars += [$var_name_new_str + ".transit"]
+                #end if
+                #for $var_name_new_str2 in $tmp_vars
+                    #try
+                        #set $var_name_new = $getVar($var_name_new_str2)
+                        #if $var_name_new is not None and $var_name_new.has_data
+                            #set $inigoData[$var_name_new_str2.replace(".", "_")] = $raw_value($var_name_new, "dateTime")
+                        #else
+                            #set $inigoData["processingErrors"] += [{"warning": "failed at block 31, var_name_new_str2: " + $var_name_new_str2 + ", no value"}]
+                        #end if
+                    #except
+                        #set $exc_info = $sys.exc_info()
+                        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                        #set $inigoData["processingErrors"] += [{"error": "failed at block 32, var_name_new_str2: " + $var_name_new_str2 + ", " + $exc_type_str}]
+                    #end try
                 #end for
-                ##
-                ##
             #end if
-        #end if
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 7, var_name_ts_str: " + $var_name_ts_str + ", var_name_signal_str: " + $var_name_signal_str + ", var_name_count_str: " + $var_name_count_str + ", " + $exc_type_str]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #set $var = "current.rainRate"
-        #if $varExists($var) and $current.rainRate.has_data
-            #set $inigoData["current_rainRate"] = $raw_value($current.rainRate, "rainRate")
-        #end if
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var + ", " + $exc_type_str]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #set $var = "current.cloudbase"
-        #if $varExists($var) and $current.cloudbase.has_data
-            #set $inigoData["current_cloudbase"] = $raw_value($current.cloudbase, "cloudbase")
-        #end if
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var + ", " + $exc_type_str]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #set $var = "hour_ago.cloudbase"
-        #if $varExists($var) and $hour_ago.cloudbase.has_data
-            #set $inigoData["hour_ago_cloudbase"] = $raw_value($hour_ago.cloudbase, "cloudbase")
-        #end if
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 5, var: " + $var + ", " + $exc_type_str]
-    #end try
-    ##
-    ##
-    ##
-    #try
-        #if $varExists("almanac")
-            #set $var = "almanac.sun"
-            #if $varExists($var)
-                #set $var = "almanac.sun.rise"
-                #if $varExists($var)
-                    #set $inigoData["day_sun_rise"] = $raw_value($almanac.sun.rise, "dateTime")
+        #end for
+        ##
+        ##
+        ##
+        #for $var_name_new_str in [$var_name_str + ".next_new_moon", $var_name_str + ".moon_phase", $var_name_str + ".moon_fullness"]
+            #try
+                #set $var_name_new = $getVar($var_name_new_str)
+                #if $var_name_new is not None and $var_name_new.has_data
+                    #set $inigoData[$var_name_new.replace(".", "_")] = $var_name_new
+                #else
+                    #set $inigoData["processingErrors"] += [{"warning": "failed at block 33, var_name_new_str: " + $var_name_new_str + ", no value"}]
                 #end if
-                #set $var = "almanac.sun.set"
-                #if $varExists($var)
-                    #set $inigoData["day_sun_set"] = $raw_value($almanac.sun.set, "dateTime")
-                #end if
-                #set $var = "almanac.sun.transit"
-                #if $varExists($var)
-                    #set $inigoData["day_sun_transit"] = $raw_value($almanac.sun.transit, "dateTime")
-                #end if
-            #end if
-            ##
-            ##
-            ##
-            #set $var = "almanac.moon"
-            #if $varExists($var)
-                #set $var = "almanac.moon.rise"
-                #if $varExists($var)
-                    #set $inigoData["day_moon_rise"] = $raw_value($almanac.moon.rise, "dateTime")
-                #end if
-                #set $var = "almanac.moon.set"
-                #if $varExists($var)
-                    #set $inigoData["day_moon_set"] = $raw_value($almanac.moon.set, "dateTime")
-                #end if
-                #set $moon_next_rise_is_set = False
-                #set $var = "almanac.moon.next_rising"
-                #if $varExists($var)
-                    #set $moon_next_rise_is_set = True
-                    #set $inigoData["day_moon_next_rise"] = $raw_value($almanac.moon.next_rising, "dateTime")
-                #end if
-                #if not $moon_next_rise_is_set
-                    #set $var = "almanac.moon.next_rise"
-                    #if $varExists($var)
-                        #set $inigoData["day_moon_next_rise"] = $raw_value($almanac.moon.next_rise, "dateTime")
-                    #end if
-                #end if
-                #set $moon_next_set_is_set = False
-                #set $var = "almanac.moon.next_setting"
-                #if $varExists($var)
-                    #set $moon_next_set_is_set = True
-                    #set $inigoData["day_moon_next_set"] = $raw_value($almanac.moon.next_setting, "dateTime")
-                #end if
-                #if not $moon_next_set_is_set
-                    #set $var = "almanac.moon.next_set"
-                    #if $varExists($var)
-                        #set $inigoData["day_moon_next_set"] = $raw_value($almanac.moon.next_set, "dateTime")
-                    #end if
-                #end if
-            #end if
-            #set $var = "almanac.next_full_moon"
-            #if $varExists($var)
-                #set $inigoData["month_next_full_moon"] = $raw_value($almanac.next_full_moon, "dateTime")
-            #end if
-            #set $var = "almanac.next_new_moon"
-            #if $varExists($var)
-                #set $inigoData["month_next_new_moon"] = $raw_value($almanac.next_new_moon, "dateTime")
-            #end if
-            #set $var = "almanac.moon_phase"
-            #if $varExists($var)
-                #set $inigoData["month_moon_phase"] = $almanac.moon_phase.strip()
-            #end if
-            #set $var = "almanac.moon_fullness"
-            #if $varExists($var)
-                #set $inigoData["month_moon_fullness"] = $almanac.moon_fullness
-            #end if
-        #end if
-    #except
-        #set $exc_info = $sys.exc_info()
-        #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-        #set $inigoData["processingErrors"] += ["failed at block 6, var: " + $var + ", " + $exc_type_str]
-    #end try
+            #except
+                #set $exc_info = $sys.exc_info()
+                #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
+                #set $inigoData["processingErrors"] += [{"error": "failed at block 34, var_name_new_str: " + $var_name_new_str + ", " + $exc_type_str}]
+            #end try
+        #end for
+    #end if
 #except NameMapper.NotFound
     #set $exc_info = $sys.exc_info()
     #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-    #set $inigoData["processingErrors"] += ["failed at block 10" + ", " + $exc_type_str]
+    #set $inigoData["processingErrors"] += [{"error": "failed at block 35" + ", " + $exc_type_str}]
 #except
     #set $exc_info = $sys.exc_info()
     #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-    #set $inigoData["processingErrors"] += ["failed at block 11" + ", " + $exc_type_str]
+    #set $inigoData["processingErrors"] += [{"error": "failed at block 36" + ", " + $exc_type_str}]
 #end try
 ##
 ##

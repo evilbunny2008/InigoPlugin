@@ -16,18 +16,14 @@
     ##
     ##
     ##
-    #try
-        #set $var = "group_unit_dict"
-        #set $dict_data[$var] = $sort_dict($converter.group_unit_dict)
-        #set $var = "obs_group_dict"
-        #set $dict_data[$var] = $sort_dict($weewx.units.obs_group_dict)
-        #set $var = "unit_format_dict"
-        #set $dict_data[$var] = $sort_dict($formatter.unit_format_dict)
-        #set $var = "unit_label_dict"
-        #set $dict_data[$var] = $sort_dict($formatter.unit_label_dict)
-    #except
-        #set $dict_data["processingErrors"] += ["failed at block 1, var: " + $var]
-    #end try
+    #set $var = "group_unit_dict"
+    #set $dict_data[$var] = $sort_dict($converter.group_unit_dict)
+    #set $var = "obs_group_dict"
+    #set $dict_data[$var] = $sort_dict($weewx.units.obs_group_dict)
+    #set $var = "unit_format_dict"
+    #set $dict_data[$var] = $sort_dict($formatter.unit_format_dict)
+    #set $var = "unit_label_dict"
+    #set $dict_data[$var] = $sort_dict($formatter.unit_label_dict)
     ##
     ##
     ##
