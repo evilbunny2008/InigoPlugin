@@ -31,7 +31,7 @@ pip install numpy
 ### Install with rain reset at midnight or when updating
 
 ```
-sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/main.zip
 ```
 
 ### Install with the rain reset at 9am
@@ -41,7 +41,7 @@ Historically rainfall in Australia was given to 9am, so it's useful for comparis
 weeWX 5.3 allows command line arguments to be passed to extension installation scripts, so to use a different time of day use the --since-hour command line argument on first install with an hour between 0 and 23, otherwise midnight will be used.
 
 ```
-sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/master.zip --since-hour 9
+sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin/archive/main.zip --since-hour 9
 ```
 
 ### Non system package installs
@@ -49,7 +49,7 @@ sudo weectl extension install --yes https://github.com/evilbunny2008/InigoPlugin
 If weeWX was installed using pip you will need to use full paths for both weectl and the weewx.conf file.
 
 ```
-sudo /opt/weewx/weewx-venv/bin/weectl extension install --yes --config /opt/weewx/weewx-data/weewx.conf https://github.com/evilbunny2008/InigoPlugin/archive/master.zip 
+sudo /opt/weewx/weewx-venv/bin/weectl extension install --yes --config /opt/weewx/weewx-data/weewx.conf https://github.com/evilbunny2008/InigoPlugin/archive/main.zip 
 ```
 
 ## Installing the Skyfield almanac weeWX extension (optional)
@@ -59,7 +59,7 @@ If you would like to see next moon rise/set in the app, you need to install the 
 ```
 sudo apt update
 sudo apt -y install python3-pandas python3-skyfield
-sudo weectl extension install --yes https://github.com/roe-dl/weewx-skyfield-almanac/archive/master.zip
+sudo weectl extension install --yes https://github.com/roe-dl/weewx-skyfield-almanac/archive/main.zip
 ```
 
 or
