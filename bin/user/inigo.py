@@ -803,14 +803,14 @@ class InigoSearchList(weewx.cheetahgenerator.SearchList):
             if report_time is not None:
                 del dict_name["report_time"]
 
-            processingErrors = dict_name.get("processingErrors", None)
-            if processingErrors is not None:
-                del dict_name["processingErrors"]
-
             dict_version = dict_name.get("version", None)
 
             if dict_version is not None:
                 del dict_name["version"]
+
+            processingErrors = dict_name.get("processingErrors", None)
+            if processingErrors is not None:
+                del dict_name["processingErrors"]
 
             new_dict = dict(sorted(dict_name.items(), key=lambda x: x[0].lower()))
 
