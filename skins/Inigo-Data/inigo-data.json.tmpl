@@ -381,7 +381,7 @@
         #for $var_name_new_str in [$var_name_str + ".next_new_moon", $var_name_str + ".moon_phase", $var_name_str + ".moon_fullness"]
             #try
                 #set $var_name = $getVar($var_name_new_str)
-                #if $var_name is not None and $var_name.has_data
+                #if $var_name is not None
                     #set $inigoData[$var_name_new_str.replace(".", "_")] = $var_name
                 #else
                     #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 33, var_name_new_str: " + $var_name_new_str + ", no value"}]
