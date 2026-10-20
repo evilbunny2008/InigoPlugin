@@ -390,7 +390,9 @@
                 #for $var_name_new_str2 in $tmp_vars
                     #try
                         #set $line_num = 12
-                        #set $var_name_new = $getVar($var_name_new_str2)
+                        ## WeeWX uses next_rising/next_setting; keep legacy JSON keys for existing app clients.
+                        #set $var_name_lookup = $var_name_new_str2.replace(".next_rise", ".next_rising").replace(".next_set", ".next_setting")
+                        #set $var_name_new = $getVar($var_name_lookup)
                         #set $line_num = 13
                         #if $var_name_new is not None
                             #set $line_num = 14
