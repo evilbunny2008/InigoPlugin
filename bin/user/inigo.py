@@ -442,10 +442,11 @@ class StrorageClass():
 
 class PeriodicReportTiming(ReportTiming):
 
-    def __init__(self, raw_line, skin_dict):
+    def __init__(self, raw_line, skin_dict, weewx_root=""):
 
         self.create_if_missing = False
         self.skin_dict = skin_dict
+        self.weewx_root = weewx_root
 
         try:
             line_str = raw_line.strip()
@@ -454,6 +455,7 @@ class PeriodicReportTiming(ReportTiming):
 
         for unsupported_char in ('%', '#', 'L', 'W'):
             if unsupported_char in line_str:
+                self.raw_line = line_str
                 self.is_valid = False
                 self.validation_error = "Unsupported character '%s' in '%s'." % (unsupported_char,
                                                                                  self.raw_line)
@@ -483,11 +485,10 @@ class PeriodicReportTiming(ReportTiming):
 
             #log.info(f"self.skin_dict: {self.skin_dict}")
 
-            skin_dir = self.skin_dict["SKIN_ROOT"]
+            # SKIN_ROOT and HTML_ROOT may be relative to WEEWX_ROOT, and weewxd runs with a cwd of /
+            skin_dir = os.path.join(self.weewx_root, self.skin_dict["SKIN_ROOT"], self.skin_dict["skin"])
 
-            skin_dir = os.path.join(skin_dir, self.skin_dict["skin"])
-
-            html_dest_dir = self.skin_dict["HTML_ROOT"]
+            html_dest_dir = os.path.join(self.weewx_root, self.skin_dict["HTML_ROOT"])
 
             if os.path.exists(skin_dir):
 
@@ -575,7 +576,7 @@ def patched_run(self, reports=None):
             timing_line = skin_dict.get('report_timing')
             if timing_line:
                 # Get a ReportTiming object.
-                timing = PeriodicReportTiming(timing_line, skin_dict)
+                timing = PeriodicReportTiming(timing_line, skin_dict, self.config_dict['WEEWX_ROOT'])
                 if timing.is_valid:
                     # Get timestamp and interval, so we can check if the
                     # report timing is triggered.
