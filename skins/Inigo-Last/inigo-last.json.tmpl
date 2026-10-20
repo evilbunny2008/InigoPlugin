@@ -19,7 +19,7 @@
 #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
 #set $time_periods = ["yesterday", "last_month", "last_year"]
 ## Not every station has these, so don't log warnings when they're missing
-#set $optional_obs = ["radiation", "THSW", "UV"]
+#set $optional_obs = ["ET", "radiation", "THSW", "UV"]
 ##
 ## Rain uses since_hour (e.g. 9am to 9am), so yesterday's rain isn't complete until since_hour.
 ## Runs before since_hour (i.e. the midnight run) skip rain, the since_hour run includes it.
