@@ -21,13 +21,13 @@ InigoDataConfig = {
 InigoDictsConfig = {
     "skin": "Inigo-Dicts",
     "enable": "True",
-    "report_timing": "@yearly, @createIfMissing",
+    "report_timing": "@yearly,@createIfMissing",
 }
 
 InigoLastConfig = {
     "skin": "Inigo-Last",
     "enable": "True",
-    "report_timing": "@daily, @createIfMissing",
+    "report_timing": "@daily,@createIfMissing",
 }
 
 InigoReportConfigs = {
@@ -48,6 +48,15 @@ def fatal_error(error_str):
     print()
     print()
     raise weewx.UnsupportedFeature("Fatal Error")
+
+def normalise_report_timing(report_timing):
+
+    # weeWX only strips ",@createIfMissing" when there's no space before it, so drop the spaces around
+    # commas, eg a quoted "@yearly, @createIfMissing" would otherwise fail with "Insufficient fields"
+    if not isinstance(report_timing, str):
+        report_timing = ",".join(report_timing)
+
+    return ",".join(part.strip() for part in report_timing.split(","))
 
 def is_integer(s):
 
@@ -207,6 +216,14 @@ class InigoInstaller(ExtensionInstaller):
 
         since_hour = int(inigo_data_dict.get("since_hour", 0))
 
+        inigo_dicts_dict = stdreport_dict.get("Inigo-Dicts", None)
+        if inigo_dicts_dict is None:
+            stdreport_dict["Inigo-Dicts"] = InigoDictsConfig
+            inigo_dicts_dict = stdreport_dict.get("Inigo-Dicts")
+
+        if "report_timing" in inigo_dicts_dict:
+            inigo_dicts_dict["report_timing"] = normalise_report_timing(inigo_dicts_dict["report_timing"])
+
         inigo_last_dict = stdreport_dict.get("Inigo-Last", None)
         if inigo_last_dict is None:
             stdreport_dict["Inigo-Last"] = InigoLastConfig
@@ -215,15 +232,16 @@ class InigoInstaller(ExtensionInstaller):
         inigo_last_dict["since_hour"] = since_hour
 
         # Inigo-Last runs at midnight for everything, and again at since_hour once yesterday's rain is complete
-        report_timing = inigo_last_dict.get("report_timing", "")
-        if not isinstance(report_timing, str):
-            report_timing = ",".join(report_timing)
+        report_timing = normalise_report_timing(inigo_last_dict.get("report_timing", ""))
 
-        if report_timing.replace(" ", "") in ("", "@daily,@createIfMissing") or report_timing.startswith("0 0,"):
+        if report_timing in ("", "@daily,@createIfMissing") or report_timing.startswith("0 0,"):
             if since_hour == 0:
                 inigo_last_dict["report_timing"] = "@daily,@createIfMissing"
             else:
                 inigo_last_dict["report_timing"] = f"0 0,{since_hour} * * *,@createIfMissing"
+
+        elif report_timing != "":
+            inigo_last_dict["report_timing"] = report_timing
 
         if engine.dry_run:
             engine.printer.out(engine.config_dict)
