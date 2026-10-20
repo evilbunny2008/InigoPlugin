@@ -62,7 +62,7 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else
-                        #if $var != "THSW"
+                        #if $var in ["radiation", "THSW", "UV"]
                             #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
                         #end if
                     #end if
