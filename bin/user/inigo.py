@@ -18,7 +18,7 @@ import weewx.reportengine
 import weewx.units
 import weeutil.weeutil
 
-from collections import deque
+from collections import ChainMap, deque
 from datetime import datetime, timedelta
 from functools import reduce
 from pathlib import Path
@@ -49,6 +49,7 @@ current_ts = 0
 current_signal = 0
 current_count = 0
 cache_dir = "/tmp/inigo"
+weewx_root = ""
 pickle_filename = None
 
 last_report_ts = 0
@@ -193,7 +194,9 @@ def reset_peak_detector(class_name, db_lookup):
 
 def processConfigDict(class_name, config_dict):
 
-    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, VERSION, JSONversion
+    global lag, threshold, influence, peak_detector, trend_history, current_ts, current_signal, current_count, cache_dir, pickle_filename, VERSION, JSONversion, weewx_root
+
+    weewx_root = config_dict.get("WEEWX_ROOT", "")
 
     try:
         root_dict = weeutil.startup.extract_roots(config_dict)
@@ -663,10 +666,34 @@ def patched_run(self, reports=None):
             else:
                 log.debug("No generators specified for report '%s'", report)
 
+original_is_triggered = ReportTiming.is_triggered
+
+def patched_is_triggered(self, ts_hi, ts_lo=None):
+
+    # weeWX's @createIfMissing check uses SKIN_ROOT and HTML_ROOT as is, but they may be relative
+    # to WEEWX_ROOT and weewxd runs with a cwd of /, so the check never finds the skin and the
+    # report is skipped. Hand the check absolute paths for the duration of the call.
+    skin_dict = getattr(self, "skin_dict", None)
+
+    if not getattr(self, "create_if_missing", False) or skin_dict is None or weewx_root == "":
+        return original_is_triggered(self, ts_hi, ts_lo)
+
+    resolved = {key: os.path.join(weewx_root, skin_dict[key]) for key in ("SKIN_ROOT", "HTML_ROOT") if key in skin_dict}
+
+    self.skin_dict = ChainMap(resolved, skin_dict)
+
+    try:
+        return original_is_triggered(self, ts_hi, ts_lo)
+    finally:
+        self.skin_dict = skin_dict
+
 ReportTimingSig = inspect.signature(ReportTiming)
 if len(ReportTimingSig.parameters) == 1:
     log.info("Replacing weewx.reportengine.StdReportEngine.run with patched_run as ReportTiming takes 1 argument")
     weewx.reportengine.StdReportEngine.run = patched_run
+else:
+    log.info("Replacing weewx.reportengine.ReportTiming.is_triggered with patched_is_triggered to resolve relative SKIN_ROOT and HTML_ROOT")
+    ReportTiming.is_triggered = patched_is_triggered
 
 class InigoSearchList(weewx.cheetahgenerator.SearchList):
 
