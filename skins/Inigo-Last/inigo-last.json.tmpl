@@ -18,6 +18,8 @@
 ##
 #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
 #set $time_periods = ["yesterday", "last_month", "last_year"]
+## Not every station has these, so don't log warnings when they're missing
+#set $optional_obs = ["radiation", "THSW", "UV"]
 ##
 ## Rain uses since_hour (e.g. 9am to 9am), so yesterday's rain isn't complete until since_hour.
 ## Runs before since_hour (i.e. the midnight run) skip rain, the since_hour run includes it.
@@ -62,7 +64,7 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else
-                        #if $var in ["radiation", "THSW", "UV"]
+                        #if $var not in $optional_obs
                             #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
                         #end if
                     #end if
@@ -112,7 +114,9 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else            
-                        #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 7, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #if $var not in $optional_obs
+                            #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 7, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #end if
                     #end if
                 #except
                     #set $exc_info = $sys.exc_info()

@@ -25,6 +25,8 @@
 ##
 #set $vars = ["outTemp", "inTemp", "outHumidity", "inHumidity", "barometer", "dewpoint"]
 #set $time_periods = ["day", "month", "year", "alltime"]
+## Not every station has these, so don't log warnings when they're missing
+#set $optional_obs = ["radiation", "THSW", "UV"]
 ##
 ##
 ##
@@ -82,7 +84,7 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else
-                        #if $var in ["radiation", "THSW", "UV"]
+                        #if $var not in $optional_obs
                             #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 5, var_name_new_str: " + $var_name_new_str + ", no value"}]
                         #end if
                     #end if
@@ -127,12 +129,16 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
                 #else
-                    #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 9, var_name_str: " + $var_name_str + ", No value found"}]
+                    #if $var not in $optional_obs
+                        #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 9, var_name_str: " + $var_name_str + ", No value found"}]
+                    #end if
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                #set $inigoData["processingErrors"] += [{"type": "error", "msg": "failed at block 10, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
+                #if not ($var in $optional_obs and "UnknownObsType" in $exc_type_str)
+                    #set $inigoData["processingErrors"] += [{"type": "error", "msg": "failed at block 10, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
+                #end if
             #end try
         #end for
         ##
@@ -147,7 +153,9 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else            
-                        #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 11, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #if $var not in $optional_obs
+                            #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 11, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #end if
                     #end if
                 #except
                     #set $exc_info = $sys.exc_info()
@@ -233,15 +241,15 @@
                 #if $var_name is not None and $var_name.has_data
                     #set $inigoData[$var_name_str] = $raw_value($var_name, $var)
                 #else
-                    #if $var in ["radiation", "THSW", "UV"]
+                    #if $var not in $optional_obs
                         #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 18, var_name_str: " + $var_name_str + ", No value found"}]
                     #end if
                 #end if
             #except
                 #set $exc_info = $sys.exc_info()
                 #set $exc_type_str = $str($exc_info[0].__name__) + ": " + $str($exc_info[1])
-                ## THSW is an optional observation. Only suppress missing-observation exceptions.
-                #if not ($var in ["radiation", "THSW", "UV"] and "UnknownObsType" in $exc_type_str)
+                ## Only suppress missing-observation exceptions for optional observations.
+                #if not ($var in $optional_obs and "UnknownObsType" in $exc_type_str)
                     #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 19, var_name_str: " + $var_name_str + ", " + $exc_type_str}]
                 #end if
             #end try
