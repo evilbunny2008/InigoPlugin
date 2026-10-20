@@ -62,7 +62,9 @@
                     #if $var_name is not None and $var_name.has_data
                         #set $inigoData[$var_name_new_str] = $var_name
                     #else
-                        #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #if $var != "THSW"
+                            #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
+                        #end if
                     #end if
                 #except
                     #set $exc_info = $sys.exc_info()
