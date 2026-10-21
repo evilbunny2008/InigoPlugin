@@ -56,9 +56,9 @@
             #for $which in ["max", "maxtime", "min", "mintime"]
                 #try
                     #set $var_name_new_str = $var_name_str + "_" + $which
-                    #set $var_name = $getattr($current, $var_name_new_str, None)
+                    #set $var_name = $getattr($getattr($getVar($time_period), $var, None), $which, None)
                     #if $var_name is not None and $var_name.has_data
-                        #set $inigoData[$var_name_new_str] = $var_name
+                        #set $inigoData[$var_name_new_str] = $var_name.value_t.value
                     #else
                         #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 3, var_name_new_str: " + $var_name_new_str + ", no value"}]
                     #end if
@@ -80,9 +80,9 @@
             #for $which in ["max", "maxtime", "min", "mintime"]
                 #try
                     #set $var_name_new_str = $var_name_str + "_" + $which
-                    #set $var_name = $getattr($current, $var_name_new_str, None)
-                    #if $var_name is not None and $var_name.has_data
-                        #set $inigoData[$var_name_new_str] = $var_name
+                    #set $var_name = $getattr($getattr($getVar($time_period), $var, None), $which, None)
+                    #if $var_name is not None and $getattr($var_name, "has_data", False)
+                        #set $inigoData[$var_name_new_str] = $var_name.value_t.value
                     #else
                         #if $var not in $optional_obs
                             #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 5, var_name_new_str: " + $var_name_new_str + ", no value"}]
@@ -104,9 +104,9 @@
         #for $time_period in $time_periods
             #try
                 #set $var_name_str = $time_period + "_" + $var + "_sum"
-                #set $var_name = $getattr($current, $var_name_str, None)
+                #set $var_name = $getattr($getattr($getVar($time_period), $var, None), "sum", None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_str] = $var_name
+                    #set $inigoData[$var_name_str] = $var_name.value_t.value
                 #else
                     #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 7, var_name_str: " + $var_name_str + ", no value"}]
                 #end if
@@ -149,9 +149,9 @@
             #for $which in ["max", "maxtime"]
                 #try
                     #set $var_name_new_str = $var_name_str + "_" + $which
-                    #set $var_name = $getattr($current, $var_name_new_str, None)
+                    #set $var_name = $getattr($getattr($getVar($time_period), $var, None), $which, None)
                     #if $var_name is not None and $var_name.has_data
-                        #set $inigoData[$var_name_new_str] = $var_name
+                        #set $inigoData[$var_name_new_str] = $var_name.value_t.value
                     #else            
                         #if $var not in $optional_obs
                             #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 11, var_name_new_str: " + $var_name_new_str + ", no value"}]
