@@ -216,9 +216,9 @@
         #for $which in ["avg", "max", "gustdir", "maxtime", "vecdir"]
             #try
                 #set $var_name_new_str = $var_name_str + "_" + $which
-                #set $var_name = $getattr($current, $var_name_new_str, None)
+                #set $var_name = $getattr($getattr($getVar($time_period), $var, None), $which, None)
                 #if $var_name is not None and $var_name.has_data
-                    #set $inigoData[$var_name_new_str] = $var_name
+                    #set $inigoData[$var_name_new_str] = $var_name.value_t.value
                 #else
                     #set $inigoData["processingErrors"] += [{"type": "warning", "msg": "failed at block 16, var_name_new_str: " + $var_name_new_str + ", No value found"}]
                 #end if
