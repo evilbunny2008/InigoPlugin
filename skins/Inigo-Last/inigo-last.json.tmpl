@@ -132,7 +132,7 @@
     #set $var = "wind"
     #for $time_period in $time_periods
         #set $var_name_str = $time_period + "_" + $var
-        #for $which in ["avg", "max", "gustdir", "gustdir_str", "maxtime", "vecdir", "vecdir_str"]
+        #for $which in ["avg", "max", "gustdir", "maxtime", "vecdir"]
             #try
                 #set $var_name_new_str = $var_name_str + "_" + $which
                 #set $var_name = $getattr($current, $var_name_new_str, None)
